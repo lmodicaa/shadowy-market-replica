@@ -1,6 +1,16 @@
-import { Cloud, ExternalLink } from 'lucide-react';
+import { Cloud, ExternalLink, User, Settings, LogOut, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { createClient } from '@supabase/supabase-js';
+import { useLocation } from 'wouter';
 
 // Reemplaza con la URL y clave pública de anon de tu proyecto Supabase
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -8,6 +18,7 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const Navigation = ({ session }: { session: any }) => {
+  const [, navigate] = useLocation();
 
   const handleLogin = async () => {
     try {
@@ -71,15 +82,62 @@ const Navigation = ({ session }: { session: any }) => {
           </a>
         </div>
 
-        {/* Login Button */}
+        {/* User Menu / Login Button */}
         {session ? (
-          <Button 
-            variant="hero" 
-            className="shadow-lg"
-            onClick={handleLogout}
-          >
-            Logout
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="ghost" 
+                className="flex items-center gap-2 h-auto p-2 hover:bg-card/20 border border-border/30 backdrop-blur-sm"
+              >
+                <Avatar className="h-8 w-8">
+                  <AvatarImage 
+                    src={session.user?.user_metadata?.avatar_url} 
+                    alt={session.user?.user_metadata?.full_name || 'Usuario'} 
+                  />
+                  <AvatarFallback className="bg-cloud-blue/20 text-cloud-blue">
+                    {session.user?.user_metadata?.full_name?.charAt(0) || 
+                     session.user?.email?.charAt(0).toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="hidden sm:flex flex-col items-start">
+                  <span className="text-sm font-medium text-foreground">
+                    {session.user?.user_metadata?.full_name || 'Usuario'}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {session.user?.email}
+                  </span>
+                </div>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 bg-background/95 backdrop-blur-sm border border-border/30">
+              <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                className="cursor-pointer hover:bg-card/20"
+                onClick={() => navigate('/profile')}
+              >
+                <User className="mr-2 h-4 w-4" />
+                <span>Perfil</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="cursor-pointer hover:bg-card/20"
+                onClick={() => navigate('/settings')}
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Configuraciones</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                className="cursor-pointer hover:bg-card/20 text-red-600 dark:text-red-400"
+                onClick={handleLogout}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Cerrar Sesión</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         ) : (
           <Button 
             variant="hero" 
