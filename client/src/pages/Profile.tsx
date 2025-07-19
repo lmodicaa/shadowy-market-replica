@@ -6,9 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Mail, User, Edit2, Save, X } from 'lucide-react';
+import { Calendar, Mail, User, Edit2, Save, X, History } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
+import UserPlanStatus from '@/components/UserPlanStatus';
+import VMDashboard from '@/components/VMDashboard';
+import { useUserProfile, useSubscriptionHistory } from '@/hooks/useUserProfile';
 
 interface ProfileProps {
   session: any;
@@ -20,6 +23,10 @@ const Profile = ({ session }: ProfileProps) => {
   const [bio, setBio] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  
+  // Hooks para dados do usuário
+  const { data: userProfile } = useUserProfile(session?.user?.id);
+  const { data: subscriptionHistory } = useSubscriptionHistory(session?.user?.id);
 
   useEffect(() => {
     if (session?.user) {
@@ -171,79 +178,78 @@ const Profile = ({ session }: ProfileProps) => {
               </div>
 
               {/* Account Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                  <Calendar className="w-5 h-5 text-cloud-blue" />
                   <div>
-                    <Label className="text-base font-medium">Informações da Conta</Label>
-                    <div className="mt-2 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm">ID: {session.user?.id?.slice(0, 8)}...</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm">
-                          Membro desde: {formatDate(session.user?.created_at)}
-                        </span>
-                      </div>
-                    </div>
+                    <p className="text-sm font-medium">Membro desde</p>
+                    <p className="text-sm text-muted-foreground">
+                      {formatDate(session.user?.created_at)}
+                    </p>
                   </div>
                 </div>
-
-                <div className="space-y-4">
+                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                  <User className="w-5 h-5 text-cloud-blue" />
                   <div>
-                    <Label className="text-base font-medium">Provedor de Autenticação</Label>
-                    <div className="mt-2">
-                      <Badge variant="secondary" className="capitalize">
-                        {session.user?.app_metadata?.provider || 'discord'}
-                      </Badge>
-                    </div>
+                    <p className="text-sm font-medium">Tipo de conta</p>
+                    <Badge variant="secondary">Usuário Discord</Badge>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Additional Info Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="bg-card/50 backdrop-blur-sm border-border/30">
-              <CardHeader>
-                <CardTitle className="text-lg">Estatísticas</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Sessões iniciadas</span>
-                    <span className="font-medium">-</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Última atividade</span>
-                    <span className="font-medium">
-                      {formatDate(session.user?.last_sign_in_at || session.user?.created_at)}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          {/* VM Dashboard */}
+          <VMDashboard userId={session?.user?.id} />
 
+          {/* Plan Status Card */}
+          <UserPlanStatus 
+            userId={session?.user?.id}
+            onUpgrade={() => {
+              document.getElementById('planos')?.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+              });
+              window.location.href = '/#planos';
+            }}
+          />
+
+          {/* Subscription History */}
+          {subscriptionHistory && subscriptionHistory.length > 0 && (
             <Card className="bg-card/50 backdrop-blur-sm border-border/30">
               <CardHeader>
-                <CardTitle className="text-lg">Preferências</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <History className="w-5 h-5" />
+                  Histórico de Assinaturas
+                </CardTitle>
+                <CardDescription>
+                  Suas assinaturas anteriores e atuais
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Idioma</span>
-                    <span className="font-medium">Português</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Fuso horário</span>
-                    <span className="font-medium">{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>
-                  </div>
+                <div className="space-y-3">
+                  {subscriptionHistory.map((subscription: any) => (
+                    <div key={subscription.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                      <div>
+                        <p className="font-medium">Plano {subscription.plan_name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Criado em {formatDate(subscription.created_at)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium">
+                          Expira em {formatDate(subscription.end_date)}
+                        </p>
+                        <Badge variant={new Date(subscription.end_date) > new Date() ? "default" : "secondary"}>
+                          {new Date(subscription.end_date) > new Date() ? "Ativo" : "Expirado"}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
-          </div>
+          )}
         </div>
       </div>
     </div>

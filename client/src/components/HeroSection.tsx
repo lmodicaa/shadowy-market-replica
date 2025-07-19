@@ -33,6 +33,10 @@ const HeroSection = () => {
             size="lg" 
             variant="hero"
             className="text-lg px-8 py-4 shadow-xl"
+            onClick={() => {
+              // Redirecionar para a página de VM Dashboard (profile page)
+              window.location.href = '/profile';
+            }}
           >
             <Power className="w-5 h-5 mr-2" />
             Ligar VM

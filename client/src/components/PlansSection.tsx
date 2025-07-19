@@ -2,6 +2,8 @@ import { Check, Crown, Zap, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useCreateSubscription } from '@/hooks/useUserProfile';
+import { useToast } from '@/hooks/use-toast';
 
 const plans = [
   {
@@ -57,19 +59,48 @@ const plans = [
   }
 ];
 
-const PlansSection = () => {
-  const handleSelectPlan = (planName: string) => {
-    // Implementar lógica de seleção do plano
-    console.log(`Plano selecionado: ${planName}`);
-    
-    // Simular redirecionamento para página de checkout
-    const checkoutUrl = `https://checkout.matecloud.com.br/plan/${planName.toLowerCase()}`;
-    
-    // Por enquanto, vamos mostrar um alerta
-    alert(`Você selecionou o plano ${planName}!\n\nEm breve você será redirecionado para finalizar a compra.`);
-    
-    // Em um cenário real, você redirecionaria para:
-    // window.open(checkoutUrl, '_blank');
+interface PlansSectionProps {
+  session?: any;
+  onPlanSelect?: (planName: string) => void;
+}
+
+const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
+  const createSubscription = useCreateSubscription();
+  const { toast } = useToast();
+
+  const handleSelectPlan = async (planName: string) => {
+    if (!session?.user?.id) {
+      toast({
+        title: "Login necessário",
+        description: "Você precisa fazer login para escolher um plano.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await createSubscription.mutateAsync({
+        userId: session.user.id,
+        planName,
+        duration: 30, // 30 dias
+      });
+
+      toast({
+        title: "Plano ativado com sucesso!",
+        description: `Seu plano ${planName} foi ativado por 30 dias.`,
+      });
+
+      // Chamar callback se fornecido
+      onPlanSelect?.(planName);
+
+    } catch (error) {
+      console.error('Erro ao ativar plano:', error);
+      toast({
+        title: "Erro ao ativar plano",
+        description: "Ocorreu um erro ao processar sua solicitação. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -139,6 +170,7 @@ const PlansSection = () => {
                 
                 <Button 
                   onClick={() => handleSelectPlan(plan.name)}
+                  disabled={createSubscription.isPending}
                   className={`w-full ${
                     plan.popular 
                       ? 'bg-cloud-blue hover:bg-cloud-blue/90 text-white' 
@@ -146,7 +178,7 @@ const PlansSection = () => {
                   }`}
                   size="lg"
                 >
-                  Escolher {plan.name}
+                  {createSubscription.isPending ? 'Processando...' : `Escolher ${plan.name}`}
                 </Button>
               </CardContent>
             </Card>

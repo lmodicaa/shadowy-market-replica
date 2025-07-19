@@ -34,7 +34,7 @@ const Index = ({ session }: IndexProps) => {
       <main className="relative z-10">
         <HeroSection />
         <FeaturesSection />
-        <PlansSection />
+        <PlansSection session={session} />
         <TutorialsSection />
       </main>
     </div>

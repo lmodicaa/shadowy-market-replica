@@ -19,6 +19,10 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - [x] Application tested and verified working
 - [x] Translation from Spanish to Brazilian Portuguese completed
 - [x] Plans section implemented with functional navigation
+- [x] Database schema integration with Supabase tables
+- [x] VM Dashboard with plan-based specifications
+- [x] Plan subscription and management system
+- [x] User profile with subscription history
 
 ## Key Components
 - StarField background animation
@@ -26,6 +30,9 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - Hero, Features, Plans, and Tutorials sections
 - User authentication flow with Supabase
 - Interactive Plans section with 3 subscription tiers
+- VM Dashboard with machine control and specifications
+- User Plan Status tracking with expiration monitoring
+- Subscription history and plan management system
 
 ## Security Considerations
 - Client/server separation maintained
@@ -44,6 +51,11 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - Implemented smooth scroll navigation between sections (Início, Planos, FAQ, Tutoriais)
 - Added functional "Ver planos" button with smooth scrolling behavior
 - Created interactive plan selection with pricing and feature comparison
+- Integrated Supabase database schema with profiles, plans, and subscriptions tables
+- Implemented user profile management with plan status tracking
+- Added VM Dashboard with simulated machine management (start/stop/specs)
+- Created subscription history tracking and plan expiration monitoring
+- Added real-time plan status with days remaining calculation
 
 ## User Preferences
 - Language: Portuguese (Brazilian Portuguese) - converted from Spanish
