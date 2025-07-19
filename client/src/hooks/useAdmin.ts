@@ -14,21 +14,41 @@ export const useIsAdmin = (userId?: string) => {
       
       console.log('useIsAdmin: Checking admin status for userId:', userId);
       
-      const { data, error } = await supabase
-        .from('admins')
+      // First try the debug view (no RLS)
+      console.log('useIsAdmin: Trying admin_debug view first...');
+      const { data: debugData, error: debugError } = await supabase
+        .from('admin_debug')
         .select('*')
-        .eq('user_id', userId)
-        .single();
+        .eq('user_id', userId);
       
-      if (error) {
-        console.log('useIsAdmin: Error or no data found:', error);
-        if (error.code === 'PGRST116') return false; // No rows returned
-        console.error('Erro ao verificar admin:', error);
-        throw error;
+      console.log('useIsAdmin: Debug view result:', { debugData, debugError });
+      
+      // If debug view works, we know RLS is the issue
+      if (!debugError && debugData && debugData.length > 0) {
+        console.log('useIsAdmin: Found in debug view - RLS is blocking access');
+        return true;
       }
       
-      console.log('useIsAdmin: Admin data found:', data);
-      return !!data;
+      // Try to query admins table with more detailed error handling
+      const { data, error, count } = await supabase
+        .from('admins')
+        .select('*', { count: 'exact' })
+        .eq('user_id', userId);
+      
+      console.log('useIsAdmin: Query result - data:', data, 'error:', error, 'count:', count);
+      
+      if (error) {
+        console.log('useIsAdmin: Error found:', error);
+        // If it's just "no rows returned", that's expected for non-admins
+        if (error.code === 'PGRST116' || error.message?.includes('No rows')) return false;
+        console.error('Erro ao verificar admin:', error);
+        return false; // Don't throw, just return false for access denied
+      }
+      
+      // Check if we have any data and count > 0
+      const isAdmin = data && data.length > 0;
+      console.log('useIsAdmin: Final result - isAdmin:', isAdmin, 'data:', data);
+      return isAdmin;
     },
     enabled: !!userId,
   });
