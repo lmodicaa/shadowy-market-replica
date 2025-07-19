@@ -11,11 +11,10 @@ const Navigation = ({ session }: { session: any }) => {
 
   const handleLogin = async () => {
     try {
-      // Get the current origin, but ensure it's the Replit URL
-      const origin = window.location.origin;
-      const redirectUrl = origin.includes('localhost') ? 
-        origin.replace('localhost:8081', window.location.host) : 
-        origin;
+      // Use the current window location origin, which will be the Replit URL
+      const redirectUrl = window.location.origin;
+      
+      console.log('Attempting login with redirect URL:', redirectUrl);
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'discord',
