@@ -49,10 +49,9 @@ const AdminUserManagement = () => {
       console.log('Connection test:', testConnection);
       setDebugInfo({ step: 'connection_test', result: testConnection });
       
-      // Test admin check
-      const adminCheck = await supabase.from('admins').select('*').eq('user_id', editingUser.id);
-      console.log('Admin check for user:', adminCheck);
-      setDebugInfo(prev => ({ ...prev, admin_check: adminCheck }));
+      // Skip admin check to avoid recursion
+      console.log('Skipping admin check to avoid recursion');
+      setDebugInfo(prev => ({ ...prev, admin_check: 'skipped_recursion' }));
       
       // Try direct update with minimal data
       const directTest = await supabase
