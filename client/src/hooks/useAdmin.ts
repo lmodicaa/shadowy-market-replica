@@ -7,7 +7,12 @@ export const useIsAdmin = (userId?: string) => {
   return useQuery({
     queryKey: ['isAdmin', userId],
     queryFn: async () => {
-      if (!userId) return false;
+      if (!userId) {
+        console.log('useIsAdmin: No userId provided');
+        return false;
+      }
+      
+      console.log('useIsAdmin: Checking admin status for userId:', userId);
       
       const { data, error } = await supabase
         .from('admins')
@@ -16,11 +21,13 @@ export const useIsAdmin = (userId?: string) => {
         .single();
       
       if (error) {
+        console.log('useIsAdmin: Error or no data found:', error);
         if (error.code === 'PGRST116') return false; // No rows returned
         console.error('Erro ao verificar admin:', error);
         throw error;
       }
       
+      console.log('useIsAdmin: Admin data found:', data);
       return !!data;
     },
     enabled: !!userId,
