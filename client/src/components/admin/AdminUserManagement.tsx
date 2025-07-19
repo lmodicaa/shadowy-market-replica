@@ -34,7 +34,7 @@ const AdminUserManagement = () => {
     try {
       await updateUserPlan.mutateAsync({
         userId: editingUser.id,
-        planName: newPlan || null,
+        planName: newPlan === 'none' ? null : newPlan,
         duration: planDuration,
       });
 
@@ -202,7 +202,7 @@ const AdminUserManagement = () => {
                             size="sm"
                             onClick={() => {
                               setEditingUser(user);
-                              setNewPlan(user.active_plan || '');
+                              setNewPlan(user.active_plan || 'none');
                             }}
                           >
                             <Edit className="w-4 h-4" />
@@ -227,7 +227,7 @@ const AdminUserManagement = () => {
                                   <SelectValue placeholder="Selecionar plano" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="">Sem plano</SelectItem>
+                                  <SelectItem value="none">Sem plano</SelectItem>
                                   <SelectItem value="Básico">Básico</SelectItem>
                                   <SelectItem value="Gamer">Gamer</SelectItem>
                                   <SelectItem value="Pro">Pro</SelectItem>

@@ -251,10 +251,12 @@ export const useUpdateUserPlan = () => {
     }) => {
       const endDate = planName ? new Date(Date.now() + duration * 24 * 60 * 60 * 1000) : null;
       
+      const finalPlanName = planName === 'none' ? null : planName;
+      
       const { data, error } = await supabase
         .from('profiles')
         .update({
-          active_plan: planName,
+          active_plan: finalPlanName,
           active_plan_until: endDate?.toISOString() || null,
           updated_at: new Date().toISOString(),
         })
