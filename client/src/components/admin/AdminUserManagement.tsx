@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAllUsers, useUpdateUserPlan, useDeleteUser } from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
 
 const AdminUserManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -40,13 +41,15 @@ const AdminUserManagement = () => {
     });
 
     try {
+      console.log('Starting plan update process...');
+      
       const result = await updateUserPlan.mutateAsync({
         userId: editingUser.id,
         planName: newPlan === 'none' ? null : newPlan,
         duration: planDuration,
       });
 
-      console.log('Plan update result:', result);
+      console.log('Plan update successful:', result);
 
       toast({
         title: "Plano atualizado",
