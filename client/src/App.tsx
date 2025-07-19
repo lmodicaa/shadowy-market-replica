@@ -5,33 +5,60 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Router, Route, Switch } from "wouter";
 import { queryClient } from "@/lib/queryClient";
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from "@/lib/supabase";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Footer from "./components/Footer";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 const App = () => {
   const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
+    // Obtener sesión inicial
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error getting session:', error);
+        }
+        setSession(session);
+      } catch (error) {
+        console.error('Error in getInitialSession:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    getInitialSession();
+
+    // Escuchar cambios de autenticación
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state change:', event, session?.user?.email);
       setSession(session);
+      setLoading(false);
+
+      // Limpiar URL después de autenticación exitosa
+      if (event === 'SIGNED_IN' && session && window.location.hash.includes('access_token=')) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Mostrar loading mientras se verifica la sesión inicial
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cloud-blue"></div>
+      </div>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
