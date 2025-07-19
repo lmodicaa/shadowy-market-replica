@@ -6,7 +6,7 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 ## Project Architecture
 - **Frontend**: React with TypeScript, using wouter for routing (converted from React Router)
 - **Backend**: Express.js server with TypeScript
-- **Database**: PostgreSQL with Drizzle ORM (migrated from MemStorage to DatabaseStorage)
+- **Database**: Supabase PostgreSQL (using existing user database with SupabaseStorage)
 - **Authentication**: Supabase authentication integration with Discord OAuth
 - **Styling**: Tailwind CSS with shadcn/ui components and custom space theme
 - **Build Tool**: Vite with custom server setup

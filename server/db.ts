@@ -18,9 +18,5 @@ if (!supabaseServiceKey) {
 // Create Supabase client for server operations
 export const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-// For direct database operations with Drizzle, we can use the connection string
-// This is optional - you can choose to use either Supabase client or Drizzle
-const connectionString = process.env.DATABASE_URL || `postgresql://postgres:[password]@db.${supabaseUrl.split('//')[1].split('.')[0]}.supabase.co:5432/postgres`;
-
-export const queryClient = postgres(connectionString);
-export const db = drizzle(queryClient, { schema });
+// Use Supabase client for database operations - it's simpler and handles auth automatically
+export const db = supabase;
