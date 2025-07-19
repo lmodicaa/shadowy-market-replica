@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import StarField from '@/components/StarField';
 import Navigation from '@/components/Navigation';
 import HeroSection from '@/components/HeroSection';
@@ -13,13 +13,13 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 const Index = () => {
   const [session, setSession] = useState(null);
-  const navigate = useNavigate();
+  const [location, navigate] = useLocation();
 
   useEffect(() => {
     // Manejar la URL al cargar la página
     if (window.location.hash.includes('access_token=')) {
       console.log('URL con token, redirigiendo para limpiar.');
-      navigate('/', { replace: true });
+      navigate('/');
       return; // Salir del efecto después de redirigir
     }
 
