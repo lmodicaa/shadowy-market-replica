@@ -7,7 +7,7 @@ const HeroSection = () => {
       {/* Cloud Logo with Glow */}
       <div className="absolute top-1/3 transform -translate-y-1/2">
         <div className="flex items-center gap-3 mb-8 float-animation">
-          <div className="p-3 rounded-xl bg-gradient-glow backdrop-blur-sm glow-effect">
+          <div className="p-3 rounded-xl bg-card/20 backdrop-blur-sm border border-border/30 shadow-lg">
             <Cloud className="w-8 h-8 text-cloud-blue" />
           </div>
           <span className="text-lg font-semibold text-foreground/80">DarkCloud</span>
@@ -31,7 +31,8 @@ const HeroSection = () => {
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Button 
             size="lg" 
-            className="bg-gradient-button hover:opacity-90 transition-all transform hover:scale-105 glow-effect text-lg px-8 py-4"
+            variant="hero"
+            className="text-lg px-8 py-4 shadow-xl"
           >
             <Power className="w-5 h-5 mr-2" />
             Ligar VM
@@ -40,7 +41,7 @@ const HeroSection = () => {
           <Button 
             size="lg" 
             variant="outline" 
-            className="border-cloud-blue/30 text-foreground hover:bg-cloud-blue/10 transition-all transform hover:scale-105 text-lg px-8 py-4"
+            className="text-lg px-8 py-4 shadow-lg"
           >
             <Calendar className="w-5 h-5 mr-2" />
             Ver planos

@@ -22,7 +22,7 @@ const TutorialsSection = () => {
         {/* Header */}
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-gradient-glow backdrop-blur-sm">
+            <div className="p-2 rounded-lg bg-card/20 backdrop-blur-sm border border-border/30">
               <Cloud className="w-6 h-6 text-cloud-blue" />
             </div>
             <span className="text-lg font-semibold text-foreground/80">DarkCloud | Tutoriais</span>
@@ -43,7 +43,7 @@ const TutorialsSection = () => {
           {tutorials.map((tutorial, index) => (
             <Card 
               key={index} 
-              className="bg-card/30 backdrop-blur-sm border-cloud-blue/20 hover:border-cloud-blue/40 transition-all duration-300 overflow-hidden group"
+              className="hover:border-cloud-blue/40 transition-all duration-300 overflow-hidden group hover:shadow-xl"
             >
               <div className="relative">
                 <img 
@@ -54,7 +54,8 @@ const TutorialsSection = () => {
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center group-hover:bg-black/30 transition-colors">
                   <Button 
                     size="lg" 
-                    className="bg-gradient-button hover:opacity-90 transition-all transform hover:scale-110 glow-effect"
+                    variant="hero"
+                    className="shadow-xl"
                   >
                     <Play className="w-6 h-6 mr-2" />
                     Assistir

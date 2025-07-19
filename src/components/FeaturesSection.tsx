@@ -31,7 +31,7 @@ const FeaturesSection = () => {
         {/* Header */}
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-gradient-glow backdrop-blur-sm">
+            <div className="p-2 rounded-lg bg-card/20 backdrop-blur-sm border border-border/30">
               <Cloud className="w-6 h-6 text-cloud-blue" />
             </div>
             <span className="text-lg font-semibold text-foreground/80">DarkCloud | FAQ</span>
@@ -53,10 +53,10 @@ const FeaturesSection = () => {
           {features.map((feature, index) => (
             <Card 
               key={index} 
-              className="bg-card/30 backdrop-blur-sm border-cloud-blue/20 hover:border-cloud-blue/40 transition-all duration-300 hover:transform hover:scale-105"
+              className="hover:border-cloud-blue/40 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-xl"
             >
               <CardContent className="p-6 text-center">
-                <div className="inline-flex p-3 rounded-xl bg-gradient-glow mb-4">
+                <div className="inline-flex p-3 rounded-xl bg-card/30 backdrop-blur-sm border border-border/30 mb-4">
                   <feature.icon className="w-8 h-8 text-cloud-blue" />
                 </div>
                 
