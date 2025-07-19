@@ -10,7 +10,7 @@ const HeroSection = () => {
           <div className="p-2 rounded-lg bg-card/10 backdrop-blur-sm border border-cloud-blue/20">
             <Cloud className="w-5 h-5 text-cloud-blue" />
           </div>
-          <span className="text-sm font-medium text-foreground/60">DarkCloud</span>
+          <span className="text-sm font-medium text-foreground/60">MateCloud</span>
         </div>
       </div>
 
@@ -19,7 +19,7 @@ const HeroSection = () => {
         <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight mt-16">
           Jogue em qualquer lugar
           <br />
-          com <span className="text-cloud-blue">DarkCloud</span>
+          com <span className="text-cloud-blue">MateCloud</span>
         </h1>
         
         <p className="text-xl md:text-2xl text-foreground/70 mb-12 max-w-3xl mx-auto leading-relaxed">

@@ -25,7 +25,7 @@ const TutorialsSection = () => {
             <div className="p-2 rounded-lg bg-card/20 backdrop-blur-sm border border-border/30">
               <Cloud className="w-6 h-6 text-cloud-blue" />
             </div>
-            <span className="text-lg font-semibold text-foreground/80">DarkCloud | Tutoriais</span>
+            <span className="text-lg font-semibold text-foreground/80">MateCloud | Tutoriais</span>
           </div>
           
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
@@ -34,7 +34,7 @@ const TutorialsSection = () => {
           
           <p className="text-xl text-foreground/70 max-w-3xl mx-auto">
             Confira nossos tutoriais para aprender a configurar e utilizar 
-            sua máquina virtual na DarkCloud.
+            sua máquina virtual na MateCloud.
           </p>
         </div>
 

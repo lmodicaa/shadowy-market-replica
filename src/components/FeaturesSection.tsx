@@ -34,12 +34,12 @@ const FeaturesSection = () => {
             <div className="p-2 rounded-lg bg-card/20 backdrop-blur-sm border border-border/30">
               <Cloud className="w-6 h-6 text-cloud-blue" />
             </div>
-            <span className="text-lg font-semibold text-foreground/80">DarkCloud | FAQ</span>
+            <span className="text-lg font-semibold text-foreground/80">MateCloud | FAQ</span>
           </div>
           
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
             Por que escolher a
-            <span className="text-cloud-blue"> DarkCloud</span>
+            <span className="text-cloud-blue"> MateCloud</span>
           </h2>
           
           <p className="text-xl text-foreground/70 max-w-3xl mx-auto">
