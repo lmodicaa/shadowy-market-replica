@@ -22,10 +22,11 @@ const AdminPlanManagement = () => {
   const updatePlanStock = useUpdatePlanStock();
   const { toast } = useToast();
 
-  const plans = [
-    { id: 1, name: 'Básico', price: 'R$ 49', description: 'Ideal para jogos casuais' },
-    { id: 2, name: 'Gamer', price: 'R$ 99', description: 'Perfeito para gamers intermediários' },
-    { id: 3, name: 'Pro', price: 'R$ 199', description: 'Para profissionais e streamers' },
+  // Get plans from planStock data or use fallback
+  const plans = planStock?.map(stock => stock.plans).filter(Boolean) || [
+    { id: '1', name: 'Básico', price: 'R$ 49', description: 'Ideal para jogos casuais' },
+    { id: '2', name: 'Gamer', price: 'R$ 99', description: 'Perfeito para gamers intermediários' },
+    { id: '3', name: 'Pro', price: 'R$ 199', description: 'Para profissionais e streamers' },
   ];
 
   const handleUpdateStock = async () => {
@@ -54,7 +55,7 @@ const AdminPlanManagement = () => {
     }
   };
 
-  const getCurrentStock = (planId: number) => {
+  const getCurrentStock = (planId: string) => {
     return planStock?.find(stock => stock.plan_id === planId) || {
       available_slots: 0,
       total_slots: 0,

@@ -15,17 +15,18 @@ export const profiles = pgTable("profiles", {
 
 // Tabela de planos disponíveis
 export const plans = pgTable("plans", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull().unique(),
   price: text("price").notNull(),
   description: text("description"),
+  created_at: timestamp("created_at").defaultNow(),
 });
 
 // Tabela de assinaturas/histórico de planos
 export const subscriptions = pgTable("subscriptions", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   user_id: uuid("user_id").notNull(), // Referência ao profiles.id
-  plan_id: integer("plan_id").notNull(), // Referência ao plans.id
+  plan_id: uuid("plan_id").notNull(), // Referência ao plans.id
   plan_name: text("plan_name").notNull(),
   end_date: timestamp("end_date").notNull(),
   created_at: timestamp("created_at").defaultNow(),
@@ -33,7 +34,7 @@ export const subscriptions = pgTable("subscriptions", {
 
 // Tabela de configurações administrativas
 export const admin_settings = pgTable("admin_settings", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   key: text("key").notNull().unique(),
   value: text("value").notNull(),
   description: text("description"),
@@ -42,8 +43,8 @@ export const admin_settings = pgTable("admin_settings", {
 
 // Tabela de estoque de planos
 export const plan_stock = pgTable("plan_stock", {
-  id: serial("id").primaryKey(),
-  plan_id: integer("plan_id").notNull(), // Referência ao plans.id
+  id: uuid("id").primaryKey().defaultRandom(),
+  plan_id: uuid("plan_id").notNull(), // Referência ao plans.id
   available_slots: integer("available_slots").notNull().default(0),
   total_slots: integer("total_slots").notNull().default(0),
   is_available: boolean("is_available").notNull().default(true),
@@ -52,7 +53,7 @@ export const plan_stock = pgTable("plan_stock", {
 
 // Tabela de administradores
 export const admins = pgTable("admins", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   user_id: uuid("user_id").notNull().unique(), // Referência ao profiles.id
   role: text("role").notNull().default("admin"), // admin, super_admin
   permissions: text("permissions").array(), // array de permissões

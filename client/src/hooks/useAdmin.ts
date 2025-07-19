@@ -154,7 +154,7 @@ export const useUpdatePlanStock = () => {
       totalSlots, 
       isAvailable 
     }: { 
-      planId: number; 
+      planId: string; 
       availableSlots: number; 
       totalSlots: number; 
       isAvailable: boolean; 
