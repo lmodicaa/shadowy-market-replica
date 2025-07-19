@@ -17,6 +17,7 @@ const AdminUserManagement = () => {
   const [editingUser, setEditingUser] = useState<any>(null);
   const [newPlan, setNewPlan] = useState('');
   const [planDuration, setPlanDuration] = useState(30);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
 
   const { data: users, isLoading } = useAllUsers();
   const updateUserPlan = useUpdateUserPlan();
@@ -43,6 +44,30 @@ const AdminUserManagement = () => {
     try {
       console.log('Starting plan update process...');
       
+      // Test direct Supabase connection first
+      const testConnection = await supabase.from('profiles').select('id').limit(1);
+      console.log('Connection test:', testConnection);
+      setDebugInfo({ step: 'connection_test', result: testConnection });
+      
+      // Test admin check
+      const adminCheck = await supabase.from('admins').select('*').eq('user_id', editingUser.id);
+      console.log('Admin check for user:', adminCheck);
+      setDebugInfo(prev => ({ ...prev, admin_check: adminCheck }));
+      
+      // Try direct update with minimal data
+      const directTest = await supabase
+        .from('profiles')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', editingUser.id)
+        .select();
+      
+      console.log('Direct update test:', directTest);
+      setDebugInfo(prev => ({ ...prev, direct_test: directTest }));
+      
+      if (directTest.error) {
+        throw new Error(`Permission Error: ${directTest.error.message} (Code: ${directTest.error.code})`);
+      }
+      
       const result = await updateUserPlan.mutateAsync({
         userId: editingUser.id,
         planName: newPlan === 'none' ? null : newPlan,
@@ -58,8 +83,11 @@ const AdminUserManagement = () => {
 
       setEditingUser(null);
       setNewPlan('');
+      setDebugInfo(null);
     } catch (error) {
       console.error('Plan update error:', error);
+      setDebugInfo(prev => ({ ...prev, error: error }));
+      
       toast({
         title: "Erro",
         description: `Erro ao atualizar plano: ${error?.message || 'Erro desconhecido'}`,
@@ -129,6 +157,18 @@ const AdminUserManagement = () => {
 
   return (
     <div className="space-y-6">
+      {/* Debug Info */}
+      {debugInfo && (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="p-4">
+            <h4 className="font-semibold text-orange-800 mb-2">Debug Info:</h4>
+            <pre className="text-xs text-orange-700 overflow-auto max-h-32">
+              {JSON.stringify(debugInfo, null, 2)}
+            </pre>
+          </CardContent>
+        </Card>
+      )}
+      
       {/* Header with Search */}
       <Card>
         <CardHeader>
