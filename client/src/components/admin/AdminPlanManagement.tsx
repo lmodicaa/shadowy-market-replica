@@ -22,12 +22,8 @@ const AdminPlanManagement = () => {
   const updatePlanStock = useUpdatePlanStock();
   const { toast } = useToast();
 
-  // Get plans from planStock data or use fallback
-  const plans = planStock?.map(stock => stock.plans).filter(Boolean) || [
-    { id: '1', name: 'Básico', price: 'R$ 49', description: 'Ideal para jogos casuais' },
-    { id: '2', name: 'Gamer', price: 'R$ 99', description: 'Perfeito para gamers intermediários' },
-    { id: '3', name: 'Pro', price: 'R$ 199', description: 'Para profissionais e streamers' },
-  ];
+  // Get plans from planStock data
+  const plans = planStock?.map(stock => stock.plans).filter(Boolean) || [];
 
   const handleUpdateStock = async () => {
     if (!editingPlan) return;

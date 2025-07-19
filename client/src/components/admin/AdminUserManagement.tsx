@@ -24,6 +24,7 @@ const AdminUserManagement = () => {
 
   const filteredUsers = users?.filter(user => 
     user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.id.includes(searchTerm)
   ) || [];
 
@@ -127,7 +128,7 @@ const AdminUserManagement = () => {
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar por nome ou ID..."
+                placeholder="Buscar por nome, email ou ID..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -159,7 +160,13 @@ const AdminUserManagement = () => {
                     
                     <div>
                       <h3 className="font-semibold">{user.username || 'Sem nome'}</h3>
-                      <p className="text-sm text-muted-foreground">ID: {user.id.slice(0, 8)}...</p>
+                      {user.email && (
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <Mail className="w-3 h-3" />
+                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                        </div>
+                      )}
+                      <p className="text-xs text-muted-foreground">ID: {user.id.slice(0, 8)}...</p>
                       <div className="flex items-center gap-2 mt-1">
                         <Calendar className="w-3 h-3" />
                         <span className="text-xs text-muted-foreground">
