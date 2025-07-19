@@ -31,19 +31,9 @@ const Index = ({ session }: IndexProps) => {
 
       {/* Main Content */}
       <main className="relative z-10">
-        {/* Ejemplo de contenido condicional */}
-        {session ? (
-          <div>
-            <h2>¡Bienvenido, {session.user.email}!</h2>
-            {/* Aquí puedes agregar contenido para usuarios logueados */}
-          </div>
-        ) : (
-          <>
-            <HeroSection />
-            <FeaturesSection />
-            <TutorialsSection />
-          </>
-        )}
+        <HeroSection />
+        <FeaturesSection />
+        <TutorialsSection />
       </main>
     </div>
   );

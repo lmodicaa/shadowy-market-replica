@@ -36,6 +36,9 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - Fixed OAuth redirect URL issues for Discord authentication
 - Implemented proper login/logout functionality
 - Applied custom space theme with CSS variables
+- Implemented user menu with profile and settings dropdown
+- Created Profile and Settings pages with user data management
+- Fixed main page display issue after authentication
 
 ## User Preferences
 - Language: Spanish (based on comments in code)
