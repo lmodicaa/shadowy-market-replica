@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import Footer from "./components/Footer";
 
@@ -70,6 +71,7 @@ const App = () => {
             <Route path="/" component={() => <Index session={session} />} />
             <Route path="/profile" component={() => <Profile session={session} />} />
             <Route path="/settings" component={() => <Settings session={session} />} />
+            <Route path="/admin" component={() => <Admin session={session} />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route component={NotFound} />
           </Switch>

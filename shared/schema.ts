@@ -31,6 +31,34 @@ export const subscriptions = pgTable("subscriptions", {
   created_at: timestamp("created_at").defaultNow(),
 });
 
+// Tabela de configurações administrativas
+export const admin_settings = pgTable("admin_settings", {
+  id: serial("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  value: text("value").notNull(),
+  description: text("description"),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+// Tabela de estoque de planos
+export const plan_stock = pgTable("plan_stock", {
+  id: serial("id").primaryKey(),
+  plan_id: integer("plan_id").notNull(), // Referência ao plans.id
+  available_slots: integer("available_slots").notNull().default(0),
+  total_slots: integer("total_slots").notNull().default(0),
+  is_available: boolean("is_available").notNull().default(true),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+// Tabela de administradores
+export const admins = pgTable("admins", {
+  id: serial("id").primaryKey(),
+  user_id: uuid("user_id").notNull().unique(), // Referência ao profiles.id
+  role: text("role").notNull().default("admin"), // admin, super_admin
+  permissions: text("permissions").array(), // array de permissões
+  created_at: timestamp("created_at").defaultNow(),
+});
+
 // Schemas para inserção
 export const insertProfileSchema = createInsertSchema(profiles).omit({
   id: true,
@@ -47,6 +75,21 @@ export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({
   created_at: true,
 });
 
+export const insertAdminSettingsSchema = createInsertSchema(admin_settings).omit({
+  id: true,
+  updated_at: true,
+});
+
+export const insertPlanStockSchema = createInsertSchema(plan_stock).omit({
+  id: true,
+  updated_at: true,
+});
+
+export const insertAdminsSchema = createInsertSchema(admins).omit({
+  id: true,
+  created_at: true,
+});
+
 // Tipos
 export type InsertProfile = z.infer<typeof insertProfileSchema>;
 export type Profile = typeof profiles.$inferSelect;
@@ -56,3 +99,12 @@ export type Plan = typeof plans.$inferSelect;
 
 export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
 export type Subscription = typeof subscriptions.$inferSelect;
+
+export type InsertAdminSettings = z.infer<typeof insertAdminSettingsSchema>;
+export type AdminSettings = typeof admin_settings.$inferSelect;
+
+export type InsertPlanStock = z.infer<typeof insertPlanStockSchema>;
+export type PlanStock = typeof plan_stock.$inferSelect;
+
+export type InsertAdmins = z.infer<typeof insertAdminsSchema>;
+export type Admins = typeof admins.$inferSelect;

@@ -1,4 +1,4 @@
-import { Cloud, ExternalLink, User, Settings, LogOut, ChevronDown } from 'lucide-react';
+import { Cloud, ExternalLink, User, Settings, LogOut, ChevronDown, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,9 +11,11 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabase';
 import { useLocation } from 'wouter';
+import { useIsAdmin } from '@/hooks/useAdmin';
 
 const Navigation = ({ session }: { session: any }) => {
   const [, navigate] = useLocation();
+  const { data: isAdmin } = useIsAdmin(session?.user?.id);
 
   const handleLogin = async () => {
     try {
@@ -151,6 +153,18 @@ const Navigation = ({ session }: { session: any }) => {
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Configurações</span>
               </DropdownMenuItem>
+              {isAdmin && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    className="cursor-pointer hover:bg-card/20 text-orange-600 dark:text-orange-400"
+                    onClick={() => navigate('/admin')}
+                  >
+                    <Shield className="mr-2 h-4 w-4" />
+                    <span>Painel Admin</span>
+                  </DropdownMenuItem>
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem 
                 className="cursor-pointer hover:bg-card/20 text-red-600 dark:text-red-400"
