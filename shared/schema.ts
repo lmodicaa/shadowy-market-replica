@@ -9,7 +9,7 @@ export const profiles = pgTable("profiles", {
   avatar_url: text("avatar_url"),
   created_at: timestamp("created_at").defaultNow(),
   updated_at: timestamp("updated_at").defaultNow(),
-  active_plan: text("active_plan"), // Nome do plano ativo
+  active_plan: uuid("active_plan"), // UUID do plano ativo (referencia plans.id)
   active_plan_until: timestamp("active_plan_until"), // Data de expiração do plano
 });
 

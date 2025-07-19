@@ -53,10 +53,24 @@ const AdminUserManagement = () => {
       console.log('Skipping admin check to avoid recursion');
       setDebugInfo(prev => ({ ...prev, admin_check: 'skipped_recursion' }));
       
-      // Try direct update with minimal data
+      // Get actual plan UUIDs from database
+      const { data: plansData } = await supabase.from('plans').select('id, name');
+      console.log('Available plans from DB:', plansData);
+      
+      const planUuidMap: Record<string, string> = {};
+      plansData?.forEach(plan => {
+        planUuidMap[plan.name] = plan.id;
+      });
+      
+      const testPlanValue = newPlan === 'none' ? null : (planUuidMap[newPlan] || null);
+      console.log('Testing with plan UUID:', testPlanValue);
+      
       const directTest = await supabase
         .from('profiles')
-        .update({ updated_at: new Date().toISOString() })
+        .update({ 
+          active_plan: testPlanValue,
+          updated_at: new Date().toISOString() 
+        })
         .eq('id', editingUser.id)
         .select();
       

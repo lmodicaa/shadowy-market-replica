@@ -246,11 +246,23 @@ export const useUpdateUserPlan = () => {
       
       console.log('Prepared data:', { finalPlanName, endDate });
       
+      // Get actual plan UUIDs from database
+      const { data: plansData } = await supabase.from('plans').select('id, name');
+      console.log('Available plans from DB:', plansData);
+      
+      const planUuidMap: Record<string, string> = {};
+      plansData?.forEach(plan => {
+        planUuidMap[plan.name] = plan.id;
+      });
+      
+      const planValue = finalPlanName ? (planUuidMap[finalPlanName] || finalPlanName) : null;
+      console.log('Final plan value (UUID or null):', planValue);
+      
       // Direct update approach with detailed logging
       const { data, error } = await supabase
         .from('profiles')
         .update({
-          active_plan: finalPlanName,
+          active_plan: planValue,
           active_plan_until: endDate?.toISOString() || null,
           updated_at: new Date().toISOString(),
         })
