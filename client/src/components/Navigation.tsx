@@ -11,10 +11,16 @@ const Navigation = ({ session }: { session: any }) => {
 
   const handleLogin = async () => {
     try {
+      // Get the current origin, but ensure it's the Replit URL
+      const origin = window.location.origin;
+      const redirectUrl = origin.includes('localhost') ? 
+        origin.replace('localhost:8081', window.location.host) : 
+        origin;
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'discord',
         options: {
-          redirectTo: window.location.origin, // O la URL a la que quieras redirigir después del login
+          redirectTo: redirectUrl,
         },
       });
       if (error) throw error;
@@ -22,6 +28,16 @@ const Navigation = ({ session }: { session: any }) => {
     } catch (error) {
       console.error('Error al iniciar sesión con Discord:', error);
       // Aquí podrías mostrar un mensaje de error al usuario
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      console.log('Usuario cerró sesión exitosamente');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
     }
   };
 
@@ -61,7 +77,7 @@ const Navigation = ({ session }: { session: any }) => {
           <Button 
             variant="hero" 
             className="shadow-lg"
-            // Aquí podrías agregar una función de logout
+            onClick={handleLogout}
           >
             Logout
           </Button>

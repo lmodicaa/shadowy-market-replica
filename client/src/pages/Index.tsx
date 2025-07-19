@@ -16,27 +16,27 @@ const Index = () => {
   const [location, navigate] = useLocation();
 
   useEffect(() => {
-    // Manejar la URL al cargar la página
-    if (window.location.hash.includes('access_token=')) {
-      console.log('URL con token, redirigiendo para limpiar.');
-      navigate('/');
-      return; // Salir del efecto después de redirigir
-    }
-
     // Este efecto se ejecuta al cargar la página y al cambiar el estado de autenticación
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state change:', event, session?.user?.email);
       setSession(session);
-      if (session) {
-        console.log('Usuario autenticado:', session.user);
-        // navigate('/', { replace: true }); // Ya manejado arriba si la URL tiene el token
-      } else {
-        console.log('Usuario no autenticado');
+      
+      if (event === 'SIGNED_IN' && session) {
+        console.log('Usuario autenticado:', session.user.email);
+        // Limpiar la URL del hash después de la autenticación exitosa
+        if (window.location.hash.includes('access_token=')) {
+          // Use replace to clean the URL without adding to history
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      } else if (event === 'SIGNED_OUT') {
+        console.log('Usuario cerró sesión');
+        setSession(null);
       }
     });
 
     // Limpiar la suscripción al desmontar el componente
     return () => data.subscription.unsubscribe();
-  }, [navigate]); // Agregar navigate como dependencia
+  }, []); // Remover navigate de las dependencias
 
   return (
     <div className="relative min-h-screen">
