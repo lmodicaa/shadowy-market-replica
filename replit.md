@@ -4,11 +4,11 @@
 This is a full-stack JavaScript application that has been migrated from Lovable to the Replit environment. The project appears to be a web application with space/astronomy theming, featuring user authentication via Supabase, navigation, hero sections, features, and tutorials.
 
 ## Project Architecture
-- **Frontend**: React with TypeScript, using React Router for routing
+- **Frontend**: React with TypeScript, using wouter for routing (converted from React Router)
 - **Backend**: Express.js server with TypeScript
-- **Database**: Currently using in-memory storage (MemStorage), with Drizzle ORM configured for PostgreSQL
-- **Authentication**: Supabase authentication integration
-- **Styling**: Tailwind CSS with shadcn/ui components
+- **Database**: PostgreSQL with Drizzle ORM (migrated from MemStorage to DatabaseStorage)
+- **Authentication**: Supabase authentication integration with Discord OAuth
+- **Styling**: Tailwind CSS with shadcn/ui components and custom space theme
 - **Build Tool**: Vite with custom server setup
 
 ## Current Status
