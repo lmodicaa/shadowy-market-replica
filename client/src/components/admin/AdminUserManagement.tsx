@@ -64,6 +64,7 @@ const AdminUserManagement = () => {
       
       const testPlanValue = newPlan === 'none' ? null : (planUuidMap[newPlan] || null);
       console.log('Testing with plan UUID:', testPlanValue);
+      console.log('Plan mapping available:', planUuidMap);
       
       const directTest = await supabase
         .from('profiles')
@@ -297,6 +298,7 @@ const AdminUserManagement = () => {
                                   <SelectItem value="none">Sem plano</SelectItem>
                                   <SelectItem value="Mate Core">Mate Core</SelectItem>
                                   <SelectItem value="Mate Nova">Mate Nova</SelectItem>
+                                  <SelectItem value="Mate Pulse">Mate Pulse</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
