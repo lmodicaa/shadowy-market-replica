@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Importar useNavigate
+import { useNavigate } from 'react-router-dom';
 import StarField from '@/components/StarField';
 import Navigation from '@/components/Navigation';
 import HeroSection from '@/components/HeroSection';
@@ -13,16 +13,22 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 const Index = () => {
   const [session, setSession] = useState(null);
-  const navigate = useNavigate(); // Obtener la función de navegación
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Este efecto se ejecuta al cargar la página
+    // Manejar la URL al cargar la página
+    if (window.location.hash.includes('access_token=')) {
+      console.log('URL con token, redirigiendo para limpiar.');
+      navigate('/', { replace: true });
+      return; // Salir del efecto después de redirigir
+    }
+
+    // Este efecto se ejecuta al cargar la página y al cambiar el estado de autenticación
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session); // Actualizar el estado con la sesión
+      setSession(session);
       if (session) {
         console.log('Usuario autenticado:', session.user);
-        // Usar navigate.replace para limpiar la URL
-        navigate('/', { replace: true });
+        // navigate('/', { replace: true }); // Ya manejado arriba si la URL tiene el token
       } else {
         console.log('Usuario no autenticado');
       }
@@ -36,11 +42,10 @@ const Index = () => {
     <div className="relative min-h-screen">
       {/* Animated Star Field Background */}
       <StarField />
-      
+
       {/* Navigation */}
-      {/* Pasamos la sesión al componente Navigation si es necesario */}
       <Navigation session={session} />
-      
+
       {/* Main Content */}
       <main className="relative z-10">
         {/* Ejemplo de contenido condicional */}
