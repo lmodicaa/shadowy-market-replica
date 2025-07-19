@@ -295,9 +295,8 @@ const AdminUserManagement = () => {
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="none">Sem plano</SelectItem>
-                                  <SelectItem value="Básico">Básico</SelectItem>
-                                  <SelectItem value="Gamer">Gamer</SelectItem>
-                                  <SelectItem value="Pro">Pro</SelectItem>
+                                  <SelectItem value="Mate Core">Mate Core</SelectItem>
+                                  <SelectItem value="Mate Nova">Mate Nova</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
