@@ -170,19 +170,19 @@ export const useUpdateAdminSettings = () => {
   
   return useMutation({
     mutationFn: async ({ key, value, description }: { key: string; value: string; description?: string }) => {
-      const { data, error } = await supabase
-        .from('admin_settings')
-        .upsert({
-          key,
-          value,
-          description,
-          updated_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
+      console.log('useUpdateAdminSettings mutation started:', { key, value, description });
+      
+      // Use RPC function to bypass RLS issues
+      const { data, error } = await supabase.rpc('admin_update_setting', {
+        setting_key: key,
+        setting_value: value,
+        setting_description: description || ''
+      });
+      
+      console.log('RPC settings update result:', { data, error });
       
       if (error) {
-        console.error('Erro ao atualizar configuração:', error);
+        console.error('Erro ao atualizar configuração via RPC:', error);
         throw error;
       }
       
@@ -249,23 +249,23 @@ export const useUpdateUserPlan = () => {
       planName: string | null; 
       duration?: number; 
     }) => {
-      const endDate = planName ? new Date(Date.now() + duration * 24 * 60 * 60 * 1000) : null;
+      console.log('useUpdateUserPlan mutation started:', { userId, planName, duration });
       
-      const finalPlanName = planName === 'none' ? null : planName;
+      const finalPlanName = planName === 'none' ? '' : planName || '';
       
-      const { data, error } = await supabase
-        .from('profiles')
-        .update({
-          active_plan: finalPlanName,
-          active_plan_until: endDate?.toISOString() || null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', userId)
-        .select()
-        .single();
+      console.log('Calling RPC with:', { userId, finalPlanName, duration });
+      
+      // Use RPC function to bypass RLS issues
+      const { data, error } = await supabase.rpc('admin_update_user_plan', {
+        target_user_id: userId,
+        plan_name: finalPlanName,
+        duration_days: duration
+      });
+      
+      console.log('RPC update result:', { data, error });
       
       if (error) {
-        console.error('Erro ao atualizar plano do usuário:', error);
+        console.error('Erro ao atualizar plano do usuário via RPC:', error);
         throw error;
       }
       

@@ -34,17 +34,21 @@ const AdminSettings = () => {
   };
 
   const handleSaveSettings = async () => {
+    console.log('Saving admin settings:', settings);
+    
     try {
       // Save all changed settings
-      const promises = Object.entries(settings).map(([key, value]) => 
-        updateSettings.mutateAsync({ 
+      const promises = Object.entries(settings).map(([key, value]) => {
+        console.log(`Saving setting ${key}:`, value);
+        return updateSettings.mutateAsync({ 
           key, 
           value,
           description: getSettingDescription(key)
-        })
-      );
+        });
+      });
 
-      await Promise.all(promises);
+      const results = await Promise.all(promises);
+      console.log('All settings saved:', results);
 
       toast({
         title: "Configurações salvas",
@@ -53,9 +57,10 @@ const AdminSettings = () => {
 
       setHasChanges(false);
     } catch (error) {
+      console.error('Settings save error:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível salvar as configurações.",
+        description: `Erro ao salvar configurações: ${error?.message || 'Erro desconhecido'}`,
         variant: "destructive",
       });
     }

@@ -31,12 +31,22 @@ const AdminUserManagement = () => {
   const handleUpdateUserPlan = async () => {
     if (!editingUser) return;
 
+    console.log('Updating user plan:', {
+      userId: editingUser.id,
+      currentPlan: editingUser.active_plan,
+      newPlan: newPlan,
+      finalPlan: newPlan === 'none' ? null : newPlan,
+      duration: planDuration
+    });
+
     try {
-      await updateUserPlan.mutateAsync({
+      const result = await updateUserPlan.mutateAsync({
         userId: editingUser.id,
         planName: newPlan === 'none' ? null : newPlan,
         duration: planDuration,
       });
+
+      console.log('Plan update result:', result);
 
       toast({
         title: "Plano atualizado",
@@ -46,9 +56,10 @@ const AdminUserManagement = () => {
       setEditingUser(null);
       setNewPlan('');
     } catch (error) {
+      console.error('Plan update error:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível atualizar o plano do usuário.",
+        description: `Erro ao atualizar plano: ${error?.message || 'Erro desconhecido'}`,
         variant: "destructive",
       });
     }
