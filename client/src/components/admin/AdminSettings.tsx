@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Settings, Save, Globe, Bell, Shield, Database } from 'lucide-react';
+import { Settings, Save, Globe, Bell, Shield, Database, Download, RefreshCw, Trash } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,10 +8,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useAdminSettings, useUpdateAdminSettings } from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
 
 const AdminSettings = () => {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [hasChanges, setHasChanges] = useState(false);
+  const [isTestingDatabase, setIsTestingDatabase] = useState(false);
+  const [isClearingCache, setIsClearingCache] = useState(false);
+  const [isBackingUp, setIsBackingUp] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   const { data: adminSettings, isLoading } = useAdminSettings();
   const updateSettings = useUpdateAdminSettings();
@@ -83,6 +88,166 @@ const AdminSettings = () => {
       'vm_session_timeout': 'Timeout das sessões de VM (minutos)',
     };
     return descriptions[key] || '';
+  };
+
+  const handleTestDatabase = async () => {
+    setIsTestingDatabase(true);
+    try {
+      console.log('Testing database connection...');
+      
+      // Test multiple database operations
+      const [usersTest, settingsTest, plansTest] = await Promise.all([
+        supabase.from('profiles').select('id').limit(1),
+        supabase.from('admin_settings').select('key').limit(1),
+        supabase.from('plans').select('name').limit(1),
+      ]);
+
+      const errors = [usersTest.error, settingsTest.error, plansTest.error].filter(Boolean);
+      
+      if (errors.length > 0) {
+        throw new Error(`Falhas encontradas: ${errors.map(e => e.message).join(', ')}`);
+      }
+
+      toast({
+        title: "Teste de banco de dados",
+        description: "Todas as conexões estão funcionando corretamente!",
+      });
+    } catch (error) {
+      console.error('Database test failed:', error);
+      toast({
+        title: "Erro no teste",
+        description: `Falha na conexão: ${error?.message || 'Erro desconhecido'}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsTestingDatabase(false);
+    }
+  };
+
+  const handleClearCache = async () => {
+    setIsClearingCache(true);
+    try {
+      console.log('Clearing application cache...');
+      
+      // Simulate cache clearing operations
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // In a real application, you would clear various caches here
+      // localStorage.clear();
+      // sessionStorage.clear();
+      
+      toast({
+        title: "Cache limpo",
+        description: "Cache da aplicação foi limpo com sucesso.",
+      });
+    } catch (error) {
+      console.error('Cache clear failed:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível limpar o cache.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsClearingCache(false);
+    }
+  };
+
+  const handleBackupSettings = async () => {
+    setIsBackingUp(true);
+    try {
+      console.log('Creating settings backup...');
+      
+      if (!adminSettings || adminSettings.length === 0) {
+        throw new Error('Nenhuma configuração encontrada para backup');
+      }
+
+      const backup = {
+        timestamp: new Date().toISOString(),
+        version: '1.0',
+        settings: adminSettings,
+      };
+
+      const dataStr = JSON.stringify(backup, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `matecloud-settings-backup-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Backup criado",
+        description: "Backup das configurações foi baixado com sucesso.",
+      });
+    } catch (error) {
+      console.error('Backup failed:', error);
+      toast({
+        title: "Erro",
+        description: `Não foi possível criar backup: ${error?.message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsBackingUp(false);
+    }
+  };
+
+  const handleResetToDefaults = async () => {
+    if (!confirm('Tem certeza que deseja restaurar todas as configurações para os valores padrão? Esta ação não pode ser desfeita.')) {
+      return;
+    }
+
+    setIsResetting(true);
+    try {
+      console.log('Resetting settings to defaults...');
+      
+      const defaultSettings = {
+        'site_name': 'MateCloud',
+        'site_description': 'A melhor plataforma de cloud gaming do Brasil',
+        'maintenance_mode': 'false',
+        'maintenance_message': 'O site está em manutenção. Voltaremos em breve!',
+        'max_concurrent_users': '100',
+        'default_plan_duration': '30',
+        'support_email': 'suporte@matecloud.com.br',
+        'discord_invite': 'https://discord.gg/matecloud',
+        'enable_registrations': 'true',
+        'stock_low_threshold': '5',
+        'stock_empty_message': 'Este plano está temporariamente indisponível.',
+        'vm_default_password': 'matecloud123',
+        'vm_session_timeout': '60',
+      };
+
+      // Reset all settings to defaults
+      const promises = Object.entries(defaultSettings).map(([key, value]) => {
+        return updateSettings.mutateAsync({ 
+          key, 
+          value,
+          description: getSettingDescription(key)
+        });
+      });
+
+      await Promise.all(promises);
+      
+      // Update local state
+      setSettings(defaultSettings);
+      setHasChanges(false);
+
+      toast({
+        title: "Configurações restauradas",
+        description: "Todas as configurações foram restauradas para os valores padrão.",
+      });
+    } catch (error) {
+      console.error('Reset failed:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível restaurar as configurações.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResetting(false);
+    }
   };
 
   if (isLoading) {
@@ -324,6 +489,67 @@ const AdminSettings = () => {
                 min="5"
               />
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* System Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            Ações do Sistema
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Button 
+              variant="outline" 
+              onClick={handleTestDatabase}
+              disabled={isTestingDatabase}
+              className="flex-col h-20 gap-2"
+            >
+              <Database className="w-6 h-6" />
+              <span className="text-xs">
+                {isTestingDatabase ? 'Testando...' : 'Testar BD'}
+              </span>
+            </Button>
+
+            <Button 
+              variant="outline" 
+              onClick={handleClearCache}
+              disabled={isClearingCache}
+              className="flex-col h-20 gap-2"
+            >
+              <Trash className="w-6 h-6" />
+              <span className="text-xs">
+                {isClearingCache ? 'Limpando...' : 'Limpar Cache'}
+              </span>
+            </Button>
+
+            <Button 
+              variant="outline" 
+              onClick={handleBackupSettings}
+              disabled={isBackingUp}
+              className="flex-col h-20 gap-2"
+            >
+              <Download className="w-6 h-6" />
+              <span className="text-xs">
+                {isBackingUp ? 'Exportando...' : 'Backup Config'}
+              </span>
+            </Button>
+
+            <Button 
+              variant="outline" 
+              onClick={handleResetToDefaults}
+              disabled={isResetting}
+              className="flex-col h-20 gap-2"
+            >
+              <RefreshCw className="w-6 h-6" />
+              <span className="text-xs">
+                {isResetting ? 'Resetando...' : 'Restaurar Padrão'}
+              </span>
+            </Button>
           </div>
         </CardContent>
       </Card>

@@ -343,3 +343,4 @@ export const useSystemStats = () => {
     refetchInterval: 30000, // Atualizar a cada 30 segundos
   });
 };
+
