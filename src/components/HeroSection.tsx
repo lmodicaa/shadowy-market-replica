@@ -4,19 +4,19 @@ import { Button } from '@/components/ui/button';
 const HeroSection = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center px-6">
-      {/* Cloud Logo with Glow */}
-      <div className="absolute top-1/3 transform -translate-y-1/2">
-        <div className="flex items-center gap-3 mb-8 float-animation">
-          <div className="p-3 rounded-xl bg-card/20 backdrop-blur-sm border border-border/30 shadow-lg">
-            <Cloud className="w-8 h-8 text-cloud-blue" />
+      {/* Cloud Logo with Glow - Positioned better */}
+      <div className="absolute top-20 left-1/2 transform -translate-x-1/2">
+        <div className="flex items-center gap-2 mb-8 opacity-80 hover:opacity-100 transition-opacity duration-300">
+          <div className="p-2 rounded-lg bg-card/10 backdrop-blur-sm border border-cloud-blue/20">
+            <Cloud className="w-5 h-5 text-cloud-blue" />
           </div>
-          <span className="text-lg font-semibold text-foreground/80">DarkCloud</span>
+          <span className="text-sm font-medium text-foreground/60">DarkCloud</span>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="text-center max-w-4xl mx-auto mt-20">
-        <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+      <div className="text-center max-w-4xl mx-auto">
+        <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight mt-16">
           Jogue em qualquer lugar
           <br />
           com <span className="text-cloud-blue">DarkCloud</span>
