@@ -1,15 +1,26 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import { createClient } from '@supabase/supabase-js';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 import * as schema from "@shared/schema";
 
-neonConfig.webSocketConstructor = ws;
+// For server-side database operations, we need the service role key
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
+if (!supabaseUrl) {
+  throw new Error("VITE_SUPABASE_URL must be set");
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle({ client: pool, schema });
+if (!supabaseServiceKey) {
+  throw new Error("SUPABASE_SERVICE_ROLE_KEY must be set for server-side database operations");
+}
+
+// Create Supabase client for server operations
+export const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+// For direct database operations with Drizzle, we can use the connection string
+// This is optional - you can choose to use either Supabase client or Drizzle
+const connectionString = process.env.DATABASE_URL || `postgresql://postgres:[password]@db.${supabaseUrl.split('//')[1].split('.')[0]}.supabase.co:5432/postgres`;
+
+export const queryClient = postgres(connectionString);
+export const db = drizzle(queryClient, { schema });
