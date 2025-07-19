@@ -4,6 +4,7 @@ import StarField from '@/components/StarField';
 import Navigation from '@/components/Navigation';
 import HeroSection from '@/components/HeroSection';
 import FeaturesSection from '@/components/FeaturesSection';
+import PlansSection from '@/components/PlansSection';
 import TutorialsSection from '@/components/TutorialsSection';
 
 interface IndexProps {
@@ -33,6 +34,7 @@ const Index = ({ session }: IndexProps) => {
       <main className="relative z-10">
         <HeroSection />
         <FeaturesSection />
+        <PlansSection />
         <TutorialsSection />
       </main>
     </div>

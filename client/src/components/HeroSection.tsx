@@ -42,6 +42,12 @@ const HeroSection = () => {
             size="lg" 
             variant="outline" 
             className="text-lg px-8 py-4 shadow-lg"
+            onClick={() => {
+              document.getElementById('planos')?.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+              });
+            }}
           >
             <Calendar className="w-5 h-5 mr-2" />
             Ver planos

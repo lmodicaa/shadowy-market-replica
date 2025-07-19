@@ -59,11 +59,28 @@ const Navigation = ({ session }: { session: any }) => {
 
         {/* Navigation Links */}
         <div className="hidden md:flex items-center gap-8">
-          <a href="#inicio" className="text-foreground/90 hover:text-cloud-blue transition-colors">
+          <a 
+            href="#inicio" 
+            className="text-foreground/90 hover:text-cloud-blue transition-colors cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          >
             Início
           </a>
-          <a href="#assinatura" className="text-foreground/90 hover:text-cloud-blue transition-colors">
-            Assinatura
+          <a 
+            href="#planos" 
+            className="text-foreground/90 hover:text-cloud-blue transition-colors cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('planos')?.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+              });
+            }}
+          >
+            Planos
           </a>
           <a 
             href="#discord" 
@@ -72,7 +89,18 @@ const Navigation = ({ session }: { session: any }) => {
             Discord
             <ExternalLink className="w-3 h-3" />
           </a>
-          <a href="#faq" className="text-foreground/90 hover:text-cloud-blue transition-colors">
+          <a 
+            href="#faq" 
+            className="text-foreground/90 hover:text-cloud-blue transition-colors cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              const faqElement = document.querySelector('#faq') || document.querySelector('[id*="features"]');
+              faqElement?.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+              });
+            }}
+          >
             FAQ
           </a>
         </div>

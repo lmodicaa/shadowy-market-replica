@@ -17,7 +17,7 @@ const tutorials = [
 
 const TutorialsSection = () => {
   return (
-    <section className="py-20 px-6 relative z-10">
+    <section id="tutoriais" className="py-20 px-6 relative z-10">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
