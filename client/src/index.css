@@ -124,6 +124,26 @@
     background: var(--gradient-hero);
   }
   
+  .bg-gradient-button {
+    background: var(--gradient-button);
+  }
+  
+  .text-cloud-blue {
+    color: hsl(var(--cloud-blue));
+  }
+  
+  .border-cloud-blue\/20 {
+    border-color: hsl(var(--cloud-blue) / 0.2);
+  }
+  
+  .border-cloud-blue\/40 {
+    border-color: hsl(var(--cloud-blue) / 0.4);
+  }
+  
+  .hover\:text-cloud-blue:hover {
+    color: hsl(var(--cloud-blue));
+  }
+  
   .gradient-button {
     background: var(--gradient-button);
   }

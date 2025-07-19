@@ -61,6 +61,12 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Custom DarkCloud colors
+        "cloud-blue": "hsl(var(--cloud-blue))",
+        "cloud-blue-dark": "hsl(var(--cloud-blue-dark))",
+        "space-dark": "hsl(var(--space-dark))",
+        "space-darker": "hsl(var(--space-darker))",
+        "star-glow": "hsl(var(--star-glow))",
       },
       keyframes: {
         "accordion-down": {
