@@ -29,10 +29,10 @@ const Navigation = ({ session }: { session: any }) => {
         },
       });
       if (error) throw error;
-      // Si no hay error, Supabase redirigirá al usuario al proveedor de OAuth
+      // Se não houver erro, Supabase redirecionará o usuário para o provedor OAuth
     } catch (error) {
-      console.error('Error al iniciar sesión con Discord:', error);
-      // Aquí podrías mostrar un mensaje de error al usuario
+      console.error('Erro ao fazer login com Discord:', error);
+      // Aqui você poderia mostrar uma mensagem de erro ao usuário
     }
   };
 
@@ -40,9 +40,9 @@ const Navigation = ({ session }: { session: any }) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      console.log('Usuario cerró sesión exitosamente');
+      console.log('Usuário fez logout com sucesso');
     } catch (error) {
-      console.error('Error al cerrar sesión:', error);
+      console.error('Erro ao fazer logout:', error);
     }
   };
 
@@ -88,7 +88,7 @@ const Navigation = ({ session }: { session: any }) => {
                 <Avatar className="h-8 w-8">
                   <AvatarImage 
                     src={session.user?.user_metadata?.avatar_url} 
-                    alt={session.user?.user_metadata?.full_name || 'Usuario'} 
+                    alt={session.user?.user_metadata?.full_name || 'Usuário'} 
                   />
                   <AvatarFallback className="bg-cloud-blue/20 text-cloud-blue">
                     {session.user?.user_metadata?.full_name?.charAt(0) || 
@@ -97,7 +97,7 @@ const Navigation = ({ session }: { session: any }) => {
                 </Avatar>
                 <div className="hidden sm:flex flex-col items-start">
                   <span className="text-sm font-medium text-foreground">
-                    {session.user?.user_metadata?.full_name || 'Usuario'}
+                    {session.user?.user_metadata?.full_name || 'Usuário'}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {session.user?.email}
@@ -107,7 +107,7 @@ const Navigation = ({ session }: { session: any }) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 bg-background/95 backdrop-blur-sm border border-border/30">
-              <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+              <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem 
                 className="cursor-pointer hover:bg-card/20"
@@ -121,7 +121,7 @@ const Navigation = ({ session }: { session: any }) => {
                 onClick={() => navigate('/settings')}
               >
                 <Settings className="mr-2 h-4 w-4" />
-                <span>Configuraciones</span>
+                <span>Configurações</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem 
@@ -129,7 +129,7 @@ const Navigation = ({ session }: { session: any }) => {
                 onClick={handleLogout}
               >
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>Cerrar Sesión</span>
+                <span>Sair</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

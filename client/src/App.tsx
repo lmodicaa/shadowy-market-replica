@@ -17,7 +17,7 @@ const App = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Obtener sesión inicial
+    // Obter sessão inicial
     const getInitialSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -34,7 +34,7 @@ const App = () => {
 
     getInitialSession();
 
-    // Escuchar cambios de autenticación
+    // Escutar mudanças de autenticação
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
@@ -42,7 +42,7 @@ const App = () => {
       setSession(session);
       setLoading(false);
 
-      // Limpiar URL después de autenticación exitosa
+      // Limpar URL após autenticação bem-sucedida
       if (event === 'SIGNED_IN' && session && window.location.hash.includes('access_token=')) {
         window.history.replaceState({}, document.title, window.location.pathname);
       }
@@ -51,7 +51,7 @@ const App = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Mostrar loading mientras se verifica la sesión inicial
+  // Mostrar loading enquanto verifica a sessão inicial
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">

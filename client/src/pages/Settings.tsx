@@ -133,13 +133,13 @@ const Settings = ({ session }: SettingsProps) => {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       toast({
-        title: "Solicitud procesada",
-        description: "La eliminación de cuenta requiere confirmación por email.",
+        title: "Solicitação processada",
+        description: "A exclusão da conta requer confirmação por email.",
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "No se pudo procesar la solicitud de eliminación.",
+        title: "Erro",
+        description: "Não foi possível processar a solicitação de exclusão.",
         variant: "destructive",
       });
     } finally {
@@ -152,7 +152,7 @@ const Settings = ({ session }: SettingsProps) => {
       <div className="min-h-screen flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardContent className="p-6 text-center">
-            <p className="text-muted-foreground">Debes iniciar sesión para acceder a configuraciones.</p>
+            <p className="text-muted-foreground">Você deve fazer login para acessar as configurações.</p>
           </CardContent>
         </Card>
       </div>
@@ -165,8 +165,8 @@ const Settings = ({ session }: SettingsProps) => {
         <div className="space-y-6">
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Configuraciones</h1>
-            <p className="text-muted-foreground">Administra las preferencias de tu cuenta</p>
+            <h1 className="text-3xl font-bold text-foreground">Configurações</h1>
+            <p className="text-muted-foreground">Gerencie as preferências da sua conta</p>
           </div>
 
           {/* Appearance Settings */}
@@ -174,18 +174,18 @@ const Settings = ({ session }: SettingsProps) => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Moon className="w-5 h-5" />
-                Apariencia
+                Aparência
               </CardTitle>
               <CardDescription>
-                Personaliza como se ve la aplicación
+                Personalize como o aplicativo é exibido
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <Label className="text-base">Modo oscuro</Label>
+                  <Label className="text-base">Modo escuro</Label>
                   <p className="text-sm text-muted-foreground">
-                    Activa el tema oscuro para una experiencia visual más cómoda
+                    Ative o tema escuro para uma experiência visual mais confortável
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -205,18 +205,18 @@ const Settings = ({ session }: SettingsProps) => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bell className="w-5 h-5" />
-                Notificaciones
+                Notificações
               </CardTitle>
               <CardDescription>
-                Controla qué notificaciones quieres recibir
+                Controle quais notificações você deseja receber
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <Label className="text-base">Notificaciones por email</Label>
+                  <Label className="text-base">Notificações por email</Label>
                   <p className="text-sm text-muted-foreground">
-                    Recibe actualizaciones importantes por correo electrónico
+                    Receba atualizações importantes por email
                   </p>
                 </div>
                 <Switch
@@ -227,9 +227,9 @@ const Settings = ({ session }: SettingsProps) => {
               <Separator />
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <Label className="text-base">Notificaciones push</Label>
+                  <Label className="text-base">Notificações push</Label>
                   <p className="text-sm text-muted-foreground">
-                    Recibe notificaciones en tiempo real en tu navegador
+                    Receba notificações em tempo real no seu navegador
                   </p>
                 </div>
                 <Switch
@@ -242,7 +242,7 @@ const Settings = ({ session }: SettingsProps) => {
                 <div className="space-y-1">
                   <Label className="text-base">Email de marketing</Label>
                   <p className="text-sm text-muted-foreground">
-                    Recibe noticias y ofertas especiales
+                    Receba notícias e ofertas especiais
                   </p>
                 </div>
                 <Switch
@@ -258,24 +258,24 @@ const Settings = ({ session }: SettingsProps) => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Shield className="w-5 h-5" />
-                Seguridad de la cuenta
+                Segurança da conta
               </CardTitle>
               <CardDescription>
-                Información sobre la seguridad de tu cuenta
+                Informações sobre a segurança da sua conta
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-base">Autenticación</Label>
+                  <Label className="text-base">Autenticação</Label>
                   <Badge variant="secondary" className="capitalize">
                     {session.user?.app_metadata?.provider || 'discord'} OAuth
                   </Badge>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-base">Última sesión</Label>
+                  <Label className="text-base">Última sessão</Label>
                   <p className="text-sm text-muted-foreground">
-                    {new Date(session.user?.last_sign_in_at || session.user?.created_at).toLocaleString('es-ES')}
+                    {new Date(session.user?.last_sign_in_at || session.user?.created_at).toLocaleString('pt-BR')}
                   </p>
                 </div>
               </div>
@@ -287,10 +287,10 @@ const Settings = ({ session }: SettingsProps) => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Database className="w-5 h-5" />
-                Gestión de datos
+                Gestão de dados
               </CardTitle>
               <CardDescription>
-                Controla tus datos personales
+                Controle seus dados pessoais
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -302,7 +302,7 @@ const Settings = ({ session }: SettingsProps) => {
                   className="flex items-center gap-2"
                 >
                   <Download className="w-4 h-4" />
-                  {loading ? 'Exportando...' : 'Exportar mis datos'}
+                  {loading ? 'Exportando...' : 'Exportar meus dados'}
                 </Button>
                 <Button 
                   variant="outline" 
@@ -310,7 +310,7 @@ const Settings = ({ session }: SettingsProps) => {
                   className="flex items-center gap-2"
                 >
                   <Upload className="w-4 h-4" />
-                  Importar datos
+                  Importar dados
                 </Button>
               </div>
             </CardContent>
@@ -321,10 +321,10 @@ const Settings = ({ session }: SettingsProps) => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
                 <AlertTriangle className="w-5 h-5" />
-                Zona de peligro
+                Zona de perigo
               </CardTitle>
               <CardDescription>
-                Acciones irreversibles para tu cuenta
+                Ações irreversíveis para sua conta
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -335,15 +335,15 @@ const Settings = ({ session }: SettingsProps) => {
                     className="flex items-center gap-2"
                   >
                     <Trash2 className="w-4 h-4" />
-                    Eliminar cuenta
+                    Excluir conta
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
+                    <AlertDialogTitle>Você tem certeza absoluta?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Esta acción no se puede deshacer. Esto eliminará permanentemente tu cuenta
-                      y removerá todos tus datos de nuestros servidores.
+                      Esta ação não pode ser desfeita. Isso excluirá permanentemente sua conta
+                      e removerá todos os seus dados de nossos servidores.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -353,7 +353,7 @@ const Settings = ({ session }: SettingsProps) => {
                       disabled={deleteLoading}
                       className="bg-red-600 hover:bg-red-700"
                     >
-                      {deleteLoading ? 'Procesando...' : 'Eliminar cuenta'}
+                      {deleteLoading ? 'Processando...' : 'Excluir conta'}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>

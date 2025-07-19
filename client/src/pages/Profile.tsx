@@ -65,7 +65,7 @@ const Profile = ({ session }: ProfileProps) => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
+    return new Date(dateString).toLocaleDateString('pt-BR', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -77,7 +77,7 @@ const Profile = ({ session }: ProfileProps) => {
       <div className="min-h-screen flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardContent className="p-6 text-center">
-            <p className="text-muted-foreground">Debes iniciar sesión para ver tu perfil.</p>
+            <p className="text-muted-foreground">Você deve fazer login para ver seu perfil.</p>
           </CardContent>
         </Card>
       </div>
@@ -91,8 +91,8 @@ const Profile = ({ session }: ProfileProps) => {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Mi Perfil</h1>
-              <p className="text-muted-foreground">Gestiona tu información personal</p>
+              <h1 className="text-3xl font-bold text-foreground">Meu Perfil</h1>
+              <p className="text-muted-foreground">Gerencie suas informações pessoais</p>
             </div>
             {!isEditing ? (
               <Button onClick={() => setIsEditing(true)} variant="outline">
@@ -103,7 +103,7 @@ const Profile = ({ session }: ProfileProps) => {
               <div className="flex gap-2">
                 <Button onClick={handleSave} disabled={loading}>
                   <Save className="w-4 h-4 mr-2" />
-                  {loading ? 'Guardando...' : 'Guardar'}
+                  {loading ? 'Salvando...' : 'Salvar'}
                 </Button>
                 <Button onClick={handleCancel} variant="outline" disabled={loading}>
                   <X className="w-4 h-4 mr-2" />
@@ -120,7 +120,7 @@ const Profile = ({ session }: ProfileProps) => {
                 <Avatar className="h-24 w-24">
                   <AvatarImage 
                     src={session.user?.user_metadata?.avatar_url} 
-                    alt={displayName || 'Usuario'} 
+                    alt={displayName || 'Usuário'} 
                   />
                   <AvatarFallback className="bg-cloud-blue/20 text-cloud-blue text-2xl">
                     {displayName?.charAt(0) || session.user?.email?.charAt(0).toUpperCase() || 'U'}
@@ -130,18 +130,18 @@ const Profile = ({ session }: ProfileProps) => {
                   {isEditing ? (
                     <div className="space-y-2">
                       <div>
-                        <Label htmlFor="displayName">Nombre</Label>
+                        <Label htmlFor="displayName">Nome</Label>
                         <Input
                           id="displayName"
                           value={displayName}
                           onChange={(e) => setDisplayName(e.target.value)}
-                          placeholder="Tu nombre completo"
+                          placeholder="Seu nome completo"
                         />
                       </div>
                     </div>
                   ) : (
                     <div>
-                      <CardTitle className="text-2xl">{displayName || 'Usuario'}</CardTitle>
+                      <CardTitle className="text-2xl">{displayName || 'Usuário'}</CardTitle>
                       <CardDescription className="flex items-center gap-2 mt-1">
                         <Mail className="w-4 h-4" />
                         {session.user?.email}
@@ -154,18 +154,18 @@ const Profile = ({ session }: ProfileProps) => {
             <CardContent className="space-y-6">
               {/* Bio Section */}
               <div>
-                <Label className="text-base font-medium">Biografía</Label>
+                <Label className="text-base font-medium">Biografia</Label>
                 {isEditing ? (
                   <Textarea
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
-                    placeholder="Cuéntanos un poco sobre ti..."
+                    placeholder="Conte-nos um pouco sobre você..."
                     rows={3}
                     className="mt-2"
                   />
                 ) : (
                   <p className="text-muted-foreground mt-2">
-                    {bio || 'No has agregado una biografía aún.'}
+                    {bio || 'Você ainda não adicionou uma biografia.'}
                   </p>
                 )}
               </div>
@@ -174,7 +174,7 @@ const Profile = ({ session }: ProfileProps) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-base font-medium">Información de la Cuenta</Label>
+                    <Label className="text-base font-medium">Informações da Conta</Label>
                     <div className="mt-2 space-y-2">
                       <div className="flex items-center gap-2">
                         <User className="w-4 h-4 text-muted-foreground" />
@@ -183,7 +183,7 @@ const Profile = ({ session }: ProfileProps) => {
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-muted-foreground" />
                         <span className="text-sm">
-                          Miembro desde: {formatDate(session.user?.created_at)}
+                          Membro desde: {formatDate(session.user?.created_at)}
                         </span>
                       </div>
                     </div>
@@ -192,7 +192,7 @@ const Profile = ({ session }: ProfileProps) => {
 
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-base font-medium">Proveedor de Autenticación</Label>
+                    <Label className="text-base font-medium">Provedor de Autenticação</Label>
                     <div className="mt-2">
                       <Badge variant="secondary" className="capitalize">
                         {session.user?.app_metadata?.provider || 'discord'}
@@ -208,16 +208,16 @@ const Profile = ({ session }: ProfileProps) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="bg-card/50 backdrop-blur-sm border-border/30">
               <CardHeader>
-                <CardTitle className="text-lg">Estadísticas</CardTitle>
+                <CardTitle className="text-lg">Estatísticas</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Sesiones iniciadas</span>
+                    <span className="text-muted-foreground">Sessões iniciadas</span>
                     <span className="font-medium">-</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Última actividad</span>
+                    <span className="text-muted-foreground">Última atividade</span>
                     <span className="font-medium">
                       {formatDate(session.user?.last_sign_in_at || session.user?.created_at)}
                     </span>
@@ -228,16 +228,16 @@ const Profile = ({ session }: ProfileProps) => {
 
             <Card className="bg-card/50 backdrop-blur-sm border-border/30">
               <CardHeader>
-                <CardTitle className="text-lg">Preferencias</CardTitle>
+                <CardTitle className="text-lg">Preferências</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Idioma</span>
-                    <span className="font-medium">Español</span>
+                    <span className="font-medium">Português</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Zona horaria</span>
+                    <span className="text-muted-foreground">Fuso horário</span>
                     <span className="font-medium">{Intl.DateTimeFormat().resolvedOptions().timeZone}</span>
                   </div>
                 </div>
