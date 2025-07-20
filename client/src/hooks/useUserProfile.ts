@@ -137,17 +137,36 @@ export const useCreateSubscription = () => {
       const now = new Date();
       const endDate = new Date(now.getTime() + duration * 24 * 60 * 60 * 1000);
       
-      // Primeiro buscar o ID real do plano
-      const { data: plan, error: planError } = await supabase
-        .from('plans')
-        .select('id')
-        .eq('name', planName)
-        .single();
+      // Primeiro buscar o ID real do plano - buscar exato e depois similar
+      console.log('Buscando plano com nome:', planName);
       
-      if (planError || !plan) {
-        console.error('Erro ao buscar plano:', planError);
-        throw new Error(`Plano "${planName}" não encontrado`);
+      // Tentar busca exata primeiro
+      let { data: plans, error: planError } = await supabase
+        .from('plans')
+        .select('id, name')
+        .eq('name', planName);
+      
+      // Se não encontrar, tentar busca similar
+      if (!plans || plans.length === 0) {
+        console.log('Busca exata falhou, tentando busca similar...');
+        ({ data: plans, error: planError } = await supabase
+          .from('plans')
+          .select('id, name')
+          .ilike('name', `%${planName}%`));
       }
+      
+      if (planError || !plans || plans.length === 0) {
+        console.error('Erro ao buscar plano:', planError);
+        
+        // Mostrar todos os planos disponíveis para debug
+        const { data: allPlans } = await supabase.from('plans').select('id, name');
+        console.log('Planos disponíveis na base de dados:', allPlans);
+        
+        throw new Error(`Plano "${planName}" não encontrado. Planos disponíveis: ${allPlans?.map(p => p.name).join(', ')}`);
+      }
+      
+      const plan = plans[0]; // Usar o primeiro resultado
+      console.log('Plano encontrado:', plan);
 
       // Inserir nova assinatura com ID válido
       const { data: subscription, error: subscriptionError } = await supabase
