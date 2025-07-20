@@ -33,7 +33,16 @@ VITE_SUPABASE_URL=tu_supabase_url_aquí
 VITE_SUPABASE_ANON_KEY=tu_supabase_anon_key_aquí
 ```
 
-### 5. Deploy
+### 5. Configurar Supabase (IMPORTANTE)
+Para resolver el error 400, ejecuta el archivo `SUPABASE_SETUP.sql` en tu Supabase SQL Editor:
+
+1. Ve a tu dashboard de Supabase
+2. Abre **SQL Editor**
+3. Copia y pega el contenido de `SUPABASE_SETUP.sql`
+4. Ejecuta el script
+5. Esto creará las políticas RLS necesarias para que Netlify pueda acceder a los datos
+
+### 6. Deploy
 1. Haz clic en "Deploy site"
 2. Netlify construirá automáticamente tu aplicación
 3. En 2-3 minutos tendrás tu aplicación live
@@ -45,6 +54,8 @@ VITE_SUPABASE_ANON_KEY=tu_supabase_anon_key_aquí
 - ✅ `netlify/_redirects` - Backup de redirecciones
 - ✅ `.nvmrc` - Versión de Node.js
 - ✅ `README_NETLIFY.md` - Documentación detallada
+- ✅ `SUPABASE_SETUP.sql` - Scripts SQL para configurar Supabase
+- ✅ `NETLIFY_TROUBLESHOOTING.md` - Guía de solución de problemas
 - ✅ `netlify/functions/hello.js` - Función de ejemplo (opcional)
 
 ## ⚡ Funcionalidades que funcionarán

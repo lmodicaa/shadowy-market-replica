@@ -53,6 +53,88 @@ const getFeaturesByPlanName = (planName: string) => {
   }
 };
 
+// Função para planos de exemplo como fallback
+const getFallbackPlans = () => [
+  {
+    id: '1',
+    name: 'Básico',
+    price: 'R$ 29,90',
+    description: 'Ideal para uso básico e desenvolvimento',
+    ram: '4 GB',
+    cpu: '2 vCPUs',
+    storage: '50 GB',
+    gpu: 'Integrada',
+    max_resolution: '1080p',
+    duration: 30,
+    stock: 10,
+    status: 'Online',
+    icon: Zap,
+    popular: false,
+    features: [
+      '4 GB RAM',
+      '2 vCPUs CPU',
+      '50 GB Armazenamento',
+      'GPU: Integrada',
+      'Resolução até 1080p',
+      'Duração: 30 dias',
+      'Suporte técnico incluído'
+    ],
+    period: '/mês'
+  },
+  {
+    id: '2',
+    name: 'Gamer',
+    price: 'R$ 59,90',
+    description: 'Perfeito para gaming e aplicações médias',
+    ram: '8 GB',
+    cpu: '4 vCPUs',
+    storage: '100 GB',
+    gpu: 'GTX 1060',
+    max_resolution: '1440p',
+    duration: 30,
+    stock: 5,
+    status: 'Online',
+    icon: Star,
+    popular: true,
+    features: [
+      '8 GB RAM',
+      '4 vCPUs CPU',
+      '100 GB Armazenamento',
+      'GPU: GTX 1060',
+      'Resolução até 1440p',
+      'Duração: 30 dias',
+      'Suporte técnico incluído'
+    ],
+    period: '/mês'
+  },
+  {
+    id: '3',
+    name: 'Pro',
+    price: 'R$ 99,90',
+    description: 'Máxima performance para profissionais',
+    ram: '16 GB',
+    cpu: '8 vCPUs',
+    storage: '250 GB',
+    gpu: 'RTX 3070',
+    max_resolution: '4K',
+    duration: 30,
+    stock: 3,
+    status: 'Online',
+    icon: Crown,
+    popular: false,
+    features: [
+      '16 GB RAM',
+      '8 vCPUs CPU',
+      '250 GB Armazenamento',
+      'GPU: RTX 3070',
+      'Resolução até 4K',
+      'Duração: 30 dias',
+      'Suporte técnico incluído'
+    ],
+    period: '/mês'
+  }
+];
+
 interface PlansSectionProps {
   session?: any;
   onPlanSelect?: (planName: string) => void;
@@ -63,35 +145,53 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
   const { data: activePlan, isLoading: loadingActivePlan } = useActivePlan(session?.user?.id);
   const { toast } = useToast();
 
-  // Buscar planos reais da base de dados
-  const { data: plans = [], isLoading: loadingPlans } = useQuery({
+  // Buscar planos reais da base de dados com fallback
+  const { data: plans = [], isLoading: loadingPlans, error: plansError } = useQuery({
     queryKey: ['plans'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('plans')
-        .select('id, name, stock, price, description, ram, cpu, storage, gpu, max_resolution, status, duration')
-        .eq('status', 'Online')
-        .order('name');
-      
-      if (error) throw error;
-      
-      // Mapear planos para incluir ícones e recursos baseados no nome
-      return data.map((plan, index) => ({
-        ...plan,
-        icon: index === 0 ? Zap : index === 1 ? Star : Crown,
-        popular: index === 1, // O segundo plano será popular
-        features: [
-          `${plan.ram} RAM`,
-          `${plan.cpu} CPU`,
-          `${plan.storage} Armazenamento`,
-          `GPU: ${plan.gpu}`,
-          `Resolução até ${plan.max_resolution}`,
-          `Duração: ${plan.duration || 30} dias`,
-          'Suporte técnico incluído'
-        ],
-        period: '/mês'
-      }));
-    }
+      try {
+        // Tentar consulta simples primeiro
+        const { data, error } = await supabase
+          .from('plans')
+          .select('*')
+          .eq('status', 'Online')
+          .order('name', { ascending: true });
+        
+        if (error) {
+          console.error('Supabase error:', error);
+          throw error;
+        }
+        
+        // Se não há dados, retornar planos de exemplo
+        if (!data || data.length === 0) {
+          console.log('No plans found in database, using fallback');
+          return getFallbackPlans();
+        }
+        
+        // Mapear planos para incluir ícones e recursos baseados no nome
+        return data.map((plan, index) => ({
+          ...plan,
+          icon: index === 0 ? Zap : index === 1 ? Star : Crown,
+          popular: index === 1, // O segundo plano será popular
+          features: [
+            `${plan.ram || '4 GB'} RAM`,
+            `${plan.cpu || '2 vCPUs'} CPU`,
+            `${plan.storage || '50 GB'} Armazenamento`,
+            `GPU: ${plan.gpu || 'Integrada'}`,
+            `Resolução até ${plan.max_resolution || '1080p'}`,
+            `Duração: ${plan.duration || 30} dias`,
+            'Suporte técnico incluído'
+          ],
+          period: '/mês'
+        }));
+      } catch (error) {
+        console.error('Error fetching plans:', error);
+        // Retornar planos de exemplo se houver erro
+        return getFallbackPlans();
+      }
+    },
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 minutos
   });
 
 
@@ -150,15 +250,15 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
           </p>
 
           {/* Active Plan Status */}
-          {activePlan && activePlan.plan_name && (
+          {activePlan && activePlan.planName && (
             <div className="mt-8 p-4 rounded-lg bg-cloud-blue/10 border border-cloud-blue/20 max-w-md mx-auto">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <Crown className="w-5 h-5 text-cloud-blue" />
                 <span className="font-semibold text-cloud-blue">Plano Ativo</span>
               </div>
-              <p className="text-lg font-bold">{activePlan.plan_name}</p>
+              <p className="text-lg font-bold">{activePlan.planName}</p>
               <p className="text-sm text-foreground/70">
-                Expira em {activePlan.days_remaining || 0} dias
+                Expira em {activePlan.daysRemaining || 0} dias
               </p>
             </div>
           )}
@@ -224,7 +324,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
               
               <CardContent className="pt-4">
                 <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, featureIndex) => (
+                  {plan.features.map((feature: string, featureIndex: number) => (
                     <li key={featureIndex} className="flex items-center gap-3">
                       <Check className="w-5 h-5 text-cloud-blue flex-shrink-0" />
                       <span className="text-foreground/80">{feature}</span>
