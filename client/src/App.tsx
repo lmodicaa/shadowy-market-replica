@@ -7,6 +7,7 @@ import { Router, Route, Switch } from "wouter";
 import { queryClient } from "@/lib/queryClient";
 import { supabase } from "@/lib/supabase";
 import { useIsAdmin } from "@/hooks/useAdmin";
+import { usePreventAutoReload } from "@/hooks/usePageVisibility";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
@@ -38,6 +39,9 @@ const AppContent = ({ session }: { session: any }) => {
 const App = () => {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  
+  // Prevenir recargas automáticas no deseadas
+  usePreventAutoReload();
 
   useEffect(() => {
     // Obter sessão inicial
