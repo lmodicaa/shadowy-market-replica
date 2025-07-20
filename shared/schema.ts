@@ -20,6 +20,14 @@ export const plans = pgTable("plans", {
   stock: integer("stock"), // Quantidade disponível do plano
   price: text("price").notNull(), // Preço formatado como texto
   description: text("description"),
+  // Especificações técnicas
+  ram: text("ram").notNull(), // Memória RAM (ex: "8 GB")
+  cpu: text("cpu").notNull(), // Processador (ex: "4 vCPUs")
+  storage: text("storage").notNull(), // Armazenamento (ex: "100 GB")
+  gpu: text("gpu").notNull(), // GPU (ex: "Dedicada", "GTX 1060")
+  max_resolution: text("max_resolution").notNull(), // Resolução máxima (ex: "1440p")
+  status: text("status").default('Offline'), // Status padrão (Online/Offline)
+  created_at: timestamp("created_at").defaultNow(),
 });
 
 // Tabela de assinaturas/histórico de planos
@@ -110,3 +118,7 @@ export type PlanStock = typeof plan_stock.$inferSelect;
 
 export type InsertAdmins = z.infer<typeof insertAdminsSchema>;
 export type Admins = typeof admins.$inferSelect;
+
+// Aliases para compatibilidade com storage.ts
+export type User = Profile;
+export type InsertUser = InsertProfile;

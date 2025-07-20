@@ -1,4 +1,4 @@
-import { type User, type InsertUser } from "@shared/schema";
+import { type Profile as User, type InsertProfile as InsertUser } from "@shared/schema";
 import { db } from "./db";
 
 // modify the interface with any CRUD methods
