@@ -17,10 +17,9 @@ export const profiles = pgTable("profiles", {
 export const plans = pgTable("plans", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull().unique(),
-  price: text("price").notNull(), // Mantém como text para permitir formatação como "R$ 49"
-  price_numeric: integer("price_numeric"), // Valor numérico em centavos para cálculos
+  stock: integer("stock"), // Quantidade disponível do plano
+  price: text("price").notNull(), // Preço formatado como texto
   description: text("description"),
-  created_at: timestamp("created_at").defaultNow(),
 });
 
 // Tabela de assinaturas/histórico de planos

@@ -1,36 +1,28 @@
-import { Check, Crown, Zap, Star } from 'lucide-react';
+import { Check, Crown, Zap, Star, Package } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCreateSubscription } from '@/hooks/useUserProfile';
 import { useActivePlan } from '@/hooks/useActivePlan';
 import { useToast } from '@/hooks/use-toast';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
 
-const plans = [
-  {
-    id: '38a99fdf-e8c3-40cb-a52a-c1b1b3d33ff0',
-    name: 'Básico',
-    price: 'R$ 49',
-    period: '/mês',
-    description: 'Ideal para jogos casuais e sessões curtas',
-    features: [
+// Função para obter features baseadas no nome do plano
+const getFeaturesByPlanName = (planName: string) => {
+  const lowerName = planName.toLowerCase();
+  
+  if (lowerName.includes('básico') || lowerName.includes('basic')) {
+    return [
       '4 GB RAM',
       '2 vCPUs',
       '50 GB Armazenamento',
       '10 horas/mês',
       'Suporte por email',
       'Resolução até 1080p'
-    ],
-    icon: Zap,
-    popular: false
-  },
-  {
-    id: 'f9d5ac77-7142-421c-aae2-6f9735d52c53',
-    name: 'Gamer',
-    price: 'R$ 99',
-    period: '/mês',
-    description: 'Perfeito para gamers intermediários',
-    features: [
+    ];
+  } else if (lowerName.includes('gamer') || lowerName.includes('intermedi')) {
+    return [
       '8 GB RAM',
       '4 vCPUs',
       '100 GB Armazenamento',
@@ -38,17 +30,9 @@ const plans = [
       'Suporte prioritário',
       'Resolução até 1440p',
       'GPU dedicada'
-    ],
-    icon: Star,
-    popular: true
-  },
-  {
-    id: '6681e2f0-f1bd-4201-b15a-6c8c24e4c73b',
-    name: 'Pro',
-    price: 'R$ 199',
-    period: '/mês',
-    description: 'Para profissionais e streamers',
-    features: [
+    ];
+  } else if (lowerName.includes('pro') || lowerName.includes('premium')) {
+    return [
       '16 GB RAM',
       '8 vCPUs',
       '250 GB Armazenamento',
@@ -57,11 +41,17 @@ const plans = [
       'Resolução até 4K',
       'GPU RTX dedicada',
       'Streaming integrado'
-    ],
-    icon: Crown,
-    popular: false
+    ];
+  } else {
+    // Features genéricas para planos não reconhecidos
+    return [
+      'Configuração personalizada',
+      'Recursos dedicados',
+      'Suporte incluído',
+      'Acesso completo à plataforma'
+    ];
   }
-];
+};
 
 interface PlansSectionProps {
   session?: any;
@@ -72,6 +62,30 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
   const createSubscription = useCreateSubscription();
   const { data: activePlan, isLoading: loadingActivePlan } = useActivePlan(session?.user?.id);
   const { toast } = useToast();
+
+  // Buscar planos reais da base de dados
+  const { data: plans = [], isLoading: loadingPlans } = useQuery({
+    queryKey: ['plans'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('plans')
+        .select('id, name, stock, price, description')
+        .order('name');
+      
+      if (error) throw error;
+      
+      // Mapear planos para incluir ícones e recursos baseados no nome
+      return data.map((plan, index) => ({
+        ...plan,
+        icon: index === 0 ? Zap : index === 1 ? Star : Crown,
+        popular: index === 1, // O segundo plano será popular
+        features: getFeaturesByPlanName(plan.name),
+        period: '/mês'
+      }));
+    }
+  });
+
+
 
   const handleSelectPlan = async (plan: { id: string; name: string }) => {
     if (!session?.user?.id) {
@@ -141,9 +155,17 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
           )}
         </div>
 
-        {/* Plans Grid */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {plans.map((plan, index) => (
+        {/* Loading State */}
+        {loadingPlans ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cloud-blue"></div>
+            <span className="ml-3 text-lg">Carregando planos...</span>
+          </div>
+        ) : (
+          <>
+            {/* Plans Grid */}
+            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              {plans.map((plan, index) => (
             <Card 
               key={index} 
               className={`relative hover:border-cloud-blue/40 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-xl ${
@@ -175,6 +197,16 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
                     {plan.period}
                   </span>
                 </div>
+
+                {/* Stock Info */}
+                {plan.stock !== null && (
+                  <div className="flex items-center justify-center gap-1 mt-2">
+                    <Package className="w-4 h-4 text-foreground/60" />
+                    <span className="text-sm text-foreground/60">
+                      {plan.stock > 0 ? `${plan.stock} disponíveis` : 'Esgotado'}
+                    </span>
+                  </div>
+                )}
                 
                 <p className="text-foreground/70 mt-2">
                   {plan.description}
@@ -193,7 +225,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
                 
                 <Button 
                   onClick={() => handleSelectPlan({ id: plan.id, name: plan.name })}
-                  disabled={createSubscription.isPending || (activePlan?.isActive && activePlan.name === plan.name)}
+                  disabled={createSubscription.isPending || (activePlan?.isActive && activePlan.name === plan.name) || (plan.stock !== null && plan.stock <= 0)}
                   className={`w-full ${
                     plan.popular 
                       ? 'bg-cloud-blue hover:bg-cloud-blue/90 text-white' 
@@ -203,17 +235,21 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
                 >
                   {createSubscription.isPending 
                     ? 'Processando...' 
-                    : activePlan?.isActive && activePlan.name === plan.name
-                      ? 'Plano Ativo'
-                      : activePlan?.isActive
-                        ? 'Já Possui Plano'
-                        : `Escolher ${plan.name}`
+                    : plan.stock !== null && plan.stock <= 0
+                      ? 'Esgotado'
+                      : activePlan?.isActive && activePlan.name === plan.name
+                        ? 'Plano Ativo'
+                        : activePlan?.isActive
+                          ? 'Já Possui Plano'
+                          : `Escolher ${plan.name}`
                   }
                 </Button>
               </CardContent>
             </Card>
-          ))}
-        </div>
+              ))}
+            </div>
+          </>
+        )}
 
         {/* Additional Info */}
         <div className="text-center mt-12">
