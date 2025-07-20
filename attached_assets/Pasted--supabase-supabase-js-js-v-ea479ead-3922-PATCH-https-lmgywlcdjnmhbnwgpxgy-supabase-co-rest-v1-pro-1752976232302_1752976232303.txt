@@ -1,0 +1,37 @@
+@supabase_supabase-js.js?v=ea479ead:3922  PATCH https://lmgywlcdjnmhbnwgpxgy.supabase.co/rest/v1/profiles?id=eq.7f58d7f3-beff-48d5-ae74-39f6ca3a73e7&select=* 400 (Bad Request)
+(anonymous) @ @supabase_supabase-js.js?v=ea479ead:3922
+(anonymous) @ @supabase_supabase-js.js?v=ea479ead:3943
+fulfilled @ @supabase_supabase-js.js?v=ea479ead:3895
+Promise.then
+step @ @supabase_supabase-js.js?v=ea479ead:3908
+(anonymous) @ @supabase_supabase-js.js?v=ea479ead:3910
+__awaiter6 @ @supabase_supabase-js.js?v=ea479ead:3892
+(anonymous) @ @supabase_supabase-js.js?v=ea479ead:3933
+then @ @supabase_supabase-js.js?v=ea479ead:89
+useUserProfile.ts:202 Erro ao atualizar perfil: {code: '22P02', details: null, hint: null, message: 'invalid input syntax for type uuid: "Básico"'}
+mutationFn @ useUserProfile.ts:202
+await in mutationFn
+fn @ @tanstack_react-query.js?v=ea479ead:1189
+run @ @tanstack_react-query.js?v=ea479ead:494
+start @ @tanstack_react-query.js?v=ea479ead:536
+execute @ @tanstack_react-query.js?v=ea479ead:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=ea479ead:2630
+handleSelectPlan @ PlansSection.tsx:82
+onClick @ PlansSection.tsx:172
+callCallback2 @ chunk-UPELNCPK.js?v=ea479ead:3674
+invokeGuardedCallbackDev @ chunk-UPELNCPK.js?v=ea479ead:3699
+invokeGuardedCallback @ chunk-UPELNCPK.js?v=ea479ead:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-UPELNCPK.js?v=ea479ead:3736
+executeDispatch @ chunk-UPELNCPK.js?v=ea479ead:7014
+processDispatchQueueItemsInOrder @ chunk-UPELNCPK.js?v=ea479ead:7034
+processDispatchQueue @ chunk-UPELNCPK.js?v=ea479ead:7043
+dispatchEventsForPlugins @ chunk-UPELNCPK.js?v=ea479ead:7051
+(anonymous) @ chunk-UPELNCPK.js?v=ea479ead:7174
+batchedUpdates$1 @ chunk-UPELNCPK.js?v=ea479ead:18913
+batchedUpdates @ chunk-UPELNCPK.js?v=ea479ead:3579
+dispatchEventForPluginEventSystem @ chunk-UPELNCPK.js?v=ea479ead:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-UPELNCPK.js?v=ea479ead:5478
+dispatchEvent @ chunk-UPELNCPK.js?v=ea479ead:5472
+dispatchDiscreteEvent @ chunk-UPELNCPK.js?v=ea479ead:5449
+PlansSection.tsx:97 Erro ao ativar plano: {code: '22P02', details: null, hint: null, message: 'invalid input syntax for type uuid: "Básico"'}

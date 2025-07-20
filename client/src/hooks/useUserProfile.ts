@@ -186,11 +186,11 @@ export const useCreateSubscription = () => {
         throw subscriptionError;
       }
       
-      // Atualizar perfil com plano ativo
+      // Atualizar perfil com plano ativo usando UUID do plano
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .update({
-          active_plan: planName,
+          active_plan: plan.id, // Usar UUID do plano, não o nome
           active_plan_until: endDate.toISOString(),
           updated_at: now.toISOString(),
         })
