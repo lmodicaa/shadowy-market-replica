@@ -242,24 +242,59 @@ export const useUpdatePlanStock = () => {
       totalSlots: number; 
       isAvailable: boolean; 
     }) => {
-      const { data, error } = await supabase
-        .from('plan_stock')
-        .upsert({
-          plan_id: planId,
-          available_slots: availableSlots,
-          total_slots: totalSlots,
-          is_available: isAvailable,
-          updated_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
+      console.log('Updating plan stock:', { planId, availableSlots, totalSlots, isAvailable });
       
-      if (error) {
-        console.error('Erro ao atualizar estoque:', error);
-        throw error;
+      // Primeiro verificar se já existe um registro de estoque para este plano
+      const { data: existingStock, error: selectError } = await supabase
+        .from('plan_stock')
+        .select('id')
+        .eq('plan_id', planId)
+        .single();
+
+      let result;
+      
+      if (existingStock) {
+        // Atualizar registro existente
+        const { data, error } = await supabase
+          .from('plan_stock')
+          .update({
+            available_slots: availableSlots,
+            total_slots: totalSlots,
+            is_available: isAvailable,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('plan_id', planId)
+          .select()
+          .single();
+        
+        if (error) {
+          console.error('Erro ao atualizar estoque existente:', error);
+          throw error;
+        }
+        result = data;
+      } else {
+        // Inserir novo registro
+        const { data, error } = await supabase
+          .from('plan_stock')
+          .insert({
+            plan_id: planId,
+            available_slots: availableSlots,
+            total_slots: totalSlots,
+            is_available: isAvailable,
+            updated_at: new Date().toISOString(),
+          })
+          .select()
+          .single();
+        
+        if (error) {
+          console.error('Erro ao inserir novo estoque:', error);
+          throw error;
+        }
+        result = data;
       }
       
-      return data;
+      console.log('Stock update successful:', result);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['planStock'] });

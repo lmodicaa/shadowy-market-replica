@@ -22,8 +22,11 @@ const AdminPlanManagement = () => {
   const updatePlanStock = useUpdatePlanStock();
   const { toast } = useToast();
 
-  // Get plans from planStock data
+  // Get unique plans from planStock data
   const plans = planStock?.map(stock => stock.plans).filter(Boolean) || [];
+  const uniquePlans = plans.filter((plan, index, self) => 
+    plan && self.findIndex(p => p && p.id === plan.id) === index
+  );
 
   const handleUpdateStock = async () => {
     if (!editingPlan) return;
@@ -103,7 +106,7 @@ const AdminPlanManagement = () => {
 
       {/* Plans Grid */}
       <div className="grid gap-6">
-        {plans.map((plan) => {
+        {uniquePlans.map((plan) => {
           const currentStock = getCurrentStock(plan.id);
           const stockStatus = getStockStatus(currentStock.available_slots, currentStock.total_slots);
           
