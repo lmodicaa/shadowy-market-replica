@@ -7,6 +7,7 @@ import { Router, Route, Switch } from "wouter";
 import { queryClient } from "@/lib/queryClient";
 import { supabase } from "@/lib/supabase";
 import { useIsAdmin } from "@/hooks/useAdmin";
+import { usePreventReload } from "@/hooks/usePreventReload";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
@@ -38,6 +39,9 @@ const AppContent = ({ session }: { session: any }) => {
 const App = () => {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  // Hook para prevenir recargas automáticas cuando se está editando
+  usePreventReload();
 
   useEffect(() => {
     // Obter sessão inicial
@@ -71,19 +75,17 @@ const App = () => {
       }
     });
 
-    // Sistema simple de preservación que no interfiere con React
+    // Solo manejar scroll position
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        // Solo guardar posición de scroll, no datos de formularios
         sessionStorage.setItem('scrollPosition', window.scrollY.toString());
       } else {
-        // Restaurar posición de scroll después de un delay
-        setTimeout(() => {
-          const savedPosition = sessionStorage.getItem('scrollPosition');
-          if (savedPosition) {
+        const savedPosition = sessionStorage.getItem('scrollPosition');
+        if (savedPosition) {
+          setTimeout(() => {
             window.scrollTo({ top: parseInt(savedPosition), behavior: 'smooth' });
-          }
-        }, 300);
+          }, 100);
+        }
       }
     };
 
