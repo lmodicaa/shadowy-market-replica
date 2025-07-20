@@ -137,12 +137,24 @@ export const useCreateSubscription = () => {
       const now = new Date();
       const endDate = new Date(now.getTime() + duration * 24 * 60 * 60 * 1000);
       
-      // Inserir nova assinatura
+      // Primeiro buscar o ID real do plano
+      const { data: plan, error: planError } = await supabase
+        .from('plans')
+        .select('id')
+        .eq('name', planName)
+        .single();
+      
+      if (planError || !plan) {
+        console.error('Erro ao buscar plano:', planError);
+        throw new Error(`Plano "${planName}" não encontrado`);
+      }
+
+      // Inserir nova assinatura com ID válido
       const { data: subscription, error: subscriptionError } = await supabase
         .from('subscriptions')
         .insert({
           user_id: userId,
-          plan_id: getPlanId(planName), // Função auxiliar para mapear nome para ID
+          plan_id: plan.id, // Usar ID real do plano
           plan_name: planName,
           end_date: endDate.toISOString(),
         })
