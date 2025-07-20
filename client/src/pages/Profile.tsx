@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import UserPlanStatus from '@/components/UserPlanStatus';
 import VMDashboard from '@/components/VMDashboard';
 import { useUserProfile, useSubscriptionHistory } from '@/hooks/useUserProfile';
+import { useActivePlan } from '@/hooks/useActivePlan';
 
 interface ProfileProps {
   session: any;

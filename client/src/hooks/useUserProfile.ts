@@ -26,47 +26,7 @@ export const useUserProfile = (userId?: string) => {
   });
 };
 
-// Hook para obter informações do plano ativo
-export const useActivePlan = (userId?: string) => {
-  return useQuery({
-    queryKey: ['activePlan', userId],
-    queryFn: async () => {
-      if (!userId) return null;
-      
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('active_plan, active_plan_until')
-        .eq('id', userId)
-        .single();
-      
-      if (error) {
-        console.error('Erro ao buscar plano ativo:', error);
-        throw error;
-      }
-      
-      if (!profile?.active_plan || !profile?.active_plan_until) {
-        return null;
-      }
-      
-      const now = new Date();
-      const expirationDate = new Date(profile.active_plan_until);
-      const isExpired = expirationDate < now;
-      
-      // Calcular dias restantes
-      const timeDiff = expirationDate.getTime() - now.getTime();
-      const daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
-      
-      return {
-        planName: profile.active_plan,
-        expirationDate: profile.active_plan_until,
-        isExpired,
-        daysRemaining: isExpired ? 0 : daysRemaining,
-      };
-    },
-    enabled: !!userId,
-    refetchInterval: 60000, // Refetch a cada minuto para manter atualizado
-  });
-};
+
 
 // Hook para obter histórico de assinaturas
 export const useSubscriptionHistory = (userId?: string) => {
@@ -245,6 +205,8 @@ export const useCreateSubscription = () => {
       queryClient.invalidateQueries({ queryKey: ['profile', data.profile.id] });
       queryClient.invalidateQueries({ queryKey: ['activePlan', data.profile.id] });
       queryClient.invalidateQueries({ queryKey: ['subscriptions', data.profile.id] });
+      queryClient.invalidateQueries({ queryKey: ['subscriptionHistory', data.profile.id] });
+      queryClient.invalidateQueries({ queryKey: ['plans'] }); // Para atualizar stock dos planos
     },
   });
 };

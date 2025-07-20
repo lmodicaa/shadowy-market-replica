@@ -3,7 +3,7 @@ import { Power, Monitor, Settings, Activity, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useActivePlan } from '@/hooks/useUserProfile';
+import { useActivePlan } from '@/hooks/useActivePlan';
 import { useToast } from '@/hooks/use-toast';
 
 interface VMDashboardProps {
@@ -12,33 +12,44 @@ interface VMDashboardProps {
 
 // Simulação de dados da VM baseado no plano do usuário
 const getVMSpecs = (planName?: string) => {
-  switch (planName) {
-    case 'Básico':
-      return {
-        ram: '4 GB',
-        cpu: '2 vCPUs',
-        storage: '50 GB',
-        gpu: 'Compartilhada',
-        maxResolution: '1080p',
-      };
-    case 'Gamer':
-      return {
-        ram: '8 GB',
-        cpu: '4 vCPUs',
-        storage: '100 GB',
-        gpu: 'GTX 1060',
-        maxResolution: '1440p',
-      };
-    case 'Pro':
-      return {
-        ram: '16 GB',
-        cpu: '8 vCPUs',
-        storage: '250 GB',
-        gpu: 'RTX 3070',
-        maxResolution: '4K',
-      };
-    default:
-      return null;
+  if (!planName) return null;
+  
+  const lowerName = planName.toLowerCase();
+  
+  // Detectar tipo de plano baseado no nome
+  if (lowerName.includes('básico') || lowerName.includes('basic')) {
+    return {
+      ram: '4 GB',
+      cpu: '2 vCPUs',
+      storage: '50 GB',
+      gpu: 'Compartilhada',
+      maxResolution: '1080p',
+    };
+  } else if (lowerName.includes('gamer') || lowerName.includes('intermedi')) {
+    return {
+      ram: '8 GB',
+      cpu: '4 vCPUs',
+      storage: '100 GB',
+      gpu: 'GTX 1060',
+      maxResolution: '1440p',
+    };
+  } else if (lowerName.includes('pro') || lowerName.includes('premium') || lowerName.includes('avançado')) {
+    return {
+      ram: '16 GB',
+      cpu: '8 vCPUs',
+      storage: '250 GB',
+      gpu: 'RTX 3070',
+      maxResolution: '4K',
+    };
+  } else {
+    // Configuración por defecto para planes personalizados
+    return {
+      ram: '8 GB',
+      cpu: '4 vCPUs',
+      storage: '100 GB',
+      gpu: 'Dedicada',
+      maxResolution: '1440p',
+    };
   }
 };
 

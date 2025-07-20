@@ -36,10 +36,35 @@ export const useActivePlan = (userId?: string) => {
             .single();
           
           if (!planError && planDetails) {
+            const daysRemaining = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+            
             return {
               ...planDetails,
+              planName: planDetails.name, // Para compatibilidade com UserPlanStatus
+              expirationDate: profile.active_plan_until,
+              endDate: profile.active_plan_until, // Para compatibilidade com PlansSection
+              daysRemaining,
+              isActive: true,
+              isExpired: false
+            };
+          }
+        } else {
+          // Plano expirado
+          const { data: planDetails, error: planError } = await supabase
+            .from('plans')
+            .select('name, price, description')
+            .eq('id', profile.active_plan)
+            .single();
+          
+          if (!planError && planDetails) {
+            return {
+              ...planDetails,
+              planName: planDetails.name,
+              expirationDate: profile.active_plan_until,
               endDate: profile.active_plan_until,
-              isActive: true
+              daysRemaining: 0,
+              isActive: false,
+              isExpired: true
             };
           }
         }
