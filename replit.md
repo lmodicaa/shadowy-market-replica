@@ -46,6 +46,12 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - Authentication handled securely through Supabase
 
 ## Recent Changes
+- 2025-01-20: **NETLIFY DEPLOY READY** - Configuración completa para deploy en Netlify
+  - Creado netlify.toml con configuración optimizada de build
+  - Configurados redirects para SPA routing (_redirects, netlify/_redirects)
+  - Verificado que el build funciona correctamente (vite build)
+  - Creadas instrucciones detalladas de deploy (DEPLOY_INSTRUCTIONS.md)
+  - Aplicación lista para production en Netlify con todas las funcionalidades
 - 2025-01-20: Completed migration from Replit Agent to Replit environment successfully
 - 2025-01-20: Fixed user subscription validation logic with improved error messaging
 - 2025-01-20: Enhanced PlansSection UI to display active plan status clearly
