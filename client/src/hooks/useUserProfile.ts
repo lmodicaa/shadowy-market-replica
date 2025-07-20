@@ -127,10 +127,12 @@ export const useCreateSubscription = () => {
   return useMutation({
     mutationFn: async ({ 
       userId, 
+      planId,
       planName, 
       duration = 30 
     }: { 
       userId: string; 
+      planId: string;
       planName: string; 
       duration?: number; // dias
     }) => {
@@ -179,45 +181,35 @@ export const useCreateSubscription = () => {
         }
       }
       
-      // Primeiro buscar o ID real do plano - buscar exato e depois similar
-      console.log('Buscando plano com nome:', planName);
+      // Usar o ID do plano diretamente 
+      console.log('Usando plano ID:', planId, 'nome:', planName);
       
-      // Tentar busca exata primeiro
-      let { data: plans, error: planError } = await supabase
+      // Verificar se o plano existe na base de dados
+      const { data: plan, error: planError } = await supabase
         .from('plans')
         .select('id, name')
-        .eq('name', planName);
+        .eq('id', planId)
+        .single();
       
-      // Se não encontrar, tentar busca similar
-      if (!plans || plans.length === 0) {
-        console.log('Busca exata falhou, tentando busca similar...');
-        ({ data: plans, error: planError } = await supabase
-          .from('plans')
-          .select('id, name')
-          .ilike('name', `%${planName}%`));
-      }
-      
-      if (planError || !plans || plans.length === 0) {
-        console.error('Erro ao buscar plano:', planError);
+      if (planError || !plan) {
+        console.error('Erro ao verificar plano:', planError);
         
         // Mostrar todos os planos disponíveis para debug
         const { data: allPlans } = await supabase.from('plans').select('id, name');
         console.log('Planos disponíveis na base de dados:', allPlans);
         
-        throw new Error(`Plano "${planName}" não encontrado. Planos disponíveis: ${allPlans?.map(p => p.name).join(', ')}`);
+        throw new Error(`Plano com ID "${planId}" não encontrado. Planos disponíveis: ${allPlans?.map(p => `${p.name} (${p.id})`).join(', ')}`);
       }
       
-      const plan = plans[0]; // Usar o primeiro resultado
-      console.log('Plano encontrado:', plan);
+      console.log('Plano verificado:', plan);
 
       // Inserir nova assinatura com ID válido
       const { data: subscription, error: subscriptionError } = await supabase
         .from('subscriptions')
         .insert({
           user_id: userId,
-          plan_id: plan.id, // Usar ID real do plano
+          plan_id: planId, // Usar planId fornecido diretamente
           plan_name: planName,
-          start_date: now.toISOString(), // Adicionar start_date obrigatório
           end_date: endDate.toISOString(),
         })
         .select()
@@ -232,7 +224,7 @@ export const useCreateSubscription = () => {
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .update({
-          active_plan: plan.id, // Usar UUID do plano, não o nome
+          active_plan: planId, // Usar planId fornecido diretamente
           active_plan_until: endDate.toISOString(),
           updated_at: now.toISOString(),
         })

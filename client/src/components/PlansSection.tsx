@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const plans = [
   {
+    id: '38a99fdf-e8c3-40cb-a52a-c1b1b3d33ff0',
     name: 'Básico',
     price: 'R$ 49',
     period: '/mês',
@@ -24,6 +25,7 @@ const plans = [
     popular: false
   },
   {
+    id: 'f9d5ac77-7142-421c-aae2-6f9735d52c53',
     name: 'Gamer',
     price: 'R$ 99',
     period: '/mês',
@@ -41,6 +43,7 @@ const plans = [
     popular: true
   },
   {
+    id: '6681e2f0-f1bd-4201-b15a-6c8c24e4c73b',
     name: 'Pro',
     price: 'R$ 199',
     period: '/mês',
@@ -70,7 +73,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
   const { data: activePlan, isLoading: loadingActivePlan } = useActivePlan(session?.user?.id);
   const { toast } = useToast();
 
-  const handleSelectPlan = async (planName: string) => {
+  const handleSelectPlan = async (plan: { id: string; name: string }) => {
     if (!session?.user?.id) {
       toast({
         title: "Login necessário",
@@ -83,17 +86,18 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
     try {
       await createSubscription.mutateAsync({
         userId: session.user.id,
-        planName,
+        planId: plan.id,
+        planName: plan.name,
         duration: 30, // 30 dias
       });
 
       toast({
         title: "Plano ativado com sucesso!",
-        description: `Seu plano ${planName} foi ativado por 30 dias.`,
+        description: `Seu plano ${plan.name} foi ativado por 30 dias.`,
       });
 
       // Chamar callback se fornecido
-      onPlanSelect?.(planName);
+      onPlanSelect?.(plan.name);
 
     } catch (error: any) {
       console.error('Erro ao ativar plano:', error);
@@ -188,7 +192,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
                 </ul>
                 
                 <Button 
-                  onClick={() => handleSelectPlan(plan.name)}
+                  onClick={() => handleSelectPlan({ id: plan.id, name: plan.name })}
                   disabled={createSubscription.isPending || (activePlan?.isActive && activePlan.name === plan.name)}
                   className={`w-full ${
                     plan.popular 
