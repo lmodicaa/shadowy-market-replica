@@ -29,15 +29,24 @@ const AdminPlanManagement = () => {
   );
 
   const handleUpdateStock = async () => {
-    if (!editingPlan) return;
+    if (!editingPlan) {
+      console.error('Nenhum plano selecionado para edição');
+      return;
+    }
+
+    console.log('=== INICIANDO ATUALIZAÇÃO NO FRONTEND ===');
+    console.log('Plano para editar:', editingPlan);
+    console.log('Novo stock:', newStock);
 
     try {
-      await updatePlanStock.mutateAsync({
+      const result = await updatePlanStock.mutateAsync({
         planId: editingPlan.id,
-        availableSlots: newStock.totalSlots, // Usando totalSlots como stock principal
+        availableSlots: newStock.totalSlots,
         totalSlots: newStock.totalSlots,
         isAvailable: newStock.isAvailable,
       });
+
+      console.log('Resultado da mutação:', result);
 
       toast({
         title: "Estoque atualizado",
@@ -46,10 +55,10 @@ const AdminPlanManagement = () => {
 
       setEditingPlan(null);
     } catch (error) {
-      console.error('Erro ao atualizar estoque:', error);
+      console.error('Erro completo ao atualizar estoque:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível atualizar o estoque.",
+        description: `Erro: ${error instanceof Error ? error.message : 'Não foi possível atualizar o estoque.'}`,
         variant: "destructive",
       });
     }
@@ -161,6 +170,8 @@ const AdminPlanManagement = () => {
                         <Button 
                           variant="outline"
                           onClick={() => {
+                            console.log('Editando plano:', plan);
+                            console.log('Stock atual:', currentStock);
                             setEditingPlan({ id: plan.id, name: plan.name });
                             setNewStock({
                               availableSlots: currentStock.available_slots,
