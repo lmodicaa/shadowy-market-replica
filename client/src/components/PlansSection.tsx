@@ -121,6 +121,20 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
             Selecione o plano que melhor se adapta às suas necessidades de gaming. 
             Todos os planos incluem acesso completo à nossa plataforma.
           </p>
+
+          {/* Active Plan Status */}
+          {activePlan && activePlan.plan_name && (
+            <div className="mt-8 p-4 rounded-lg bg-cloud-blue/10 border border-cloud-blue/20 max-w-md mx-auto">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Crown className="w-5 h-5 text-cloud-blue" />
+                <span className="font-semibold text-cloud-blue">Plano Ativo</span>
+              </div>
+              <p className="text-lg font-bold">{activePlan.plan_name}</p>
+              <p className="text-sm text-foreground/70">
+                Expira em {activePlan.days_remaining || 0} dias
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Plans Grid */}
