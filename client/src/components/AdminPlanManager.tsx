@@ -24,6 +24,7 @@ interface Plan {
   gpu: string;
   max_resolution: string;
   status: string;
+  duration: number;
   created_at: string;
 }
 
@@ -38,6 +39,7 @@ interface PlanFormData {
   gpu: string;
   max_resolution: string;
   status: string;
+  duration: number;
 }
 
 const AdminPlanManager = () => {
@@ -53,7 +55,8 @@ const AdminPlanManager = () => {
     storage: '50 GB',
     gpu: 'Compartilhada',
     max_resolution: '1080p',
-    status: 'Online'
+    status: 'Online',
+    duration: 30
   });
 
   const { toast } = useToast();
@@ -166,7 +169,8 @@ const AdminPlanManager = () => {
       storage: '50 GB',
       gpu: 'Compartilhada',
       max_resolution: '1080p',
-      status: 'Online'
+      status: 'Online',
+      duration: 30
     });
   };
 
@@ -182,7 +186,8 @@ const AdminPlanManager = () => {
       storage: plan.storage,
       gpu: plan.gpu,
       max_resolution: plan.max_resolution,
-      status: plan.status
+      status: plan.status,
+      duration: plan.duration || 30
     });
     setIsDialogOpen(true);
   };
@@ -295,6 +300,9 @@ const AdminPlanManager = () => {
                 <div className="flex items-center gap-1">
                   <span>Stock: {plan.stock || 0}</span>
                 </div>
+                <div className="flex items-center gap-1">
+                  <span>Duração: {plan.duration || 30} dias</span>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -345,7 +353,7 @@ const AdminPlanManager = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="stock">Stock</Label>
                 <Input
@@ -354,6 +362,18 @@ const AdminPlanManager = () => {
                   value={formData.stock}
                   onChange={(e) => setFormData(prev => ({ ...prev, stock: parseInt(e.target.value) || 0 }))}
                   min="0"
+                />
+              </div>
+              <div>
+                <Label htmlFor="duration">Duração (dias) *</Label>
+                <Input
+                  id="duration"
+                  type="number"
+                  value={formData.duration}
+                  onChange={(e) => setFormData(prev => ({ ...prev, duration: parseInt(e.target.value) || 30 }))}
+                  min="1"
+                  placeholder="30"
+                  required
                 />
               </div>
               <div>

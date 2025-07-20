@@ -27,6 +27,7 @@ export const plans = pgTable("plans", {
   gpu: text("gpu").notNull(), // GPU (ex: "Dedicada", "GTX 1060")
   max_resolution: text("max_resolution").notNull(), // Resolução máxima (ex: "1440p")
   status: text("status").default('Offline'), // Status padrão (Online/Offline)
+  duration: integer("duration").default(30), // Duração em dias
   created_at: timestamp("created_at").defaultNow(),
 });
 

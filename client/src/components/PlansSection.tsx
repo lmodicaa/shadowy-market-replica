@@ -69,7 +69,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('plans')
-        .select('id, name, stock, price, description, ram, cpu, storage, gpu, max_resolution, status')
+        .select('id, name, stock, price, description, ram, cpu, storage, gpu, max_resolution, status, duration')
         .eq('status', 'Online')
         .order('name');
       
@@ -86,6 +86,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
           `${plan.storage} Armazenamento`,
           `GPU: ${plan.gpu}`,
           `Resolução até ${plan.max_resolution}`,
+          `Duração: ${plan.duration || 30} dias`,
           'Suporte técnico incluído'
         ],
         period: '/mês'
