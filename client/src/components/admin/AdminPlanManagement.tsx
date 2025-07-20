@@ -34,18 +34,19 @@ const AdminPlanManagement = () => {
     try {
       await updatePlanStock.mutateAsync({
         planId: editingPlan.id,
-        availableSlots: newStock.availableSlots,
+        availableSlots: newStock.totalSlots, // Usando totalSlots como stock principal
         totalSlots: newStock.totalSlots,
         isAvailable: newStock.isAvailable,
       });
 
       toast({
         title: "Estoque atualizado",
-        description: `Estoque do plano ${editingPlan.name} foi atualizado.`,
+        description: `Estoque do plano ${editingPlan.name} foi atualizado para ${newStock.totalSlots} unidades.`,
       });
 
       setEditingPlan(null);
     } catch (error) {
+      console.error('Erro ao atualizar estoque:', error);
       toast({
         title: "Erro",
         description: "Não foi possível atualizar o estoque.",
@@ -55,7 +56,8 @@ const AdminPlanManagement = () => {
   };
 
   const getCurrentStock = (planId: string) => {
-    return planStock?.find(stock => stock.plan_id === planId) || {
+    const stockData = planStock?.find(stock => stock.plan_id === planId);
+    return stockData || {
       available_slots: 0,
       total_slots: 0,
       is_available: true,

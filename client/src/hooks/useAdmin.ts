@@ -114,48 +114,40 @@ export const useAdminSettings = () => {
   });
 };
 
-// Hook para obter estoque de planos
+// Hook para obter planos com estoque
 export const usePlanStock = () => {
   return useQuery({
     queryKey: ['planStock'],
     queryFn: async () => {
-      // Try RPC function first
-      const { data: rpcData, error: rpcError } = await supabase.rpc('get_plans_with_stock');
+      console.log('Buscando planos com estoque...');
       
-      if (!rpcError && rpcData) {
-        // Transform to match expected format
-        return rpcData.map(plan => ({
-          id: plan.id,
-          plan_id: plan.id,
-          available_slots: plan.available_slots,
-          total_slots: plan.total_slots,
-          is_available: plan.is_available,
-          plans: {
-            id: plan.id,
-            name: plan.name,
-            price: plan.price,
-            description: plan.description
-          }
-        }));
-      }
-      
-      console.log('RPC failed, trying manual query:', rpcError);
-      
-      // Fallback to manual query
       const { data, error } = await supabase
-        .from('plan_stock')
-        .select(`
-          *,
-          plans:plan_id (name, price, description)
-        `)
-        .order('plan_id');
+        .from('plans')
+        .select('*')
+        .order('name');
       
       if (error) {
-        console.error('Erro ao buscar estoque:', error);
+        console.error('Erro ao buscar planos:', error);
         throw error;
       }
       
-      return data;
+      console.log('Planos encontrados:', data);
+      
+      // Transform to match expected format
+      return data?.map(plan => ({
+        id: plan.id,
+        plan_id: plan.id,
+        available_slots: plan.stock || 0,
+        total_slots: plan.stock || 0,
+        is_available: (plan.stock || 0) > 0,
+        plans: {
+          id: plan.id,
+          name: plan.name,
+          price: plan.price,
+          description: plan.description,
+          stock: plan.stock
+        }
+      })) || [];
     },
   });
 };
@@ -244,57 +236,23 @@ export const useUpdatePlanStock = () => {
     }) => {
       console.log('Updating plan stock:', { planId, availableSlots, totalSlots, isAvailable });
       
-      // Primeiro verificar se já existe um registro de estoque para este plano
-      const { data: existingStock, error: selectError } = await supabase
-        .from('plan_stock')
-        .select('id')
-        .eq('plan_id', planId)
+      // Atualizar diretamente o campo stock na tabela plans
+      const { data, error } = await supabase
+        .from('plans')
+        .update({
+          stock: totalSlots
+        })
+        .eq('id', planId)
+        .select()
         .single();
-
-      let result;
       
-      if (existingStock) {
-        // Atualizar registro existente
-        const { data, error } = await supabase
-          .from('plan_stock')
-          .update({
-            available_slots: availableSlots,
-            total_slots: totalSlots,
-            is_available: isAvailable,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('plan_id', planId)
-          .select()
-          .single();
-        
-        if (error) {
-          console.error('Erro ao atualizar estoque existente:', error);
-          throw error;
-        }
-        result = data;
-      } else {
-        // Inserir novo registro
-        const { data, error } = await supabase
-          .from('plan_stock')
-          .insert({
-            plan_id: planId,
-            available_slots: availableSlots,
-            total_slots: totalSlots,
-            is_available: isAvailable,
-            updated_at: new Date().toISOString(),
-          })
-          .select()
-          .single();
-        
-        if (error) {
-          console.error('Erro ao inserir novo estoque:', error);
-          throw error;
-        }
-        result = data;
+      if (error) {
+        console.error('Erro ao atualizar estoque do plano:', error);
+        throw error;
       }
       
-      console.log('Stock update successful:', result);
-      return result;
+      console.log('Stock update successful:', data);
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['planStock'] });
