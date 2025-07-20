@@ -36,6 +36,15 @@ const Profile = ({ session }: ProfileProps) => {
     }
   }, [session]);
 
+  // Prevenir recargas cuando está editando
+  useEffect(() => {
+    if (isEditing) {
+      sessionStorage.setItem('editing', 'true');
+    } else {
+      sessionStorage.removeItem('editing');
+    }
+  }, [isEditing]);
+
   const handleSave = async () => {
     setLoading(true);
     try {

@@ -7,7 +7,7 @@ import { Router, Route, Switch } from "wouter";
 import { queryClient } from "@/lib/queryClient";
 import { supabase } from "@/lib/supabase";
 import { useIsAdmin } from "@/hooks/useAdmin";
-import { usePreventReload } from "@/hooks/usePreventReload";
+
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
@@ -39,9 +39,6 @@ const AppContent = ({ session }: { session: any }) => {
 const App = () => {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
-  // Hook para prevenir recargas automáticas cuando se está editando
-  usePreventReload();
 
   useEffect(() => {
     // Obter sessão inicial
@@ -75,25 +72,57 @@ const App = () => {
       }
     });
 
-    // Solo manejar scroll position
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        sessionStorage.setItem('scrollPosition', window.scrollY.toString());
-      } else {
-        const savedPosition = sessionStorage.getItem('scrollPosition');
-        if (savedPosition) {
-          setTimeout(() => {
-            window.scrollTo({ top: parseInt(savedPosition), behavior: 'smooth' });
-          }, 100);
-        }
+    // Sistema robusto para prevenir recargas automáticas cuando editando
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      const isEditing = sessionStorage.getItem('editing');
+      if (isEditing) {
+        e.preventDefault();
+        e.returnValue = 'Tienes cambios sin guardar';
+        return e.returnValue;
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    // Detectar edición en inputs
+    const handleInput = () => {
+      sessionStorage.setItem('editing', 'true');
+    };
+
+    // Detectar guardado
+    const handleSave = () => {
+      sessionStorage.removeItem('editing');
+    };
+
+    // Agregar event listeners para todos los elementos interactivos
+    const setupPreventReload = () => {
+      // Inputs y formularios
+      document.addEventListener('input', handleInput, { capture: true, passive: true });
+      document.addEventListener('change', handleInput, { capture: true, passive: true });
+      document.addEventListener('submit', handleSave, { capture: true, passive: true });
+      
+      // Botones de guardar
+      document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        if (target && target.tagName === 'BUTTON') {
+          const text = target.textContent?.toLowerCase() || '';
+          if (text.includes('guardar') || text.includes('salvar') || text.includes('save') || 
+              target.type === 'submit' || target.getAttribute('type') === 'submit') {
+            handleSave();
+          }
+        }
+      }, { capture: true, passive: true });
+
+      // Prevenir navegación cuando hay cambios
+      window.addEventListener('beforeunload', handleBeforeUnload);
+    };
+
+    setupPreventReload();
 
     return () => {
       subscription.unsubscribe();
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('input', handleInput, true);
+      document.removeEventListener('change', handleInput, true);
+      document.removeEventListener('submit', handleSave, true);
     };
   }, []);
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Shield, Users, Settings, Database, BarChart3, Package, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +21,37 @@ const Admin = ({ session }: AdminProps) => {
   const [location, navigate] = useLocation();
   const { data: isAdmin, isLoading: isCheckingAdmin } = useIsAdmin(session?.user?.id);
   const { data: stats } = useSystemStats();
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Detectar cambios en formularios del admin
+  useEffect(() => {
+    const handleInput = () => {
+      setHasUnsavedChanges(true);
+      sessionStorage.setItem('editing', 'true');
+    };
+
+    const handleSave = () => {
+      setHasUnsavedChanges(false);
+      sessionStorage.removeItem('editing');
+    };
+
+    const handleFormSubmit = () => {
+      setHasUnsavedChanges(false);
+      sessionStorage.removeItem('editing');
+    };
+
+    // Agregar listeners cuando la página esté montada
+    document.addEventListener('input', handleInput, { capture: true, passive: true });
+    document.addEventListener('change', handleInput, { capture: true, passive: true });
+    document.addEventListener('submit', handleFormSubmit, { capture: true, passive: true });
+
+    // Limpiar listeners cuando se desmonte
+    return () => {
+      document.removeEventListener('input', handleInput, true);
+      document.removeEventListener('change', handleInput, true);
+      document.removeEventListener('submit', handleFormSubmit, true);
+    };
+  }, []);
 
   // Verificar se usuário está logado
   if (!session) {
