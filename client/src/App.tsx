@@ -72,57 +72,133 @@ const App = () => {
       }
     });
 
-    // Sistema robusto para prevenir recargas automáticas cuando editando
+    // Sistema agresivo para bloquear recargas de Vite durante la edición
+    let isCurrentlyEditing = false;
+    
+    // Interceptar y bloquear WebSocket de Vite
+    const originalWebSocket = window.WebSocket;
+    (window as any).WebSocket = function(url: string | URL, protocols?: string | string[]) {
+      const ws = new originalWebSocket(url, protocols);
+      
+      // Interceptar mensajes del WebSocket de Vite
+      const originalOnMessage = ws.onmessage;
+      ws.onmessage = function(event) {
+        // Si hay cambios sin guardar, bloquear mensajes de reload
+        if (isCurrentlyEditing || sessionStorage.getItem('editing') === 'true') {
+          try {
+            const data = JSON.parse(event.data);
+            // Bloquear todos los tipos de reload de Vite
+            if (data.type === 'full-reload' || 
+                data.type === 'update' || 
+                data.type === 'prune' ||
+                (data.type === 'connected' && data.reconnect)) {
+              console.log('🚫 Recarga de Vite bloqueada - hay cambios sin guardar');
+              return;
+            }
+          } catch (e) {
+            // Si no es JSON válido, continuar
+          }
+        }
+        
+        if (originalOnMessage) {
+          originalOnMessage.call(this, event);
+        }
+      };
+      
+      return ws;
+    };
+
+    // Crear indicador visual de protección
+    const createEditingIndicator = () => {
+      const indicator = document.createElement('div');
+      indicator.id = 'editing-indicator';
+      indicator.style.cssText = `
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: #22c55e;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        z-index: 10000;
+        display: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      `;
+      indicator.textContent = '🛡️ Editando - Recargas bloqueadas';
+      document.body.appendChild(indicator);
+      return indicator;
+    };
+
+    const editingIndicator = createEditingIndicator();
+
+    // Detectar edición y activar bloqueo
+    const startEditing = () => {
+      isCurrentlyEditing = true;
+      sessionStorage.setItem('editing', 'true');
+      editingIndicator.style.display = 'block';
+      console.log('✏️ Modo edición activado - recargas bloqueadas');
+    };
+
+    // Detectar guardado y desactivar bloqueo
+    const stopEditing = () => {
+      isCurrentlyEditing = false;
+      sessionStorage.removeItem('editing');
+      editingIndicator.style.display = 'none';
+      console.log('✅ Modo edición desactivado - recargas permitidas');
+    };
+
+    // Prevenir navegación cuando hay cambios
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      const isEditing = sessionStorage.getItem('editing');
-      if (isEditing) {
+      if (isCurrentlyEditing || sessionStorage.getItem('editing') === 'true') {
         e.preventDefault();
         e.returnValue = 'Tienes cambios sin guardar';
         return e.returnValue;
       }
     };
 
-    // Detectar edición en inputs
-    const handleInput = () => {
-      sessionStorage.setItem('editing', 'true');
-    };
+    // Event listeners para detectar edición
+    document.addEventListener('input', startEditing, { capture: true, passive: true });
+    document.addEventListener('change', startEditing, { capture: true, passive: true });
+    document.addEventListener('keydown', (e) => {
+      const target = e.target as HTMLElement;
+      if (target && target.tagName.match(/INPUT|TEXTAREA|SELECT/)) {
+        startEditing();
+      }
+    }, { capture: true, passive: true });
 
-    // Detectar guardado
-    const handleSave = () => {
-      sessionStorage.removeItem('editing');
-    };
-
-    // Agregar event listeners para todos los elementos interactivos
-    const setupPreventReload = () => {
-      // Inputs y formularios
-      document.addEventListener('input', handleInput, { capture: true, passive: true });
-      document.addEventListener('change', handleInput, { capture: true, passive: true });
-      document.addEventListener('submit', handleSave, { capture: true, passive: true });
-      
-      // Botones de guardar
-      document.addEventListener('click', (e) => {
-        const target = e.target as HTMLElement;
-        if (target && target.tagName === 'BUTTON') {
-          const text = target.textContent?.toLowerCase() || '';
-          if (text.includes('guardar') || text.includes('salvar') || text.includes('save') || 
-              target.type === 'submit' || target.getAttribute('type') === 'submit') {
-            handleSave();
-          }
+    // Event listeners para detectar guardado
+    document.addEventListener('submit', stopEditing, { capture: true, passive: true });
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target && target.tagName === 'BUTTON') {
+        const text = target.textContent?.toLowerCase() || '';
+        const buttonElement = target as HTMLButtonElement;
+        if (text.includes('guardar') || text.includes('salvar') || text.includes('save') || 
+            buttonElement.type === 'submit' || target.getAttribute('type') === 'submit') {
+          stopEditing();
         }
-      }, { capture: true, passive: true });
+      }
+    }, { capture: true, passive: true });
 
-      // Prevenir navegación cuando hay cambios
-      window.addEventListener('beforeunload', handleBeforeUnload);
-    };
-
-    setupPreventReload();
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
       subscription.unsubscribe();
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      document.removeEventListener('input', handleInput, true);
-      document.removeEventListener('change', handleInput, true);
-      document.removeEventListener('submit', handleSave, true);
+      document.removeEventListener('input', startEditing, true);
+      document.removeEventListener('change', startEditing, true);
+      document.removeEventListener('submit', stopEditing, true);
+      
+      // Restaurar WebSocket original
+      (window as any).WebSocket = originalWebSocket;
+      
+      // Limpiar indicador
+      const indicator = document.getElementById('editing-indicator');
+      if (indicator) {
+        indicator.remove();
+      }
     };
   }, []);
 
