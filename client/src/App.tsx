@@ -7,7 +7,6 @@ import { Router, Route, Switch } from "wouter";
 import { queryClient } from "@/lib/queryClient";
 import { supabase } from "@/lib/supabase";
 import { useIsAdmin } from "@/hooks/useAdmin";
-
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
@@ -41,20 +40,6 @@ const App = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Configurar preservación de estado una sola vez
-    let cleanupStatePreservation: (() => void) | null = null;
-    
-    // Importar y configurar las utilidades de preservación
-    import('@/utils/statePreservation').then(({ setupStatePreservation, restoreAppState, restoreFormData }) => {
-      cleanupStatePreservation = setupStatePreservation();
-      
-      // Restaurar estado inicial después de un pequeño delay
-      setTimeout(() => {
-        restoreAppState();
-        restoreFormData();
-      }, 1000);
-    });
-
     // Obter sessão inicial
     const getInitialSession = async () => {
       try {
@@ -86,11 +71,27 @@ const App = () => {
       }
     });
 
+    // Sistema simple de preservación que no interfiere con React
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Solo guardar posición de scroll, no datos de formularios
+        sessionStorage.setItem('scrollPosition', window.scrollY.toString());
+      } else {
+        // Restaurar posición de scroll después de un delay
+        setTimeout(() => {
+          const savedPosition = sessionStorage.getItem('scrollPosition');
+          if (savedPosition) {
+            window.scrollTo({ top: parseInt(savedPosition), behavior: 'smooth' });
+          }
+        }, 300);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       subscription.unsubscribe();
-      if (cleanupStatePreservation) {
-        cleanupStatePreservation();
-      }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
