@@ -48,9 +48,14 @@ const AdminPlanManagement = () => {
 
       console.log('Resultado da mutação:', result);
 
+      // Força uma atualização manual dos dados
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+
       toast({
         title: "Estoque atualizado",
-        description: `Estoque do plano ${editingPlan.name} foi atualizado para ${newStock.totalSlots} unidades.`,
+        description: `Estoque do plano ${editingPlan.name} foi atualizado para ${newStock.totalSlots} unidades. Recarregando página...`,
       });
 
       setEditingPlan(null);

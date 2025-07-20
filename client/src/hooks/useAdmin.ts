@@ -252,14 +252,18 @@ export const useUpdatePlanStock = () => {
       
       // Atualizar diretamente o campo stock na tabela plans
       console.log('Atualizando stock para:', totalSlots);
+      console.log('SQL que será executado: UPDATE plans SET stock =', totalSlots, 'WHERE id =', planId);
+      
       const { data, error } = await supabase
         .from('plans')
         .update({
           stock: totalSlots
         })
         .eq('id', planId)
-        .select()
+        .select('*')
         .single();
+      
+      console.log('Resposta do Supabase após UPDATE:', { data, error });
       
       if (error) {
         console.error('Erro ao atualizar estoque do plano:', error);
@@ -271,8 +275,11 @@ export const useUpdatePlanStock = () => {
       console.log('=== FIM ATUALIZAÇÃO STOCK ===');
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Mutation successful, invalidating cache...');
       queryClient.invalidateQueries({ queryKey: ['planStock'] });
+      queryClient.refetchQueries({ queryKey: ['planStock'] });
+      console.log('Cache invalidated and refetch triggered');
     },
   });
 };
