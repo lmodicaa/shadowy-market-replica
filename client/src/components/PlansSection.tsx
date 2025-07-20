@@ -76,10 +76,9 @@ const getFallbackPlans = () => [
       '50 GB Armazenamento',
       'GPU: Integrada',
       'Resolução até 1080p',
-      'Duração: 30 dias',
       'Suporte técnico incluído'
     ],
-    period: '/mês'
+    period: '/30 dias'
   },
   {
     id: '2',
@@ -102,10 +101,9 @@ const getFallbackPlans = () => [
       '100 GB Armazenamento',
       'GPU: GTX 1060',
       'Resolução até 1440p',
-      'Duração: 30 dias',
       'Suporte técnico incluído'
     ],
-    period: '/mês'
+    period: '/30 dias'
   },
   {
     id: '3',
@@ -128,10 +126,9 @@ const getFallbackPlans = () => [
       '250 GB Armazenamento',
       'GPU: RTX 3070',
       'Resolução até 4K',
-      'Duração: 30 dias',
       'Suporte técnico incluído'
     ],
-    period: '/mês'
+    period: '/30 dias'
   }
 ];
 
@@ -179,10 +176,9 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
             `${plan.storage || '50 GB'} Armazenamento`,
             `GPU: ${plan.gpu || 'Integrada'}`,
             `Resolução até ${plan.max_resolution || '1080p'}`,
-            `Duração: ${plan.duration || 30} dias`,
             'Suporte técnico incluído'
           ],
-          period: '/mês'
+          period: `/${plan.duration || 30} dias`
         }));
       } catch (error) {
         console.error('Error fetching plans:', error);
