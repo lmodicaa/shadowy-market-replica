@@ -54,6 +54,12 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - 2025-01-20: Fixed admin settings upsert functionality to prevent duplicate key errors
 - 2025-01-20: Added automatic initialization of default admin settings
 - 2025-01-20: Created MaintenanceMode component for non-admin users during maintenance
+- 2025-01-20: **MAJOR UPDATE**: Complete plans management system overhaul
+  - Expanded database schema with full technical specifications (RAM, CPU, Storage, GPU, Resolution)
+  - Created comprehensive AdminPlanManager component for full CRUD operations
+  - Updated PlansSection to display real database specs instead of hardcoded features
+  - Enhanced VM Dashboard to fetch real plan specifications from database
+  - Added 5 example plans with complete technical details (Básico, Gamer, Pro, Premium, Estudante)
 - Configuración completa del panel administrativo en portugués brasileño
 - Added Supabase environment variables for authentication
 - Translated all Spanish content to Brazilian Portuguese

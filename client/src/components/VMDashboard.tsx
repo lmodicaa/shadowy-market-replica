@@ -5,52 +5,38 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useActivePlan } from '@/hooks/useActivePlan';
 import { useToast } from '@/hooks/use-toast';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
 
 interface VMDashboardProps {
   userId?: string;
 }
 
-// Simulação de dados da VM baseado no plano do usuário
-const getVMSpecs = (planName?: string) => {
-  if (!planName) return null;
-  
-  const lowerName = planName.toLowerCase();
-  
-  // Detectar tipo de plano baseado no nome
-  if (lowerName.includes('básico') || lowerName.includes('basic')) {
-    return {
-      ram: '4 GB',
-      cpu: '2 vCPUs',
-      storage: '50 GB',
-      gpu: 'Compartilhada',
-      maxResolution: '1080p',
-    };
-  } else if (lowerName.includes('gamer') || lowerName.includes('intermedi')) {
-    return {
-      ram: '8 GB',
-      cpu: '4 vCPUs',
-      storage: '100 GB',
-      gpu: 'GTX 1060',
-      maxResolution: '1440p',
-    };
-  } else if (lowerName.includes('pro') || lowerName.includes('premium') || lowerName.includes('avançado')) {
-    return {
-      ram: '16 GB',
-      cpu: '8 vCPUs',
-      storage: '250 GB',
-      gpu: 'RTX 3070',
-      maxResolution: '4K',
-    };
-  } else {
-    // Configuración por defecto para planes personalizados
-    return {
-      ram: '8 GB',
-      cpu: '4 vCPUs',
-      storage: '100 GB',
-      gpu: 'Dedicada',
-      maxResolution: '1440p',
-    };
-  }
+// Buscar especificações do plano diretamente da base de dados
+const useVMSpecs = (planId?: string) => {
+  return useQuery({
+    queryKey: ['vm-specs', planId],
+    queryFn: async () => {
+      if (!planId) return null;
+      
+      const { data, error } = await supabase
+        .from('plans')
+        .select('ram, cpu, storage, gpu, max_resolution')
+        .eq('id', planId)
+        .single();
+      
+      if (error || !data) return null;
+      
+      return {
+        ram: data.ram,
+        cpu: data.cpu,
+        storage: data.storage,
+        gpu: data.gpu,
+        maxResolution: data.max_resolution,
+      };
+    },
+    enabled: !!planId,
+  });
 };
 
 const VMDashboard = ({ userId }: VMDashboardProps) => {
@@ -59,7 +45,22 @@ const VMDashboard = ({ userId }: VMDashboardProps) => {
   const { data: activePlan } = useActivePlan(userId);
   const { toast } = useToast();
 
-  const vmSpecs = getVMSpecs(activePlan?.planName);
+  // Buscar especificações usando o profile.active_plan (que é o UUID do plano)
+  const { data: profile } = useQuery({
+    queryKey: ['user-profile', userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('active_plan')
+        .eq('id', userId)
+        .single();
+      return data;
+    },
+    enabled: !!userId,
+  });
+
+  const { data: vmSpecs } = useVMSpecs(profile?.active_plan);
 
   const handleVMAction = async (action: 'start' | 'stop') => {
     if (!activePlan || activePlan.isExpired) {

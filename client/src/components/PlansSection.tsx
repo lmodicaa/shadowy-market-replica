@@ -69,7 +69,8 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('plans')
-        .select('id, name, stock, price, description')
+        .select('id, name, stock, price, description, ram, cpu, storage, gpu, max_resolution, status')
+        .eq('status', 'Online')
         .order('name');
       
       if (error) throw error;
@@ -79,7 +80,14 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
         ...plan,
         icon: index === 0 ? Zap : index === 1 ? Star : Crown,
         popular: index === 1, // O segundo plano será popular
-        features: getFeaturesByPlanName(plan.name),
+        features: [
+          `${plan.ram} RAM`,
+          `${plan.cpu} CPU`,
+          `${plan.storage} Armazenamento`,
+          `GPU: ${plan.gpu}`,
+          `Resolução até ${plan.max_resolution}`,
+          'Suporte técnico incluído'
+        ],
         period: '/mês'
       }));
     }

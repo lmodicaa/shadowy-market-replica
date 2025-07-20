@@ -9,6 +9,7 @@ import StarField from '@/components/StarField';
 import { useIsAdmin, useSystemStats } from '@/hooks/useAdmin';
 import AdminUserManagement from '@/components/admin/AdminUserManagement';
 import AdminPlanManagement from '@/components/admin/AdminPlanManagement';
+import AdminPlanManager from '@/components/AdminPlanManager';
 import AdminSettings from '@/components/admin/AdminSettings';
 import AdminStats from '@/components/admin/AdminStats';
 
@@ -169,7 +170,7 @@ const Admin = ({ session }: AdminProps) => {
           </TabsContent>
 
           <TabsContent value="plans">
-            <AdminPlanManagement />
+            <AdminPlanManager />
           </TabsContent>
 
           <TabsContent value="settings">
