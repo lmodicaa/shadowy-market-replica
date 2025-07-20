@@ -7,7 +7,7 @@ import { Router, Route, Switch } from "wouter";
 import { queryClient } from "@/lib/queryClient";
 import { supabase } from "@/lib/supabase";
 import { useIsAdmin } from "@/hooks/useAdmin";
-import { usePreventAutoReload } from "@/hooks/usePageVisibility";
+
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
@@ -39,11 +39,22 @@ const AppContent = ({ session }: { session: any }) => {
 const App = () => {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  
-  // Prevenir recargas automáticas no deseadas
-  usePreventAutoReload();
 
   useEffect(() => {
+    // Configurar preservación de estado una sola vez
+    let cleanupStatePreservation: (() => void) | null = null;
+    
+    // Importar y configurar las utilidades de preservación
+    import('@/utils/statePreservation').then(({ setupStatePreservation, restoreAppState, restoreFormData }) => {
+      cleanupStatePreservation = setupStatePreservation();
+      
+      // Restaurar estado inicial después de un pequeño delay
+      setTimeout(() => {
+        restoreAppState();
+        restoreFormData();
+      }, 1000);
+    });
+
     // Obter sessão inicial
     const getInitialSession = async () => {
       try {
@@ -75,7 +86,12 @@ const App = () => {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      if (cleanupStatePreservation) {
+        cleanupStatePreservation();
+      }
+    };
   }, []);
 
   // Mostrar loading enquanto verifica a sessão inicial

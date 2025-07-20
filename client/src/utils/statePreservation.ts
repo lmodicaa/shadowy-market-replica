@@ -35,30 +35,27 @@ export const restoreAppState = () => {
   }
 };
 
-// Guardar datos de formularios automáticamente
+// Guardar datos de formularios automáticamente (incluyendo inputs sueltos)
 export const saveFormData = (formId?: string) => {
   try {
-    const forms = formId 
-      ? [document.getElementById(formId)] 
-      : Array.from(document.querySelectorAll('form'));
-
-    forms.forEach(form => {
-      if (!form) return;
-      
-      const formData = new FormData(form as HTMLFormElement);
-      const data: Record<string, string> = {};
-      
-      formData.forEach((value, key) => {
-        if (value.toString().trim()) {
-          data[key] = value.toString();
+    // Guardar tanto formularios como inputs individuales
+    const inputs = Array.from(document.querySelectorAll('input, textarea, select'));
+    const data: Record<string, string> = {};
+    
+    inputs.forEach(input => {
+      const element = input as HTMLInputElement;
+      if (element.name && element.value && element.value.trim()) {
+        // Evitar guardar contraseñas y campos sensibles
+        if (element.type !== 'password' && !element.name.includes('password')) {
+          data[element.name] = element.value;
         }
-      });
-
-      if (Object.keys(data).length > 0) {
-        const formKey = formId || form.id || 'general_form';
-        sessionStorage.setItem(`form_${formKey}`, JSON.stringify(data));
       }
     });
+
+    if (Object.keys(data).length > 0) {
+      const formKey = formId || 'app_form_data';
+      sessionStorage.setItem(`form_${formKey}`, JSON.stringify(data));
+    }
   } catch (error) {
     console.warn('Error saving form data:', error);
   }
@@ -67,20 +64,18 @@ export const saveFormData = (formId?: string) => {
 // Restaurar datos de formularios
 export const restoreFormData = (formId?: string) => {
   try {
-    const formKey = formId || 'general_form';
+    const formKey = formId || 'app_form_data';
     const savedData = sessionStorage.getItem(`form_${formKey}`);
     
     if (savedData) {
       const data = JSON.parse(savedData);
       Object.entries(data).forEach(([name, value]) => {
-        const selector = formId 
-          ? `#${formId} [name="${name}"]` 
-          : `[name="${name}"]`;
-        const element = document.querySelector(selector) as HTMLInputElement;
+        const element = document.querySelector(`[name="${name}"]`) as HTMLInputElement;
         
         if (element && !element.value) {
           element.value = value;
-          // Disparar evento change para que React detecte el cambio
+          // Disparar múltiples eventos para asegurar que React detecte el cambio
+          element.dispatchEvent(new Event('input', { bubbles: true }));
           element.dispatchEvent(new Event('change', { bubbles: true }));
         }
       });
@@ -111,10 +106,10 @@ export const setupStatePreservation = () => {
     saveFormData();
   };
 
-  // Intervalos para guardar periódicamente
+  // Intervalos para guardar periódicamente (más frecuente para formularios de edición)
   const saveInterval = setInterval(() => {
     saveFormData();
-  }, 30000); // Cada 30 segundos
+  }, 10000); // Cada 10 segundos
 
   // Event listeners
   document.addEventListener('visibilitychange', handleVisibilityChange);
