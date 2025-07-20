@@ -156,6 +156,7 @@ export const useCreateSubscription = () => {
           user_id: userId,
           plan_id: plan.id, // Usar ID real do plano
           plan_name: planName,
+          start_date: now.toISOString(), // Adicionar start_date obrigatório
           end_date: endDate.toISOString(),
         })
         .select()
