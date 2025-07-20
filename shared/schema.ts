@@ -29,6 +29,7 @@ export const subscriptions = pgTable("subscriptions", {
   user_id: uuid("user_id").notNull(), // Referência ao profiles.id
   plan_id: uuid("plan_id").notNull(), // Referência ao plans.id
   plan_name: text("plan_name").notNull(),
+  start_date: timestamp("start_date").notNull(), // Data de início da assinatura
   end_date: timestamp("end_date").notNull(),
   created_at: timestamp("created_at").defaultNow(),
 });

@@ -210,6 +210,7 @@ export const useCreateSubscription = () => {
           user_id: userId,
           plan_id: planId, // Usar planId fornecido diretamente
           plan_name: planName,
+          start_date: now.toISOString(), // Data de início da assinatura
           end_date: endDate.toISOString(),
         })
         .select()
