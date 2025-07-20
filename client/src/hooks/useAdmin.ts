@@ -139,7 +139,7 @@ export const usePlanStock = () => {
         plan_id: plan.id,
         available_slots: plan.stock || 0,
         total_slots: plan.stock || 0,
-        is_available: (plan.stock || 0) > 0,
+        is_available: true, // Sempre disponível se tiver stock > 0
         plans: {
           id: plan.id,
           name: plan.name,

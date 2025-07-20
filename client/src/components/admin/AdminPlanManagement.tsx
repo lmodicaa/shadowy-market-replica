@@ -230,10 +230,17 @@ const AdminPlanManagement = () => {
                           <div className="flex gap-2">
                             <Button 
                               onClick={handleUpdateStock}
-                              disabled={updatePlanStock.isPending || newStock.availableSlots > newStock.totalSlots}
+                              disabled={updatePlanStock.isPending || newStock.totalSlots < 0}
                               className="flex-1"
                             >
                               {updatePlanStock.isPending ? 'Salvando...' : 'Salvar'}
+                            </Button>
+                            <Button 
+                              variant="outline"
+                              onClick={() => setEditingPlan(null)}
+                              disabled={updatePlanStock.isPending}
+                            >
+                              Cancelar
                             </Button>
                           </div>
                         </div>
