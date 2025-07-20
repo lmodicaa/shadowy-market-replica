@@ -6,12 +6,34 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Router, Route, Switch } from "wouter";
 import { queryClient } from "@/lib/queryClient";
 import { supabase } from "@/lib/supabase";
+import { useIsAdmin } from "@/hooks/useAdmin";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import Footer from "./components/Footer";
+import MaintenanceMode from "./components/MaintenanceMode";
+
+const AppContent = ({ session }: { session: any }) => {
+  const { data: isAdmin } = useIsAdmin(session?.user?.id);
+
+  return (
+    <MaintenanceMode userIsAdmin={isAdmin}>
+      <Router>
+        <Switch>
+          <Route path="/" component={() => <Index session={session} />} />
+          <Route path="/profile" component={() => <Profile session={session} />} />
+          <Route path="/settings" component={() => <Settings session={session} />} />
+          <Route path="/admin" component={() => <Admin session={session} />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route component={NotFound} />
+        </Switch>
+      </Router>
+      <Footer />
+    </MaintenanceMode>
+  );
+};
 
 const App = () => {
   const [session, setSession] = useState<any>(null);
@@ -66,17 +88,7 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <Router>
-          <Switch>
-            <Route path="/" component={() => <Index session={session} />} />
-            <Route path="/profile" component={() => <Profile session={session} />} />
-            <Route path="/settings" component={() => <Settings session={session} />} />
-            <Route path="/admin" component={() => <Admin session={session} />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route component={NotFound} />
-          </Switch>
-        </Router>
-        <Footer />
+        <AppContent session={session} />
       </TooltipProvider>
     </QueryClientProvider>
   );
