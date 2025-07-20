@@ -14,20 +14,26 @@ const useMaintenanceMode = () => {
   return useQuery({
     queryKey: ['maintenanceMode'],
     queryFn: async () => {
+      console.log('Verificando modo de manutenção...');
+      
       const { data, error } = await supabase
         .from('admin_settings')
         .select('value')
         .eq('key', 'maintenance_mode')
-        .single();
+        .maybeSingle(); // Use maybeSingle ao invés de single para evitar erro quando não existe
       
-      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+      if (error) {
         console.error('Erro ao verificar modo de manutenção:', error);
         return false; // Em caso de erro, assumir que não está em manutenção
       }
       
-      return data?.value === 'true';
+      const isMaintenanceMode = data?.value === 'true';
+      console.log('Status do modo de manutenção:', { data, isMaintenanceMode });
+      
+      return isMaintenanceMode;
     },
-    refetchInterval: 30000, // Verifica a cada 30 segundos
+    refetchInterval: 10000, // Verifica a cada 10 segundos para resposta mais rápida
+    staleTime: 5000, // Cache por apenas 5 segundos
   });
 };
 
@@ -40,9 +46,10 @@ const useMaintenanceMessage = () => {
         .from('admin_settings')
         .select('value')
         .eq('key', 'maintenance_message')
-        .single();
+        .maybeSingle();
       
       if (error) {
+        console.log('Usando mensagem padrão de manutenção');
         return 'O site está em manutenção. Voltaremos em breve!';
       }
       
@@ -95,6 +102,13 @@ const MaintenanceMode = ({ children, userIsAdmin = false }: MaintenanceModeProps
   const { data: isMaintenanceMode, isLoading: isLoadingMaintenance } = useMaintenanceMode();
   const { data: maintenanceMessage } = useMaintenanceMessage();
 
+  console.log('MaintenanceMode render:', { 
+    isMaintenanceMode, 
+    userIsAdmin, 
+    isLoadingMaintenance,
+    maintenanceMessage 
+  });
+
   // Mostrar carregamento apenas brevemente
   if (isLoadingMaintenance) {
     return (
@@ -106,10 +120,12 @@ const MaintenanceMode = ({ children, userIsAdmin = false }: MaintenanceModeProps
 
   // Se o modo de manutenção está ativo e o usuário não é admin, mostrar tela de manutenção
   if (isMaintenanceMode && !userIsAdmin) {
+    console.log('Exibindo tela de manutenção');
     return <MaintenanceScreen message={maintenanceMessage || 'O site está em manutenção. Voltaremos em breve!'} />;
   }
 
   // Caso contrário, renderizar o conteúdo normal
+  console.log('Exibindo conteúdo normal');
   return <>{children}</>;
 };
 
