@@ -234,9 +234,24 @@ export const useUpdatePlanStock = () => {
       totalSlots: number; 
       isAvailable: boolean; 
     }) => {
-      console.log('Updating plan stock:', { planId, availableSlots, totalSlots, isAvailable });
+      console.log('=== INÍCIO ATUALIZAÇÃO STOCK ===');
+      console.log('Dados recebidos:', { planId, availableSlots, totalSlots, isAvailable });
+      
+      // Verificar se o plano existe primeiro
+      const { data: existingPlan, error: selectError } = await supabase
+        .from('plans')
+        .select('id, name, stock')
+        .eq('id', planId)
+        .single();
+      
+      console.log('Plano existente:', existingPlan);
+      if (selectError) {
+        console.error('Erro ao buscar plano:', selectError);
+        throw new Error(`Plano não encontrado: ${selectError.message}`);
+      }
       
       // Atualizar diretamente o campo stock na tabela plans
+      console.log('Atualizando stock para:', totalSlots);
       const { data, error } = await supabase
         .from('plans')
         .update({
@@ -248,10 +263,12 @@ export const useUpdatePlanStock = () => {
       
       if (error) {
         console.error('Erro ao atualizar estoque do plano:', error);
-        throw error;
+        console.error('Detalhes do erro:', JSON.stringify(error, null, 2));
+        throw new Error(`Erro na atualização: ${error.message}`);
       }
       
       console.log('Stock update successful:', data);
+      console.log('=== FIM ATUALIZAÇÃO STOCK ===');
       return data;
     },
     onSuccess: () => {
