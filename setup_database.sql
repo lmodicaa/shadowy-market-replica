@@ -108,14 +108,26 @@ ALTER TABLE plan_stock ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
 
 -- 7. Políticas básicas de leitura pública (ajuste conforme necessário)
+DROP POLICY IF EXISTS "Allow public read access to admin_settings" ON admin_settings;
 CREATE POLICY "Allow public read access to admin_settings" ON admin_settings
     FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Allow public read access to plans" ON plans;
 CREATE POLICY "Allow public read access to plans" ON plans
     FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Allow public read access to plan_stock" ON plan_stock;
 CREATE POLICY "Allow public read access to plan_stock" ON plan_stock
     FOR SELECT USING (true);
+
+-- Políticas para operações de escrita (INSERT, UPDATE, DELETE)
+DROP POLICY IF EXISTS "Allow admin operations on admin_settings" ON admin_settings;
+CREATE POLICY "Allow admin operations on admin_settings" ON admin_settings
+    FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Allow admin operations on plan_stock" ON plan_stock;
+CREATE POLICY "Allow admin operations on plan_stock" ON plan_stock
+    FOR ALL USING (true);
 
 -- 8. Políticas para profiles
 CREATE POLICY "Users can view own profile" ON profiles
