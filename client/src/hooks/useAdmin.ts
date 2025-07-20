@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { initializeAdminSettings } from '@/utils/initializeAdminSettings';
 import type { Profile, Plan, Subscription, AdminSettings, PlanStock, Admins } from '@shared/schema';
 
 // Hook para verificar se o usuário é admin - TEMPORARIAMENTE RETORNA TRUE
@@ -85,6 +86,19 @@ export const useAdminSettings = () => {
   return useQuery({
     queryKey: ['adminSettings'],
     queryFn: async () => {
+      // Primeiro, verificar se existe alguma configuração
+      const { data: existingSettings, error: checkError } = await supabase
+        .from('admin_settings')
+        .select('key')
+        .limit(1);
+      
+      // Se não há configurações, inicializar com padrões
+      if (checkError || !existingSettings || existingSettings.length === 0) {
+        console.log('Nenhuma configuração encontrada, inicializando...');
+        await initializeAdminSettings();
+      }
+      
+      // Agora buscar todas as configurações
       const { data, error } = await supabase
         .from('admin_settings')
         .select('*')
@@ -154,29 +168,57 @@ export const useUpdateAdminSettings = () => {
     mutationFn: async ({ key, value, description }: { key: string; value: string; description?: string }) => {
       console.log('useUpdateAdminSettings mutation started:', { key, value, description });
       
-      // Direct update approach with detailed logging
-      const { data, error } = await supabase
+      // Try to update first, if not found then insert
+      const { data: existingData, error: selectError } = await supabase
         .from('admin_settings')
-        .upsert({
-          key,
-          value,
-          description: description || '',
-          updated_at: new Date().toISOString(),
-        })
-        .select()
+        .select('id')
+        .eq('key', key)
         .single();
+
+      let result;
       
-      console.log('Direct settings update result:', { data, error });
-      
-      if (error) {
-        console.error('Erro ao atualizar configuração:', error);
-        console.error('Error code:', error.code);
-        console.error('Error details:', error.details);
-        console.error('Error hint:', error.hint);
-        throw error;
+      if (existingData) {
+        // Update existing record
+        console.log('Updating existing setting:', key);
+        const { data, error } = await supabase
+          .from('admin_settings')
+          .update({
+            value,
+            description: description || '',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('key', key)
+          .select()
+          .single();
+        
+        if (error) {
+          console.error('Erro ao atualizar configuração existente:', error);
+          throw error;
+        }
+        result = data;
+      } else {
+        // Insert new record
+        console.log('Inserting new setting:', key);
+        const { data, error } = await supabase
+          .from('admin_settings')
+          .insert({
+            key,
+            value,
+            description: description || '',
+            updated_at: new Date().toISOString(),
+          })
+          .select()
+          .single();
+        
+        if (error) {
+          console.error('Erro ao inserir nova configuração:', error);
+          throw error;
+        }
+        result = data;
       }
       
-      return data;
+      console.log('Settings operation successful:', result);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminSettings'] });

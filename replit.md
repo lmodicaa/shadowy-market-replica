@@ -46,7 +46,11 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - Authentication handled securely through Supabase
 
 ## Recent Changes
-- 2025-01-19: Completed migration from Replit Agent to Replit environment
+- 2025-01-20: Completed migration from Replit Agent to Replit environment
+- 2025-01-20: Implemented maintenance mode functionality with admin controls
+- 2025-01-20: Fixed admin settings upsert functionality to prevent duplicate key errors
+- 2025-01-20: Added automatic initialization of default admin settings
+- 2025-01-20: Created MaintenanceMode component for non-admin users during maintenance
 - Configuración completa del panel administrativo en portugués brasileño
 - Added Supabase environment variables for authentication
 - Translated all Spanish content to Brazilian Portuguese
