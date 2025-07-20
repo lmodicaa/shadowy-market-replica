@@ -2,7 +2,7 @@ import { Calendar, Clock, Crown, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useActivePlan } from '@/hooks/useUserProfile';
+import { useActivePlan } from '@/hooks/useActivePlan';
 
 interface UserPlanStatusProps {
   userId?: string;

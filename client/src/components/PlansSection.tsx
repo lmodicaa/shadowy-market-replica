@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCreateSubscription } from '@/hooks/useUserProfile';
+import { useActivePlan } from '@/hooks/useActivePlan';
 import { useToast } from '@/hooks/use-toast';
 
 const plans = [
@@ -66,6 +67,7 @@ interface PlansSectionProps {
 
 const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
   const createSubscription = useCreateSubscription();
+  const { data: activePlan, isLoading: loadingActivePlan } = useActivePlan(session?.user?.id);
   const { toast } = useToast();
 
   const handleSelectPlan = async (planName: string) => {
@@ -93,11 +95,14 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       // Chamar callback se fornecido
       onPlanSelect?.(planName);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao ativar plano:', error);
+      
+      const errorMessage = error?.message || "Ocorreu um erro ao processar sua solicitação. Tente novamente.";
+      
       toast({
         title: "Erro ao ativar plano",
-        description: "Ocorreu um erro ao processar sua solicitação. Tente novamente.",
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -170,7 +175,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
                 
                 <Button 
                   onClick={() => handleSelectPlan(plan.name)}
-                  disabled={createSubscription.isPending}
+                  disabled={createSubscription.isPending || (activePlan?.isActive && activePlan.name === plan.name)}
                   className={`w-full ${
                     plan.popular 
                       ? 'bg-cloud-blue hover:bg-cloud-blue/90 text-white' 
@@ -178,7 +183,14 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
                   }`}
                   size="lg"
                 >
-                  {createSubscription.isPending ? 'Processando...' : `Escolher ${plan.name}`}
+                  {createSubscription.isPending 
+                    ? 'Processando...' 
+                    : activePlan?.isActive && activePlan.name === plan.name
+                      ? 'Plano Ativo'
+                      : activePlan?.isActive
+                        ? 'Já Possui Plano'
+                        : `Escolher ${plan.name}`
+                  }
                 </Button>
               </CardContent>
             </Card>

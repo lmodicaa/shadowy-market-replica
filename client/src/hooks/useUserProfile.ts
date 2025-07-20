@@ -137,6 +137,38 @@ export const useCreateSubscription = () => {
       const now = new Date();
       const endDate = new Date(now.getTime() + duration * 24 * 60 * 60 * 1000);
       
+      // Verificar se o usuário já tem um plano ativo
+      console.log('Verificando plano ativo do usuário:', userId);
+      const { data: existingProfile, error: profileCheckError } = await supabase
+        .from('profiles')
+        .select('active_plan, active_plan_until')
+        .eq('id', userId)
+        .single();
+      
+      if (profileCheckError) {
+        console.error('Erro ao verificar perfil:', profileCheckError);
+        // Se não conseguir verificar, prosseguir (usuário pode não ter perfil ainda)
+      } else if (existingProfile?.active_plan && existingProfile?.active_plan_until) {
+        const planEndDate = new Date(existingProfile.active_plan_until);
+        if (planEndDate > now) {
+          throw new Error('Você já possui um plano ativo. Aguarde até o vencimento para adquirir um novo plano.');
+        }
+      }
+      
+      // Verificar subscripcões ativas
+      const { data: activeSubscriptions, error: subCheckError } = await supabase
+        .from('subscriptions')
+        .select('id, end_date, plan_name')
+        .eq('user_id', userId)
+        .gt('end_date', now.toISOString());
+      
+      if (subCheckError) {
+        console.error('Erro ao verificar subscripcões:', subCheckError);
+      } else if (activeSubscriptions && activeSubscriptions.length > 0) {
+        const activeSub = activeSubscriptions[0];
+        throw new Error(`Você já possui uma assinatura ativa do plano ${activeSub.plan_name}. Aguarde até o vencimento para adquirir um novo plano.`);
+      }
+      
       // Primeiro buscar o ID real do plano - buscar exato e depois similar
       console.log('Buscando plano com nome:', planName);
       
