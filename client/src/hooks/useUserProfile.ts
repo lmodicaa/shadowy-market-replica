@@ -155,18 +155,28 @@ export const useCreateSubscription = () => {
         }
       }
       
-      // Verificar subscripcões ativas
+      // Verificar subscripcões ativas com mais detalhes
       const { data: activeSubscriptions, error: subCheckError } = await supabase
         .from('subscriptions')
-        .select('id, end_date, plan_name')
+        .select('id, end_date, plan_name, created_at')
         .eq('user_id', userId)
-        .gt('end_date', now.toISOString());
+        .gt('end_date', now.toISOString())
+        .order('created_at', { ascending: false });
       
       if (subCheckError) {
         console.error('Erro ao verificar subscripcões:', subCheckError);
       } else if (activeSubscriptions && activeSubscriptions.length > 0) {
+        console.log('Assinaturas ativas encontradas:', activeSubscriptions);
         const activeSub = activeSubscriptions[0];
-        throw new Error(`Você já possui uma assinatura ativa do plano ${activeSub.plan_name}. Aguarde até o vencimento para adquirir um novo plano.`);
+        const endDate = new Date(activeSub.end_date);
+        const timeRemaining = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        
+        // Verificar se a assinatura realmente ainda é válida (margem de alguns minutos para possíveis diferenças de clock)
+        if (endDate.getTime() - now.getTime() > 300000) { // 5 minutos de margem
+          throw new Error(`Você já possui uma assinatura ativa do plano ${activeSub.plan_name}. Expira em ${timeRemaining} dias. Aguarde até o vencimento para adquirir um novo plano.`);
+        } else {
+          console.log('Assinatura encontrada mas próxima do vencimento, permitindo renovação:', activeSub);
+        }
       }
       
       // Primeiro buscar o ID real do plano - buscar exato e depois similar
