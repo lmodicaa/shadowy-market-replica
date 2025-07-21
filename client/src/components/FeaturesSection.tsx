@@ -32,13 +32,11 @@ const FeaturesSection = () => {
         {/* Header */}
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-card/20 backdrop-blur-sm border border-border/30">
-              <img 
-                src={logoImage} 
-                alt="MateCloud Logo" 
-                className="w-6 h-6 object-contain"
-              />
-            </div>
+            <img 
+              src={logoImage} 
+              alt="MateCloud Logo" 
+              className="w-6 h-6 object-contain"
+            />
             <span className="text-lg font-semibold text-foreground/80">MateCloud | FAQ</span>
           </div>
           
