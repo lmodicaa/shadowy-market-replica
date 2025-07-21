@@ -1,6 +1,13 @@
 // Admin API utilities
 const API_BASE_URL = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_BASE_URL || '');
 
+console.log('AdminAPI Environment Check:', {
+  isDev: import.meta.env.DEV,
+  envApiBaseUrl: import.meta.env.VITE_API_BASE_URL,
+  finalApiBaseUrl: API_BASE_URL,
+  currentOrigin: window.location.origin
+});
+
 export class AdminAPI {
   static async testDatabase() {
     try {
@@ -92,7 +99,12 @@ export class AdminAPI {
 
   static async toggleMaintenance(enabled: boolean, message?: string) {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/maintenance`, {
+      const url = `${API_BASE_URL}/api/admin/maintenance`;
+      console.log('AdminAPI.toggleMaintenance: Making request to', url);
+      console.log('AdminAPI.toggleMaintenance: API_BASE_URL =', API_BASE_URL);
+      console.log('AdminAPI.toggleMaintenance: Full URL constructed =', url);
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -103,6 +115,9 @@ export class AdminAPI {
           message: message || 'O site está em manutenção. Voltaremos em breve!'
         })
       });
+
+      console.log('AdminAPI.toggleMaintenance: Response status:', response.status);
+      console.log('AdminAPI.toggleMaintenance: Response URL:', response.url);
 
       const result = await response.json();
       
