@@ -5,16 +5,16 @@ import logoImage from "@assets/logo_1753070520527.png";
 
 const tutorials = [
   {
-    title: 'Escolher um plano',
-    description: 'Primeiro você escolhe seu plano e faz a assinatura. Em seguida poderá criar a sua máquina, ligar/desligar quando quiser em nossa dashboard. Em sua máquina aparecerá as informações de conexão.',
+    title: 'Configuração Inicial da Conta',
+    description: 'Aprenda a criar sua conta MateCloud, selecionar o plano ideal para suas necessidades de gaming e configurar sua primeira máquina virtual. Descubra todas as opções de personalização disponíveis.',
     icon: 'plan',
-    gradient: 'from-blue-500 to-cyan-600'
+    gradient: 'from-emerald-500 to-teal-600'
   },
   {
-    title: 'Como utilizar',
-    description: 'Na barra de pesquisa do windows pesquise RDP e abra o app de conexão remota que irá aparecer, coloque o IP fornecido no site e clique em conectar.',
+    title: 'Conectando à sua VM',
+    description: 'Tutorial completo sobre como estabelecer conexão remota com sua máquina virtual. Configurações de rede, instalação de clientes RDP e otimização para melhor performance de jogos.',
     icon: 'connect',
-    gradient: 'from-purple-500 to-blue-600'
+    gradient: 'from-violet-500 to-purple-600'
   }
 ];
 
