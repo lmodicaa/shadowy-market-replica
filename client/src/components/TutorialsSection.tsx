@@ -1,4 +1,4 @@
-import { Play, Clock, Sparkles } from 'lucide-react';
+import { Play, Clock, Sparkles, CreditCard, Monitor } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import logoImage from "@assets/logo_1753070520527.png";
@@ -7,12 +7,14 @@ const tutorials = [
   {
     title: 'Escolher um plano',
     description: 'Primeiro você escolhe seu plano e faz a assinatura. Em seguida poderá criar a sua máquina, ligar/desligar quando quiser em nossa dashboard. Em sua máquina aparecerá as informações de conexão.',
-    thumbnail: 'https://i.ytimg.com/vi_webp/wHGsz7xctUI/sddefault.webp'
+    icon: 'plan',
+    gradient: 'from-blue-500 to-cyan-600'
   },
   {
     title: 'Como utilizar',
     description: 'Na barra de pesquisa do windows pesquise RDP e abra o app de conexão remota que irá aparecer, coloque o IP fornecido no site e clique em conectar.',
-    thumbnail: 'https://i.ytimg.com/vi_webp/xaVU2H6mCJg/sddefault.webp'
+    icon: 'connect',
+    gradient: 'from-purple-500 to-blue-600'
   }
 ];
 
@@ -48,13 +50,33 @@ const TutorialsSection = () => {
               key={index} 
               className="hover:border-cloud-blue/40 transition-all duration-300 overflow-hidden group hover:shadow-xl"
             >
-              <div className="relative">
-                <img 
-                  src={tutorial.thumbnail} 
-                  alt={tutorial.title}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-center justify-center group-hover:from-black/70 transition-all duration-300">
+              <div className="relative h-48 overflow-hidden">
+                {/* Background gradient */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${tutorial.gradient} opacity-90`}></div>
+                
+                {/* Pattern overlay */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent"></div>
+                
+                {/* Large icon in background */}
+                <div className="absolute top-4 right-4 opacity-20">
+                  {tutorial.icon === 'plan' ? (
+                    <CreditCard className="w-20 h-20 text-white" />
+                  ) : (
+                    <Monitor className="w-20 h-20 text-white" />
+                  )}
+                </div>
+                
+                {/* MateCloud logo */}
+                <div className="absolute top-4 left-4">
+                  <img 
+                    src={logoImage} 
+                    alt="MateCloud Logo" 
+                    className="w-8 h-8 object-contain opacity-60"
+                  />
+                </div>
+                
+                {/* Coming soon badge */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-center justify-center group-hover:from-black/40 transition-all duration-300">
                   <div className="bg-gradient-to-r from-cloud-blue/90 to-cloud-blue-dark/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-2xl border border-white/20 transform group-hover:scale-110 transition-all duration-300">
                     <div className="flex items-center gap-2 text-white">
                       <div className="relative">
