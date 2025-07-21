@@ -1,5 +1,13 @@
-import { Cloud, ExternalLink, User, Settings, LogOut, ChevronDown, Shield } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import {
+  Cloud,
+  ExternalLink,
+  User,
+  Settings,
+  LogOut,
+  ChevronDown,
+  Shield,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,11 +15,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { supabase } from '@/lib/supabase';
-import { useLocation } from 'wouter';
-import { useIsAdmin } from '@/hooks/useAdmin';
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { supabase } from "@/lib/supabase";
+import { useLocation } from "wouter";
+import { useIsAdmin } from "@/hooks/useAdmin";
 
 const Navigation = ({ session }: { session: any }) => {
   const [, navigate] = useLocation();
@@ -21,11 +29,11 @@ const Navigation = ({ session }: { session: any }) => {
     try {
       // Use the current window location origin, which will be the Replit URL
       const redirectUrl = window.location.origin;
-      
-      console.log('Attempting login with redirect URL:', redirectUrl);
-      
+
+      console.log("Attempting login with redirect URL:", redirectUrl);
+
       const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'discord',
+        provider: "discord",
         options: {
           redirectTo: redirectUrl,
         },
@@ -33,7 +41,7 @@ const Navigation = ({ session }: { session: any }) => {
       if (error) throw error;
       // Se não houver erro, Supabase redirecionará o usuário para o provedor OAuth
     } catch (error) {
-      console.error('Erro ao fazer login com Discord:', error);
+      console.error("Erro ao fazer login com Discord:", error);
       // Aqui você poderia mostrar uma mensagem de erro ao usuário
     }
   };
@@ -42,9 +50,9 @@ const Navigation = ({ session }: { session: any }) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      console.log('Usuário fez logout com sucesso');
+      console.log("Usuário fez logout com sucesso");
     } catch (error) {
-      console.error('Erro ao fazer logout:', error);
+      console.error("Erro ao fazer logout:", error);
     }
   };
 
@@ -61,45 +69,47 @@ const Navigation = ({ session }: { session: any }) => {
 
         {/* Navigation Links */}
         <div className="hidden md:flex items-center gap-8">
-          <a 
-            href="#inicio" 
+          <a
+            href="#inicio"
             className="text-foreground/90 hover:text-cloud-blue transition-colors cursor-pointer"
             onClick={(e) => {
               e.preventDefault();
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              window.scrollTo({ top: 0, behavior: "smooth" });
             }}
           >
             Início
           </a>
-          <a 
-            href="#planos" 
+          <a
+            href="#planos"
             className="text-foreground/90 hover:text-cloud-blue transition-colors cursor-pointer"
             onClick={(e) => {
               e.preventDefault();
-              document.getElementById('planos')?.scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'start'
+              document.getElementById("planos")?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
               });
             }}
           >
             Planos
           </a>
-          <a 
-            href="#discord" 
+          <a
+            href="https://discord.com/invite/Tfj9zMuwry"
             className="flex items-center gap-1 text-foreground/90 hover:text-cloud-blue transition-colors"
           >
             Discord
             <ExternalLink className="w-3 h-3" />
           </a>
-          <a 
-            href="#faq" 
+          <a
+            href="#faq"
             className="text-foreground/90 hover:text-cloud-blue transition-colors cursor-pointer"
             onClick={(e) => {
               e.preventDefault();
-              const faqElement = document.querySelector('#faq') || document.querySelector('[id*="features"]');
-              faqElement?.scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'start'
+              const faqElement =
+                document.querySelector("#faq") ||
+                document.querySelector('[id*="features"]');
+              faqElement?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
               });
             }}
           >
@@ -111,23 +121,24 @@ const Navigation = ({ session }: { session: any }) => {
         {session ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className="flex items-center gap-2 h-auto p-2 hover:bg-card/20 border border-border/30 backdrop-blur-sm"
               >
                 <Avatar className="h-8 w-8">
-                  <AvatarImage 
-                    src={session.user?.user_metadata?.avatar_url} 
-                    alt={session.user?.user_metadata?.full_name || 'Usuário'} 
+                  <AvatarImage
+                    src={session.user?.user_metadata?.avatar_url}
+                    alt={session.user?.user_metadata?.full_name || "Usuário"}
                   />
                   <AvatarFallback className="bg-cloud-blue/20 text-cloud-blue">
-                    {session.user?.user_metadata?.full_name?.charAt(0) || 
-                     session.user?.email?.charAt(0).toUpperCase() || 'U'}
+                    {session.user?.user_metadata?.full_name?.charAt(0) ||
+                      session.user?.email?.charAt(0).toUpperCase() ||
+                      "U"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="hidden sm:flex flex-col items-start">
                   <span className="text-sm font-medium text-foreground">
-                    {session.user?.user_metadata?.full_name || 'Usuário'}
+                    {session.user?.user_metadata?.full_name || "Usuário"}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {session.user?.email}
@@ -136,19 +147,22 @@ const Navigation = ({ session }: { session: any }) => {
                 <ChevronDown className="h-4 w-4 text-muted-foreground" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-background/95 backdrop-blur-sm border border-border/30">
+            <DropdownMenuContent
+              align="end"
+              className="w-56 bg-background/95 backdrop-blur-sm border border-border/30"
+            >
               <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 className="cursor-pointer hover:bg-card/20"
-                onClick={() => navigate('/profile')}
+                onClick={() => navigate("/profile")}
               >
                 <User className="mr-2 h-4 w-4" />
                 <span>Perfil</span>
               </DropdownMenuItem>
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 className="cursor-pointer hover:bg-card/20"
-                onClick={() => navigate('/settings')}
+                onClick={() => navigate("/settings")}
               >
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Configurações</span>
@@ -156,9 +170,9 @@ const Navigation = ({ session }: { session: any }) => {
               {isAdmin && (
                 <>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     className="cursor-pointer hover:bg-card/20 text-orange-600 dark:text-orange-400"
-                    onClick={() => navigate('/admin')}
+                    onClick={() => navigate("/admin")}
                   >
                     <Shield className="mr-2 h-4 w-4" />
                     <span>Painel Admin</span>
@@ -166,7 +180,7 @@ const Navigation = ({ session }: { session: any }) => {
                 </>
               )}
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 className="cursor-pointer hover:bg-card/20 text-red-600 dark:text-red-400"
                 onClick={handleLogout}
               >
@@ -176,11 +190,7 @@ const Navigation = ({ session }: { session: any }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Button 
-            variant="hero" 
-            className="shadow-lg"
-            onClick={handleLogin}
-          >
+          <Button variant="hero" className="shadow-lg" onClick={handleLogin}>
             Login
           </Button>
         )}
