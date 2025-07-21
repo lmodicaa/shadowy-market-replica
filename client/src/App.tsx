@@ -125,6 +125,7 @@ const App = () => {
   }
 
   console.log('🚀 Rendering main app content...');
+  
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
