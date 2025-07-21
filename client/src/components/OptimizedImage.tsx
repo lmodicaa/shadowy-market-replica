@@ -1,5 +1,44 @@
-import { useState, useCallback, useMemo } from 'react';
-import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+
+interface UseIntersectionObserverOptions {
+  threshold?: number;
+  rootMargin?: string;
+  triggerOnce?: boolean;
+}
+
+const useIntersectionObserver = (
+  options: UseIntersectionObserverOptions = {}
+) => {
+  const { threshold = 0.1, rootMargin = '0px', triggerOnce = true } = options;
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsIntersecting(entry.isIntersecting);
+        
+        if (entry.isIntersecting && triggerOnce) {
+          observer.unobserve(element);
+        }
+      },
+      { threshold, rootMargin }
+    );
+
+    observer.observe(element);
+
+    return () => {
+      if (element) {
+        observer.unobserve(element);
+      }
+    };
+  }, [threshold, rootMargin, triggerOnce]);
+
+  return { ref, isIntersecting };
+};
 
 interface OptimizedImageProps {
   src: string;
@@ -56,7 +95,7 @@ export const OptimizedImage = ({
     transition: 'opacity 0.3s ease-in-out',
     backgroundColor: !isLoaded ? placeholderColor : 'transparent',
     minHeight: height ? `${height}px` : 'auto',
-    imageRendering: 'auto',
+    imageRendering: 'auto' as const,
     transform: 'translateZ(0)', // GPU acceleration
   }), [isLoaded, placeholderColor, height]);
 

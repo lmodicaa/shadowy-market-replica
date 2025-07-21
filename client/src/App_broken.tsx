@@ -15,20 +15,19 @@ import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import Footer from "./components/Footer";
 import MaintenanceMode from "./components/MaintenanceMode";
-import { PerformanceOptimizer } from "./components/PerformanceOptimizer";
 
 const AppContent = ({ session }: { session: any }) => {
   const { data: isAdmin } = useIsAdmin(session?.user?.id);
 
   return (
     <MaintenanceMode userIsAdmin={isAdmin}>
-      <PerformanceOptimizer />
       <Router>
         <Switch>
           <Route path="/" component={() => <Index session={session} />} />
           <Route path="/profile" component={() => <Profile session={session} />} />
           <Route path="/settings" component={() => <Settings session={session} />} />
           <Route path="/admin" component={() => <Admin session={session} />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route component={NotFound} />
         </Switch>
       </Router>
@@ -42,6 +41,7 @@ const App = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Obter sessão inicial
     const getInitialSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -58,16 +58,21 @@ const App = () => {
 
     getInitialSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    // Escutar mudanças de autenticação
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+
       setSession(session);
       setLoading(false);
 
+      // Limpar URL após autenticação bem-sucedida
       if (event === 'SIGNED_IN' && session && window.location.hash.includes('access_token=')) {
         window.history.replaceState({}, document.title, window.location.pathname);
       }
     });
 
-    // Performance optimizations
+    // Basic performance optimization
     const optimizeApp = () => {
       // Preload critical images
       const preloadImage = (src: string) => {
@@ -78,31 +83,53 @@ const App = () => {
         document.head.appendChild(link);
       };
       
-      // Basic Web Vitals monitoring
-      if ('PerformanceObserver' in window) {
-        try {
-          const observer = new PerformanceObserver((list) => {
-            for (const entry of list.getEntries()) {
-              if (entry.entryType === 'largest-contentful-paint') {
-                console.log('🚀 MateCloud LCP:', entry.startTime.toFixed(2) + 'ms');
-              }
-            }
-          });
-          observer.observe({ entryTypes: ['largest-contentful-paint'] });
-        } catch (e) {
-          // Silently handle if not supported
-        }
-      }
-      
       preloadImage('/attached_assets/logo.png');
       preloadImage('/favicon.png');
     };
     
     optimizeApp();
 
-    return () => subscription.unsubscribe();
+
+      if (target && target.tagName.match(/INPUT|TEXTAREA|SELECT/)) {
+        startEditing();
+      }
+    }, { capture: true, passive: true });
+
+    // Event listeners para detectar guardado
+    document.addEventListener('submit', stopEditing, { capture: true, passive: true });
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target && target.tagName === 'BUTTON') {
+        const text = target.textContent?.toLowerCase() || '';
+        const buttonElement = target as HTMLButtonElement;
+        if (text.includes('guardar') || text.includes('salvar') || text.includes('save') || 
+            buttonElement.type === 'submit' || target.getAttribute('type') === 'submit') {
+          stopEditing();
+        }
+      }
+    }, { capture: true, passive: true });
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('input', startEditing, true);
+      document.removeEventListener('change', startEditing, true);
+      document.removeEventListener('submit', stopEditing, true);
+      
+      // Restaurar WebSocket original
+      (window as any).WebSocket = originalWebSocket;
+      
+      // Limpiar indicador
+      const indicator = document.getElementById('editing-indicator');
+      if (indicator) {
+        indicator.remove();
+      }
+    };
   }, []);
 
+  // Mostrar loading enquanto verifica a sessão inicial
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">

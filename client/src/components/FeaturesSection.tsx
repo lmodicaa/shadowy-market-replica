@@ -1,7 +1,7 @@
 import { Smartphone, Cpu, Wifi, HardDrive } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import logoImage from "@assets/logo.png";
-import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
+import { LazyImage } from './LazyImage';
 
 const features = [
   {
@@ -27,18 +27,20 @@ const features = [
 ];
 
 const FeaturesSection = () => {
-  const { ref, isIntersecting } = useIntersectionObserver();
 
   return (
-    <section ref={ref} id="faq" className="py-20 px-6 relative z-10">
+    <section id="faq" className="py-20 px-6 relative z-10">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <img 
+            <LazyImage 
               src={logoImage} 
-              alt="MateCloud Logo" 
-              className="w-6 h-6 object-contain"
+              alt="MateCloud Logo - Cloud Gaming Platform" 
+              className="w-6 h-6"
+              width={24}
+              height={24}
+              priority={true}
             />
             <span className="text-lg font-semibold text-foreground/80">MateCloud | FAQ</span>
           </div>
@@ -54,9 +56,9 @@ const FeaturesSection = () => {
           </p>
         </div>
 
-        {/* Features Grid - Only render when visible */}
+        {/* Features Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {isIntersecting && features.map((feature, index) => (
+          {features.map((feature, index) => (
             <Card 
               key={index} 
               className="hover:border-cloud-blue/40 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-xl"

@@ -2,7 +2,7 @@ import { Power, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import logoImage from "@assets/logo.png";
-import { LazyImage } from './LazyImage';
+
 import { SEOHead } from './SEOHead';
 
 const HeroSection = () => {
@@ -40,8 +40,9 @@ const HeroSection = () => {
         <div className="flex items-center gap-2 mb-8 opacity-80 hover:opacity-100 transition-opacity duration-300">
           <img 
             src={logoImage} 
-            alt="MateCloud Logo" 
+            alt="MateCloud Logo - Gaming na Nuvem Premium" 
             className="w-5 h-5 object-contain"
+            loading="eager"
           />
           <span className="text-sm font-medium text-foreground/60">MateCloud</span>
         </div>

@@ -9,6 +9,7 @@ import {
 import logoImage from "@assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { throttle } from "@/utils/performance";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -67,8 +68,9 @@ const Navigation = ({ session }: { session: any }) => {
         >
           <img 
             src={logoImage} 
-            alt="MateCloud Logo" 
+            alt="MateCloud Logo - Plataforma de Cloud Gaming" 
             className="w-12 h-12 object-contain"
+            loading="eager"
           />
           <span className="text-2xl font-bold text-foreground">MateCloud</span>
         </div>
