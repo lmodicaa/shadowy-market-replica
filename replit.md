@@ -46,15 +46,14 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - Authentication handled securely through Supabase
 
 ## Recent Changes
-- 2025-01-21: **VERCEL BACKEND DEPLOYMENT READY** - Complete backend repository prepared for deployment
-  - ✅ Created vercel.json configuration for serverless functions
-  - ✅ Built api/index.ts as Vercel-compatible entry point with CORS support
-  - ✅ Implemented separate backend repository (../matecloud-backend/) with all necessary files
-  - ✅ Configured git repository with initial commit completed
-  - ✅ Added comprehensive deployment guides and documentation
-  - ✅ Created optimized package.json with minimal dependencies for serverless
-  - ✅ Fixed "no files in deployment" issue by proper git initialization
-  - ✅ Ready for immediate deployment with `cd ../matecloud-backend && vercel --prod`
+- 2025-01-21: **VERCEL BACKEND DEPLOYED - ENV VARS NEEDED** - Backend deployed, requires environment configuration
+  - ✅ Successfully deployed to Vercel: https://matecloud-9er6ptlm0-juans-projects-df0e4de6.vercel.app
+  - ✅ Resolved deployment configuration issues with explicit builds in vercel.json
+  - ✅ Updated frontend AdminAPI to use production Vercel URL
+  - ⚠️ **Action Required**: Configure environment variables in Vercel Dashboard
+  - ⚠️ Endpoints returning 404 until Supabase credentials are configured in Vercel
+  - ✅ Created VERCEL_ENV_SETUP.md with step-by-step configuration guide
+  - 🎯 Next step: Add VITE_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, NODE_ENV in Vercel settings
 - 2025-01-21: **ADMIN PANEL CONFIGURATIONS FULLY FUNCTIONAL** - Complete admin settings system implemented
   - ✅ Created dedicated admin API routes (/api/admin/test-db, /api/admin/clear-cache, /api/admin/init-settings, /api/admin/health, /api/admin/maintenance)
   - ✅ Enhanced AdminSettings component with real server communication

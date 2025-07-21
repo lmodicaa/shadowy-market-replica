@@ -1,22 +1,6 @@
 // Admin API utilities
-// Determine API base URL based on environment
-const getApiBaseUrl = () => {
-  // Check if we're in development (Replit environment)
-  if (window.location.hostname === 'localhost' || window.location.hostname.includes('replit')) {
-    return 'http://localhost:5000';
-  }
-  
-  // For production Netlify, check if backend environment variable is set
-  const backendUrl = import.meta.env.VITE_API_BASE_URL;
-  if (backendUrl) {
-    return backendUrl;
-  }
-  
-  // Default to empty string for relative URLs (same origin)
-  return '';
-};
-
-const API_BASE_URL = getApiBaseUrl();
+// Use Vercel backend deployment URL
+const API_BASE_URL = 'https://matecloud-9er6ptlm0-juans-projects-df0e4de6.vercel.app';
 
 console.log('AdminAPI Environment Check:', {
   hostname: window.location.hostname,
