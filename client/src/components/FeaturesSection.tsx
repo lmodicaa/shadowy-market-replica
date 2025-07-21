@@ -1,5 +1,6 @@
-import { Smartphone, Cpu, Wifi, HardDrive, Cloud } from 'lucide-react';
+import { Smartphone, Cpu, Wifi, HardDrive } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import logoImage from "@assets/logo_1753070520527.png";
 
 const features = [
   {
@@ -32,7 +33,11 @@ const FeaturesSection = () => {
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="p-2 rounded-lg bg-card/20 backdrop-blur-sm border border-border/30">
-              <Cloud className="w-6 h-6 text-cloud-blue" />
+              <img 
+                src={logoImage} 
+                alt="MateCloud Logo" 
+                className="w-6 h-6 object-contain"
+              />
             </div>
             <span className="text-lg font-semibold text-foreground/80">MateCloud | FAQ</span>
           </div>

@@ -1,5 +1,6 @@
-import { Cloud, Power, Calendar } from 'lucide-react';
+import { Power, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import logoImage from "@assets/logo_1753070520527.png";
 
 const HeroSection = () => {
   return (
@@ -8,7 +9,11 @@ const HeroSection = () => {
       <div className="absolute top-20 left-1/2 transform -translate-x-1/2">
         <div className="flex items-center gap-2 mb-8 opacity-80 hover:opacity-100 transition-opacity duration-300">
           <div className="p-2 rounded-lg bg-card/10 backdrop-blur-sm border border-cloud-blue/20">
-            <Cloud className="w-5 h-5 text-cloud-blue" />
+            <img 
+              src={logoImage} 
+              alt="MateCloud Logo" 
+              className="w-5 h-5 object-contain"
+            />
           </div>
           <span className="text-sm font-medium text-foreground/60">MateCloud</span>
         </div>
