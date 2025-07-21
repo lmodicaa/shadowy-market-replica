@@ -355,16 +355,6 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
             </div>
           </>
         )}
-
-        {/* Additional Info */}
-        <div className="text-center mt-12">
-          <p className="text-foreground/60 mb-4">
-            Não encontrou o que procura? Entre em contato conosco para planos personalizados.
-          </p>
-          <Button variant="outline" size="lg">
-            Contatar Vendas
-          </Button>
-        </div>
       </div>
     </section>
   );
