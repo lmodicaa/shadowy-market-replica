@@ -1,48 +1,61 @@
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
+import App from './App';
 import './index.css';
 
-console.log('🚀 Main.tsx starting...');
+console.log('🚀 MateCloud main.tsx starting...');
 
-// Wait for DOM to be ready
-const initApp = () => {
-  console.log('🚀 Initializing app...');
-  const root = document.getElementById("root");
-  
-  if (!root) {
-    console.error('❌ Root element not found');
-    return;
-  }
-
-  console.log('🚀 Root element found, clearing loading content...');
+const container = document.getElementById('root');
+if (!container) {
+  console.error('❌ Root container not found');
+  document.body.innerHTML = `
+    <div style="
+      display: flex; align-items: center; justify-content: center; height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+      color: white; font-family: Inter, sans-serif; text-align: center;
+    ">
+      <div>
+        <h1>MateCloud</h1>
+        <p>Erro: Elemento root não encontrado</p>
+        <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer;">
+          Recarregar
+        </button>
+      </div>
+    </div>
+  `;
+} else {
+  console.log('🚀 Root container found, mounting React app...');
   
   try {
-    // Clear loading content but keep a simple fallback
-    root.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: Inter, sans-serif; color: white;">Inicializando React...</div>';
-    
+    // Remove initial loader
+    const loader = document.getElementById('initial-loader');
+    if (loader) {
+      console.log('🚀 Removing initial loader...');
+      loader.remove();
+    }
+
     console.log('🚀 Creating React root...');
-    const reactRoot = createRoot(root);
+    const root = createRoot(container);
     
-    console.log('🚀 Rendering App component...');
-    reactRoot.render(<App />);
+    console.log('🚀 Rendering App with StrictMode...');
+    root.render(
+      <StrictMode>
+        <App />
+      </StrictMode>
+    );
     
-    console.log('✅ App rendered successfully');
+    console.log('✅ React app mounted successfully');
   } catch (error) {
     console.error('❌ Failed to render app:', error);
-    root.innerHTML = `
+    container.innerHTML = `
       <div style="
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
+        display: flex; align-items: center; justify-content: center; height: 100vh;
         background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-        color: white;
-        font-family: Inter, sans-serif;
-        text-align: center;
+        color: white; font-family: Inter, sans-serif; text-align: center;
       ">
         <div>
           <h1>MateCloud</h1>
-          <p>Erro ao carregar: ${error instanceof Error ? error.message : String(error)}</p>
+          <p>Erro ao montar aplicação: ${error instanceof Error ? error.message : String(error)}</p>
           <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer;">
             Recarregar
           </button>
@@ -50,11 +63,4 @@ const initApp = () => {
       </div>
     `;
   }
-};
-
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
-} else {
-  initApp();
 }
