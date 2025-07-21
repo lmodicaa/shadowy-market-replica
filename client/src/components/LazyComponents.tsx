@@ -1,14 +1,17 @@
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 
-// Lazy load heavy components for better performance
-export const LazyPlansSection = lazy(() => import('./PlansSection'));
-export const LazyTutorialsSection = lazy(() => import('./TutorialsSection'));
-export const LazyVMDashboard = lazy(() => import('./VMDashboard'));
+// Lazy load heavy components to reduce initial bundle size
+export const LazyAdminPlanManager = lazy(() => import('./AdminPlanManager'));
 export const LazyAdmin = lazy(() => import('../pages/Admin'));
+export const LazySettings = lazy(() => import('../pages/Settings'));
 
-// Loading component for lazy loaded components
-export const ComponentLoader = () => (
-  <div className="flex justify-center items-center py-8">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cloud-blue"></div>
-  </div>
+// Loading component for lazy components
+export const ComponentLoader = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cloud-blue"></div>
+    </div>
+  }>
+    {children}
+  </Suspense>
 );

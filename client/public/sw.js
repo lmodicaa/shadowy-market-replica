@@ -1,110 +1,73 @@
-// Service Worker for MateCloud performance optimization
-
-const CACHE_NAME = 'matecloud-v1.0.0';
-const CRITICAL_ASSETS = [
+// Service Worker for Performance Optimization
+const CACHE_NAME = 'matecloud-v1';
+const STATIC_CACHE = [
   '/',
-  '/attached_assets/logo.png',
-  '/favicon.png',
-  '/favicon.ico'
+  '/assets/logo.webp',
+  '/assets/logo.avif',
+  '/matecloud-favicon.webp',
+  '/matecloud-favicon.avif'
 ];
 
-// Install event - cache critical assets
+// Install event
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('SW: Caching critical assets');
-        return cache.addAll(CRITICAL_ASSETS);
-      })
-      .then(() => {
-        console.log('SW: Critical assets cached');
-        return self.skipWaiting();
-      })
-      .catch((error) => {
-        console.error('SW: Failed to cache critical assets:', error);
-      })
+      .then((cache) => cache.addAll(STATIC_CACHE))
+      .then(() => self.skipWaiting())
   );
 });
 
-// Activate event - clean up old caches
+// Activate event
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys()
-      .then((cacheNames) => {
-        return Promise.all(
-          cacheNames
-            .filter((cacheName) => cacheName !== CACHE_NAME)
-            .map((cacheName) => {
-              console.log('SW: Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
-            })
-        );
-      })
-      .then(() => {
-        console.log('SW: Activated');
-        return self.clients.claim();
-      })
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
   );
 });
 
-// Fetch event - serve from cache with network fallback
+// Fetch event - Advanced caching strategy
 self.addEventListener('fetch', (event) => {
-  // Skip non-GET requests
-  if (event.request.method !== 'GET') {
-    return;
-  }
-
-  // Skip chrome-extension and other non-http requests
-  if (!event.request.url.startsWith('http')) {
-    return;
-  }
+  if (event.request.method !== 'GET') return;
 
   event.respondWith(
-    caches.match(event.request)
-      .then((cachedResponse) => {
-        // Return cached version if available
-        if (cachedResponse) {
-          return cachedResponse;
-        }
+    caches.match(event.request).then((cachedResponse) => {
+      // Return cached version immediately if available
+      if (cachedResponse) {
+        return cachedResponse;
+      }
 
-        // Otherwise fetch from network
-        return fetch(event.request)
-          .then((response) => {
-            // Don't cache non-successful responses
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
+      // For HTML files, use network-first strategy
+      if (event.request.headers.get('accept').includes('text/html')) {
+        return fetch(event.request).then((response) => {
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseClone);
+            });
+          }
+          return response;
+        }).catch(() => {
+          return caches.match('/');
+        });
+      }
 
-            // Clone the response
-            const responseToCache = response.clone();
-
-            // Cache static assets
-            if (shouldCache(event.request.url)) {
-              caches.open(CACHE_NAME)
-                .then((cache) => {
-                  cache.put(event.request, responseToCache);
-                });
-            }
-
-            return response;
-          })
-          .catch(() => {
-            // Return offline fallback for navigation requests
-            if (event.request.destination === 'document') {
-              return caches.match('/');
-            }
+      // For assets, use cache-first strategy
+      return fetch(event.request).then((response) => {
+        if (response.status === 200) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
           });
-      })
+        }
+        return response;
+      });
+    })
   );
 });
-
-// Helper function to determine if URL should be cached
-function shouldCache(url) {
-  const cacheableExtensions = ['.png', '.jpg', '.jpeg', '.webp', '.svg', '.ico', '.css', '.js'];
-  const cacheablePaths = ['/attached_assets/', '/favicon'];
-  
-  return cacheableExtensions.some(ext => url.includes(ext)) ||
-         cacheablePaths.some(path => url.includes(path));
-}
-
-console.log('SW: Service Worker loaded');
