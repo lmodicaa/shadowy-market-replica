@@ -7,7 +7,8 @@ import {
   Shield,
 } from "lucide-react";
 import { OptimizedPicture } from './OptimizedPicture';
-import logoImage from "@assets/logo.png";
+import logoWebp from "@assets/logo.webp";
+import logoAvif from "@assets/logo.avif";
 import { Button } from "@/components/ui/button";  
 import { throttle } from "@/utils/performance";
 
@@ -68,9 +69,9 @@ const Navigation = ({ session }: { session: any }) => {
           onClick={() => navigate("/")}
         >
           <OptimizedPicture 
-            src={logoImage} 
-            webpSrc="/logo.webp"
-            avifSrc="/logo.avif"
+            src={logoWebp} 
+            webpSrc={logoWebp}
+            avifSrc={logoAvif}
             alt="MateCloud Logo - Plataforma de Cloud Gaming" 
             className="w-12 h-12"
             width={48}

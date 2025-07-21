@@ -2,7 +2,8 @@ import { Play, Clock, Sparkles, CreditCard, Monitor } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { OptimizedPicture } from './OptimizedPicture';
-import logoImage from "@assets/logo.png";
+import logoWebp from "@assets/logo.webp";
+import logoAvif from "@assets/logo.avif";
 
 const tutorials = [
   {
@@ -27,9 +28,9 @@ const TutorialsSection = () => {
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-6">
             <OptimizedPicture 
-              src={logoImage} 
-              webpSrc="/logo.webp"
-              avifSrc="/logo.avif"
+              src={logoWebp} 
+              webpSrc={logoWebp}
+              avifSrc={logoAvif}
               alt="MateCloud Logo" 
               className="w-6 h-6"
               width={24}
@@ -74,10 +75,14 @@ const TutorialsSection = () => {
                 
                 {/* MateCloud logo */}
                 <div className="absolute top-4 left-4">
-                  <img 
-                    src={logoImage} 
+                  <OptimizedPicture 
+                    src={logoWebp} 
+                    webpSrc={logoWebp}
+                    avifSrc={logoAvif}
                     alt="MateCloud Logo" 
-                    className="w-8 h-8 object-contain opacity-60"
+                    className="w-8 h-8 opacity-60"
+                    width={32}
+                    height={32}
                   />
                 </div>
                 

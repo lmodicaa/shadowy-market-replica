@@ -1,7 +1,8 @@
 import { Smartphone, Cpu, Wifi, HardDrive } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { OptimizedPicture } from './OptimizedPicture';
-import logoImage from "@assets/logo.png";
+import logoWebp from "@assets/logo.webp";
+import logoAvif from "@assets/logo.avif";
 import { LazyImage } from './LazyImage';
 
 const features = [
@@ -36,9 +37,9 @@ const FeaturesSection = () => {
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-6">
             <OptimizedPicture 
-              src={logoImage} 
-              webpSrc="/logo.webp"
-              avifSrc="/logo.avif"
+              src={logoWebp} 
+              webpSrc={logoWebp}
+              avifSrc={logoAvif}
               alt="MateCloud Logo - Cloud Gaming Platform" 
               className="w-6 h-6"
               width={24}

@@ -1,5 +1,7 @@
 import { Check, Crown, Zap, Star, Package } from 'lucide-react';
-import logoImage from "@assets/logo.png";
+import logoWebp from "@assets/logo.webp";
+import logoAvif from "@assets/logo.avif";
+import { OptimizedPicture } from './OptimizedPicture';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -239,10 +241,14 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
         {/* Header */}
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <img 
-              src={logoImage} 
+            <OptimizedPicture 
+              src={logoWebp} 
+              webpSrc={logoWebp}
+              avifSrc={logoAvif}
               alt="MateCloud Logo" 
-              className="w-6 h-6 object-contain"
+              className="w-6 h-6"
+              width={24}
+              height={24}
             />
             <span className="text-lg font-semibold text-foreground/80">MateCloud | Planos</span>
           </div>
