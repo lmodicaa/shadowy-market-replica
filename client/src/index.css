@@ -2,26 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-/* DarkCloud Design System - Dark space theme with blue accents */
+/* CloudGaming Design System - Cloud gaming theme with atmospheric blues */
 
 @layer base {
   :root {
-    --background: 223 39% 7%;
+    --background: 220 60% 12%;
     --foreground: 210 40% 98%;
 
-    --card: 224 31% 12%;
+    --card: 220 50% 18%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 224 31% 12%;
+    --popover: 220 50% 18%;
     --popover-foreground: 210 40% 98%;
 
     --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 223 39% 15%;
+    --secondary: 220 50% 22%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 223 39% 15%;
+    --muted: 220 50% 22%;
     --muted-foreground: 215 20% 65%;
 
     --accent: 217 91% 60%;
@@ -30,41 +30,43 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 223 39% 15%;
-    --input: 223 39% 15%;
+    --border: 220 50% 22%;
+    --input: 220 50% 22%;
     --ring: 217 91% 60%;
 
     --radius: 0.75rem;
     
-    /* Custom DarkCloud variables */
-    --space-dark: 223 39% 7%;
-    --space-darker: 220 40% 4%;
+    /* Custom CloudGaming variables */
+    --cloud-deep: 220 60% 12%;
+    --cloud-darker: 220 70% 8%;
     --cloud-blue: 217 91% 60%;
     --cloud-blue-dark: 217 91% 45%;
-    --star-glow: 60 100% 80%;
+    --cloud-light: 200 100% 80%;
+    --star-glow: 200 100% 85%;
     
-    /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(var(--space-darker)), hsl(var(--space-dark)));
+    /* Cloud Gaming Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(var(--cloud-darker)), hsl(var(--cloud-deep)), hsl(220 50% 20%));
     --gradient-button: linear-gradient(135deg, hsl(var(--cloud-blue)), hsl(var(--cloud-blue-dark)));
-    --gradient-glow: radial-gradient(circle at center, hsl(var(--cloud-blue) / 0.3), transparent 70%);
+    --gradient-glow: radial-gradient(circle at center, hsl(var(--cloud-blue) / 0.4), hsl(var(--cloud-light) / 0.1), transparent 70%);
+    --gradient-background: linear-gradient(180deg, hsl(var(--cloud-darker)), hsl(var(--cloud-deep)) 50%, hsl(220 50% 18%) 100%);
     
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --star-twinkle: twinkle 3s ease-in-out infinite;
 
-    --sidebar-background: 223 39% 12%;
+    --sidebar-background: 220 50% 18%;
     --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 223 39% 15%;
+    --sidebar-accent: 220 50% 22%;
     --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 223 39% 15%;
+    --sidebar-border: 220 50% 22%;
     --sidebar-ring: 217 91% 60%;
   }
 
   .light {
-    /* Light mode - keeping dark as default for DarkCloud theme */
-    --background: 223 39% 7%;
+    /* Light mode - keeping cloud gaming theme */
+    --background: 220 60% 12%;
     --foreground: 210 40% 98%;
   }
 }
@@ -75,9 +77,22 @@
   }
 
   body {
-    @apply bg-background text-foreground overflow-x-hidden;
-    background: var(--gradient-hero);
+    @apply text-foreground overflow-x-hidden;
+    background: var(--gradient-background);
     min-height: 100vh;
+    position: relative;
+  }
+  
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-glow);
+    pointer-events: none;
+    z-index: -1;
   }
   
   html {
