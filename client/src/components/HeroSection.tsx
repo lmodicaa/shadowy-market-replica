@@ -1,8 +1,33 @@
 import { Power, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react';
 import logoImage from "@assets/logo_1753070520527.png";
 
 const HeroSection = () => {
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+
+  const heroTexts = [
+    "Acesse uma máquina virtual de alto desempenho e jogue seus títulos favoritos em qualquer dispositivo.",
+    "RTX 4090 na nuvem com ray tracing em tempo real. Transforme qualquer dispositivo em um PC gamer.",
+    "Latência ultra-baixa, performance máxima. Seus jogos AAA rodando a 144+ FPS instantaneamente.",
+    "Sem downloads, sem instalações. Clique e jogue imediatamente com a melhor qualidade gráfica.",
+    "Gaming em nuvem premium com armazenamento SSD NVMe e backup automático dos seus saves."
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsVisible(false);
+      
+      setTimeout(() => {
+        setCurrentTextIndex((prev) => (prev + 1) % heroTexts.length);
+        setIsVisible(true);
+      }, 300);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [heroTexts.length]);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center px-6">
       {/* Cloud Logo with Glow - Positioned better */}
@@ -25,10 +50,17 @@ const HeroSection = () => {
           com <span className="text-cloud-blue">MateCloud</span>
         </h1>
         
-        <p className="text-xl md:text-2xl text-foreground/70 mb-12 max-w-3xl mx-auto leading-relaxed">
-          Acesse uma máquina virtual de alto desempenho e jogue seus títulos 
-          favoritos em qualquer dispositivo, com gráficos impressionantes e baixa latência.
-        </p>
+        <div className="text-xl md:text-2xl text-foreground/70 mb-12 max-w-3xl mx-auto leading-relaxed h-24 flex items-center justify-center">
+          <p 
+            className={`transition-all duration-300 transform ${
+              isVisible 
+                ? 'opacity-100 translate-y-0' 
+                : 'opacity-0 -translate-y-2'
+            }`}
+          >
+            {heroTexts[currentTextIndex]}
+          </p>
+        </div>
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
