@@ -1,7 +1,7 @@
 import { Power, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
-import logoImage from "@assets/logo.svg";
+import logoImage from "@assets/logo.png";
 
 const HeroSection = () => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);

@@ -1,6 +1,6 @@
 import { Smartphone, Cpu, Wifi, HardDrive } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import logoImage from "@assets/logo.svg";
+import logoImage from "@assets/logo.png";
 
 const features = [
   {
