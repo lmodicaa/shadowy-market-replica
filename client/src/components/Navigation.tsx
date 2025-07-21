@@ -6,7 +6,7 @@ import {
   ChevronDown,
   Shield,
 } from "lucide-react";
-import { OptimizedImage } from './OptimizedImage';
+import { OptimizedPicture } from './OptimizedPicture';
 import logoImage from "@assets/logo.png";
 import { Button } from "@/components/ui/button";  
 import { throttle } from "@/utils/performance";
@@ -67,8 +67,10 @@ const Navigation = ({ session }: { session: any }) => {
           className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() => navigate("/")}
         >
-          <OptimizedImage 
+          <OptimizedPicture 
             src={logoImage} 
+            webpSrc="/logo.webp"
+            avifSrc="/logo.avif"
             alt="MateCloud Logo - Plataforma de Cloud Gaming" 
             className="w-12 h-12"
             width={48}

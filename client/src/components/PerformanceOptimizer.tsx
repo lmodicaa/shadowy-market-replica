@@ -42,8 +42,9 @@ export const PerformanceOptimizer = () => {
     // Preload critical resources
     const preloadCriticalAssets = () => {
       const criticalAssets = [
-        { href: '/attached_assets/logo.png', as: 'image', type: 'image/png' },
-        { href: '/favicon.png', as: 'image', type: 'image/png' }
+        { href: '/logo.avif', as: 'image', type: 'image/avif' },
+        { href: '/logo.webp', as: 'image', type: 'image/webp' },
+        { href: '/matecloud-favicon.avif', as: 'image', type: 'image/avif' }
       ];
 
       criticalAssets.forEach(({ href, as, type }) => {

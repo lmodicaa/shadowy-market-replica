@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 // Lazy load Toaster for better performance
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster as Sonner } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Router, Route, Switch } from "wouter";
@@ -98,8 +98,8 @@ const App = () => {
         }
       }
       
-      preloadImage('/attached_assets/logo.png');
-      preloadImage('/favicon.png');
+      preloadImage('/logo.avif');
+      preloadImage('/matecloud-favicon.avif');
     };
     
     optimizeApp();

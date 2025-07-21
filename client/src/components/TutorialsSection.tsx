@@ -1,6 +1,7 @@
 import { Play, Clock, Sparkles, CreditCard, Monitor } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { OptimizedPicture } from './OptimizedPicture';
 import logoImage from "@assets/logo.png";
 
 const tutorials = [
@@ -25,10 +26,15 @@ const TutorialsSection = () => {
         {/* Header */}
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <img 
+            <OptimizedPicture 
               src={logoImage} 
+              webpSrc="/logo.webp"
+              avifSrc="/logo.avif"
               alt="MateCloud Logo" 
-              className="w-6 h-6 object-contain"
+              className="w-6 h-6"
+              width={24}
+              height={24}
+              priority={true}
             />
             <span className="text-lg font-semibold text-foreground/80">MateCloud | Tutoriais</span>
           </div>

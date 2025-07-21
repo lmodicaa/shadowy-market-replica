@@ -29,9 +29,19 @@ export const LazySection = ({
   );
 };
 
-// Lazy loaded components for code splitting
-export const LazyFeaturesSection = lazy(() => import('./FeaturesSection').then(m => ({ default: m.default })));
-export const LazyPlansSection = lazy(() => import('./PlansSection').then(m => ({ default: m.default })));
-export const LazyTutorialsSection = lazy(() => import('./TutorialsSection').then(m => ({ default: m.default })));
-export const LazyVMDashboard = lazy(() => import('./VMDashboard').then(m => ({ default: m.default })));
-export const LazyAdminPlanManager = lazy(() => import('./AdminPlanManager').then(m => ({ default: m.default })));
+// Lazy loaded components for code splitting - optimized for tree shaking
+export const LazyFeaturesSection = lazy(() => 
+  import('./FeaturesSection').then(module => ({ default: module.default }))
+);
+export const LazyPlansSection = lazy(() => 
+  import('./PlansSection').then(module => ({ default: module.default }))
+);
+export const LazyTutorialsSection = lazy(() => 
+  import('./TutorialsSection').then(module => ({ default: module.default }))
+);
+export const LazyVMDashboard = lazy(() => 
+  import('./VMDashboard').then(module => ({ default: module.default }))
+);
+export const LazyAdminPlanManager = lazy(() => 
+  import('./AdminPlanManager').then(module => ({ default: module.default }))
+);

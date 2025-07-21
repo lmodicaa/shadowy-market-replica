@@ -21,8 +21,15 @@ export default defineConfig({
       verbose: true,
       disable: false,
       threshold: 10240, // archivos >10kb
-      algorithm: "brotliCompress", // o 'gzip'
-      ext: ".br", // o '.gz'
+      algorithm: "brotliCompress",
+      ext: ".br",
+    }),
+    viteCompression({
+      verbose: true,
+      disable: false,
+      threshold: 10240, // archivos >10kb
+      algorithm: "gzip",
+      ext: ".gz",
     }),
     ...(isDev && process.env.REPL_ID !== undefined ? [cartographer()] : []),
   ],
@@ -38,10 +45,13 @@ export default defineConfig({
     target: "es2020", // solo navegadores modernos
     outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true,
-    minify: "esbuild", // rápido y eficiente
+    minify: "esbuild",
     sourcemap: false,
     cssCodeSplit: true,
-    assetsInlineLimit: 4096, // imágenes pequeñas embebidas
+    assetsInlineLimit: 4096,
+    modulePreload: {
+      polyfill: false,
+    },
     rollupOptions: {
       output: {
         manualChunks: {

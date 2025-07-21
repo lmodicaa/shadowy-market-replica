@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import StarField from '@/components/StarField';
 import Navigation from '@/components/Navigation';
@@ -12,13 +12,17 @@ interface IndexProps {
 const Index = ({ session }: IndexProps) => {
   const [location, navigate] = useLocation();
 
+  // Memoize URL cleanup effect
+  const shouldCleanUrl = useMemo(() => 
+    window.location.hash.includes('access_token='), 
+    [session]
+  );
+
   useEffect(() => {
-    // Limpiar la URL del hash después de la autenticación exitosa
-    if (window.location.hash.includes('access_token=')) {
-      // Use replace to clean the URL without adding to history
+    if (shouldCleanUrl) {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [session]);
+  }, [shouldCleanUrl]);
 
   return (
     <div className="relative min-h-screen">

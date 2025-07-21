@@ -16,11 +16,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     
     <!-- Favicon and Icons -->
+    <link rel="icon" type="image/avif" href="/matecloud-favicon.avif" />
+    <link rel="icon" type="image/webp" href="/matecloud-favicon.webp" />
     <link rel="icon" type="image/png" sizes="32x32" href="/matecloud-favicon.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/matecloud-favicon.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/matecloud-favicon.png" />
     <link rel="shortcut icon" href="/matecloud-favicon.png" />
-    <link rel="icon" type="image/x-icon" href="/matecloud-favicon.png" />
     
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -28,7 +28,8 @@
     <link rel="dns-prefetch" href="//supabase.co" />
     
     <!-- Performance optimizations -->
-    <link rel="preload" href="/matecloud-favicon.png" as="image" type="image/png" />
+    <link rel="preload" href="/matecloud-favicon.avif" as="image" type="image/avif" />
+    <link rel="preload" href="/matecloud-favicon.webp" as="image" type="image/webp" />
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"></noscript>
     
@@ -39,6 +40,12 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- Replit banner removed for production performance -->
+    <script type="module">
+      if (window.location.hostname.includes('replit.dev') || window.location.hostname.includes('replit.co')) {
+        const script = document.createElement('script');
+        script.src = 'https://replit.com/public/js/replit-dev-banner.js';
+        document.head.appendChild(script);
+      }
+    </script>
   </body>
 </html>

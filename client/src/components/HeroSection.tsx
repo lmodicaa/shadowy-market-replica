@@ -1,7 +1,7 @@
 import { Power, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { OptimizedImage } from './OptimizedImage';
+import { OptimizedPicture } from './OptimizedPicture';
 import logoImage from "@assets/logo.png";
 
 import { SEOHead } from './SEOHead';
@@ -39,8 +39,10 @@ const HeroSection = () => {
       {/* Cloud Logo with Glow - Positioned better */}
       <div className="absolute top-20 left-1/2 transform -translate-x-1/2">
         <div className="flex items-center gap-2 mb-8 opacity-80 hover:opacity-100 transition-opacity duration-300">
-          <OptimizedImage 
+          <OptimizedPicture 
             src={logoImage} 
+            webpSrc="/logo.webp"
+            avifSrc="/logo.avif"
             alt="MateCloud Logo - Gaming na Nuvem Premium" 
             className="w-5 h-5"
             width={20}
