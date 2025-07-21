@@ -1,12 +1,20 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import path from "path";
 import viteCompression from "vite-plugin-compression";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+import { cartographer } from "@replit/vite-plugin-cartographer";
 
-export default defineConfig(async () => {
-  const isDev = process.env.NODE_ENV !== "production";
-  const plugins = [
+import { fileURLToPath } from "url";
+import path from "path";
+
+// Definición de __dirname en ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const isDev = process.env.NODE_ENV !== "production";
+
+export default defineConfig({
+  plugins: [
     react(),
     runtimeErrorOverlay(),
     viteCompression({
@@ -16,36 +24,28 @@ export default defineConfig(async () => {
       algorithm: "brotliCompress", // o 'gzip'
       ext: ".br", // o '.gz'
     }),
-  ];
-
-  if (isDev && process.env.REPL_ID !== undefined) {
-    const { cartographer } = await import("@replit/vite-plugin-cartographer");
-    plugins.push(cartographer());
-  }
-
-  return {
-    plugins,
-    resolve: {
-      alias: {
-        "@": path.resolve(__dirname, "client", "src"),
-        "@shared": path.resolve(__dirname, "shared"),
-        "@assets": path.resolve(__dirname, "attached_assets"),
-      },
+    ...(isDev && process.env.REPL_ID !== undefined ? [cartographer()] : []),
+  ],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "client", "src"),
+      "@shared": path.resolve(__dirname, "shared"),
+      "@assets": path.resolve(__dirname, "attached_assets"),
     },
-    root: path.resolve(__dirname, "client"),
-    build: {
-      outDir: path.resolve(__dirname, "dist/public"),
-      emptyOutDir: true,
-      minify: "esbuild", // más rápido que terser
-      sourcemap: false,
-      cssCodeSplit: true,
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            react: ["react", "react-dom"],
-          },
+  },
+  root: path.resolve(__dirname, "client"),
+  build: {
+    outDir: path.resolve(__dirname, "dist/public"),
+    emptyOutDir: true,
+    minify: "esbuild", // más rápido que terser
+    sourcemap: false,
+    cssCodeSplit: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ["react", "react-dom"],
         },
       },
     },
-  };
+  },
 });
