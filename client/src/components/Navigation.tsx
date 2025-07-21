@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import logoImage from "@assets/logo.png";
 import { Button } from "@/components/ui/button";
+import { throttle } from "@/utils/performance";
 import {
   DropdownMenu,
   DropdownMenuContent,

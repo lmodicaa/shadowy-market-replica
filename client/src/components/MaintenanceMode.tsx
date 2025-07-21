@@ -32,9 +32,11 @@ const useMaintenanceMode = () => {
         return false; // Em caso de erro de conexão, assumir que não está em manutenção
       }
     },
-    refetchInterval: 10000, // Verifica a cada 10 segundos para resposta mais rápida
-    staleTime: 5000, // Cache por apenas 5 segundos
+    refetchInterval: 30000, // Reduced frequency from 10s to 30s
+    staleTime: 2 * 60 * 1000, // Increased cache time from 5s to 2 minutes
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
     retry: false, // Não tentar novamente em caso de erro para evitar loops
+    refetchOnWindowFocus: false, // Don't refetch on window focus
   });
 };
 
@@ -62,6 +64,8 @@ const useMaintenanceMessage = () => {
       }
     },
     retry: false, // Não tentar novamente em caso de erro
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
 };
 

@@ -1,6 +1,7 @@
 import { Smartphone, Cpu, Wifi, HardDrive } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import logoImage from "@assets/logo.png";
+import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 
 const features = [
   {
@@ -26,8 +27,10 @@ const features = [
 ];
 
 const FeaturesSection = () => {
+  const { ref, isIntersecting } = useIntersectionObserver();
+
   return (
-    <section id="faq" className="py-20 px-6 relative z-10">
+    <section ref={ref} id="faq" className="py-20 px-6 relative z-10">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
@@ -51,9 +54,9 @@ const FeaturesSection = () => {
           </p>
         </div>
 
-        {/* Features Grid */}
+        {/* Features Grid - Only render when visible */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {features.map((feature, index) => (
+          {isIntersecting && features.map((feature, index) => (
             <Card 
               key={index} 
               className="hover:border-cloud-blue/40 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-xl"

@@ -71,7 +71,71 @@
   }
 }
 
+/* Performance optimizations */
 @layer base {
+  * {
+    /* Hardware acceleration */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    /* Optimize rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* GPU acceleration for animations */
+  .star, .star-field {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+
+  /* Smooth scrolling optimization */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Improve rendering performance */
+  img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: optimize-contrast;
+    /* Prevent layout shift */
+    width: auto;
+    height: auto;
+  }
+
+  /* Optimize form inputs */
+  input, textarea, select {
+    will-change: contents;
+  }
+
+  /* Optimize list rendering */
+  ul, ol {
+    contain: layout;
+  }
+
+  /* Optimize card animations */
+  .hover\\:scale-105 {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    
+    .star {
+      animation: none !important;
+    }
+  }
+
+  /* Optimize transitions */
+  .transition-all,
+  .hover\\:scale-105:hover {
+    will-change: transform;
+  }
+
   * {
     @apply border-border;
   }

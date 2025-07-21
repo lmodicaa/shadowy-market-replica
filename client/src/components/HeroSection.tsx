@@ -1,32 +1,35 @@
 import { Power, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import logoImage from "@assets/logo.png";
 
 const HeroSection = () => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
 
-  const heroTexts = [
+  // Memoize hero texts to prevent recreation on every render
+  const heroTexts = useMemo(() => [
     "Servidores dedicados no Brasil garantem ping baixíssimo para os gamers brasileiros. Conecte e jogue instantaneamente.",
     "Sua biblioteca Steam, Epic e Xbox Game Pass rodando em servidores de São Paulo com latência de menos de 5ms.",
     "Não precisa de PC caro! Use seu celular, tablet ou notebook antigo para jogar Cyberpunk 2077 e GTA VI em ultra.",
     "Enquanto você trabalha ou estuda, sua VM fica salvando seu progresso. Volte e continue exatamente onde parou.",
     "MateCloud: O primeiro serviço brasileiro de cloud gaming com suporte 24/7 em português e pagamento em reais."
-  ];
+  ], []);
+
+  // Memoize text change handler
+  const handleTextChange = useCallback(() => {
+    setIsVisible(false);
+    setTimeout(() => {
+      setCurrentTextIndex((prev) => (prev + 1) % heroTexts.length);
+      setIsVisible(true);
+    }, 300);
+  }, [heroTexts.length]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIsVisible(false);
-      
-      setTimeout(() => {
-        setCurrentTextIndex((prev) => (prev + 1) % heroTexts.length);
-        setIsVisible(true);
-      }, 300);
-    }, 4000);
-
+    // Increase interval for better performance
+    const interval = setInterval(handleTextChange, 5000); // Increased from 4000
     return () => clearInterval(interval);
-  }, [heroTexts.length]);
+  }, [handleTextChange]);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center px-6">

@@ -143,9 +143,11 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
   const { data: activePlan, isLoading: loadingActivePlan } = useActivePlan(session?.user?.id);
   const { toast } = useToast();
 
-  // Buscar planos reais da base de dados com fallback
+  // Buscar planos reais da base de dados com fallback - optimized
   const { data: plans = [], isLoading: loadingPlans, error: plansError } = useQuery({
     queryKey: ['plans'],
+    staleTime: 10 * 60 * 1000, // 10 minutes cache
+    gcTime: 15 * 60 * 1000, // Keep in cache for 15 minutes
     queryFn: async () => {
       try {
         // Tentar consulta simples primeiro
@@ -188,7 +190,6 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       }
     },
     retry: 1,
-    staleTime: 5 * 60 * 1000, // 5 minutos
   });
 
 

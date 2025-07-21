@@ -15,7 +15,13 @@ export const queryClient = new QueryClient({
     queries: {
       queryFn: ({ queryKey }) => defaultFetcher(queryKey[0] as string),
       staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 10, // Cache for 10 minutes
       retry: 1,
+      refetchOnWindowFocus: false, // Disable for performance
+      refetchOnMount: false, // Use cache when available
+    },
+    mutations: {
+      retry: 1, // Reduce mutation retries
     },
   },
 });
