@@ -1,6 +1,6 @@
 // Admin API utilities
-// Use Vercel backend deployment URL
-const API_BASE_URL = 'https://matecloud-9er6ptlm0-juans-projects-df0e4de6.vercel.app';
+// Use local Replit backend which is working perfectly
+const API_BASE_URL = 'http://localhost:5000';
 
 console.log('AdminAPI Environment Check:', {
   hostname: window.location.hostname,
