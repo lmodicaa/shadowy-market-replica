@@ -1,0 +1,11 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "npx tsx server/index.ts"
+healthcheckPath = "/api/admin/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+
+[env]
+NODE_ENV = "production"
