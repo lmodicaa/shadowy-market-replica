@@ -14,7 +14,7 @@ const useMaintenanceMode = () => {
   return useQuery({
     queryKey: ['maintenanceMode'],
     queryFn: async () => {
-      console.log('Verificando modo de manutenção...');
+
       
       const { data, error } = await supabase
         .from('admin_settings')
@@ -27,10 +27,7 @@ const useMaintenanceMode = () => {
         return false; // Em caso de erro, assumir que não está em manutenção
       }
       
-      const isMaintenanceMode = data?.value === 'true';
-      console.log('Status do modo de manutenção:', { data, isMaintenanceMode });
-      
-      return isMaintenanceMode;
+      return data?.value === 'true';
     },
     refetchInterval: 10000, // Verifica a cada 10 segundos para resposta mais rápida
     staleTime: 5000, // Cache por apenas 5 segundos
@@ -49,7 +46,7 @@ const useMaintenanceMessage = () => {
         .maybeSingle();
       
       if (error) {
-        console.log('Usando mensagem padrão de manutenção');
+
         return 'O site está em manutenção. Voltaremos em breve!';
       }
       
@@ -102,12 +99,7 @@ const MaintenanceMode = ({ children, userIsAdmin = false }: MaintenanceModeProps
   const { data: isMaintenanceMode, isLoading: isLoadingMaintenance } = useMaintenanceMode();
   const { data: maintenanceMessage } = useMaintenanceMessage();
 
-  console.log('MaintenanceMode render:', { 
-    isMaintenanceMode, 
-    userIsAdmin, 
-    isLoadingMaintenance,
-    maintenanceMessage 
-  });
+
 
   // Mostrar carregamento apenas brevemente
   if (isLoadingMaintenance) {
@@ -120,12 +112,12 @@ const MaintenanceMode = ({ children, userIsAdmin = false }: MaintenanceModeProps
 
   // Se o modo de manutenção está ativo e o usuário não é admin, mostrar tela de manutenção
   if (isMaintenanceMode && !userIsAdmin) {
-    console.log('Exibindo tela de manutenção');
+
     return <MaintenanceScreen message={maintenanceMessage || 'O site está em manutenção. Voltaremos em breve!'} />;
   }
 
   // Caso contrário, renderizar o conteúdo normal
-  console.log('Exibindo conteúdo normal');
+
   return <>{children}</>;
 };
 

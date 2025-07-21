@@ -8,7 +8,7 @@ export const useActivePlan = (userId?: string) => {
     queryFn: async () => {
       if (!userId) return null;
       
-      console.log('Verificando plano ativo para usuário:', userId);
+
       
       // Buscar perfil do usuário
       const { data: profile, error: profileError } = await supabase

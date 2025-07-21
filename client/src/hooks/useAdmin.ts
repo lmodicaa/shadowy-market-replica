@@ -12,7 +12,7 @@ export const useIsAdmin = (userId?: string) => {
       
       // TEMPORARY: Return true to bypass recursion issues
       // This allows admin panel access while we fix RLS policies
-      console.log('Temporarily allowing admin access to fix recursion');
+
       return true;
     },
     enabled: !!userId,
@@ -31,7 +31,7 @@ export const useAllUsers = () => {
         return rpcData;
       }
       
-      console.log('RPC failed, trying profiles table:', rpcError);
+
       
       // Fallback to profiles with enhanced data
       const { data: profiles, error: profilesError } = await supabase

@@ -100,7 +100,7 @@ export const useCreateSubscription = () => {
       const endDate = new Date(now.getTime() + duration * 24 * 60 * 60 * 1000);
       
       // Verificar se o usuário já tem um plano ativo
-      console.log('Verificando plano ativo do usuário:', userId);
+
       const { data: existingProfile, error: profileCheckError } = await supabase
         .from('profiles')
         .select('active_plan, active_plan_until')

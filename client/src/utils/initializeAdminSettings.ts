@@ -71,7 +71,7 @@ const defaultSettings = [
 
 export const initializeAdminSettings = async () => {
   try {
-    console.log('Inicializando configurações administrativas...');
+
     
     // Verificar quais configurações já existem
     const { data: existingSettings, error: selectError } = await supabase
@@ -84,7 +84,6 @@ export const initializeAdminSettings = async () => {
     }
     
     const existingKeys = existingSettings?.map(s => s.key) || [];
-    console.log('Configurações existentes:', existingKeys);
     
     // Inserir apenas as configurações que não existem
     const settingsToInsert = defaultSettings.filter(setting => 
