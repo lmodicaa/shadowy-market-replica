@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Settings, Save, Globe, Bell, Shield, Database, Download, RefreshCw, Trash } from 'lucide-react';
+import { Settings, Save, Globe, Bell, Shield, Database, Download, RefreshCw, Trash, Activity, Power } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { useAdminSettings, useUpdateAdminSettings } from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
+import { AdminAPI } from '@/lib/adminApi';
 
 const AdminSettings = () => {
   const [settings, setSettings] = useState<Record<string, string>>({});
@@ -17,6 +18,8 @@ const AdminSettings = () => {
   const [isClearingCache, setIsClearingCache] = useState(false);
   const [isBackingUp, setIsBackingUp] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [isCheckingHealth, setIsCheckingHealth] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
 
   const { data: adminSettings, isLoading } = useAdminSettings();
   const updateSettings = useUpdateAdminSettings();
@@ -65,7 +68,7 @@ const AdminSettings = () => {
       console.error('Settings save error:', error);
       toast({
         title: "Erro",
-        description: `Erro ao salvar configurações: ${error?.message || 'Erro desconhecido'}`,
+        description: `Erro ao salvar configurações: ${(error as any)?.message || 'Erro desconhecido'}`,
         variant: "destructive",
       });
     }
@@ -93,30 +96,24 @@ const AdminSettings = () => {
   const handleTestDatabase = async () => {
     setIsTestingDatabase(true);
     try {
-      console.log('Testing database connection...');
+      console.log('Testing database connection via API...');
       
-      // Test multiple database operations
-      const [usersTest, settingsTest, plansTest] = await Promise.all([
-        supabase.from('profiles').select('id').limit(1),
-        supabase.from('admin_settings').select('key').limit(1),
-        supabase.from('plans').select('name').limit(1),
-      ]);
-
-      const errors = [usersTest.error, settingsTest.error, plansTest.error].filter(Boolean);
+      const response = await fetch('/api/admin/test-db');
+      const result = await response.json();
       
-      if (errors.length > 0) {
-        throw new Error(`Falhas encontradas: ${errors.map(e => e.message).join(', ')}`);
+      if (!response.ok || result.status === 'error') {
+        throw new Error(result.message || 'Teste de banco de dados falhou');
       }
 
       toast({
         title: "Teste de banco de dados",
-        description: "Todas as conexões estão funcionando corretamente!",
+        description: `✅ ${result.message}. Perfis: ${result.details.profiles.status}, Configurações: ${result.details.admin_settings.status}, Planos: ${result.details.plans.status}`,
       });
     } catch (error) {
       console.error('Database test failed:', error);
       toast({
         title: "Erro no teste",
-        description: `Falha na conexão: ${error?.message || 'Erro desconhecido'}`,
+        description: `Falha na conexão: ${(error as any)?.message || 'Erro desconhecido'}`,
         variant: "destructive",
       });
     } finally {
@@ -129,22 +126,33 @@ const AdminSettings = () => {
     try {
       console.log('Clearing application cache...');
       
-      // Simulate cache clearing operations
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Clear server-side cache via API
+      const response = await fetch('/api/admin/clear-cache', { method: 'POST' });
+      const result = await response.json();
       
-      // In a real application, you would clear various caches here
-      // localStorage.clear();
-      // sessionStorage.clear();
+      if (!response.ok || result.status === 'error') {
+        throw new Error(result.message || 'Falha ao limpar cache');
+      }
+      
+      // Clear client-side cache
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Clear service worker cache if available
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(name => caches.delete(name)));
+      }
       
       toast({
         title: "Cache limpo",
-        description: "Cache da aplicação foi limpo com sucesso.",
+        description: `✅ Cache limpo com sucesso! Ações: ${result.actions.join(', ')}`,
       });
     } catch (error) {
       console.error('Cache clear failed:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível limpar o cache.",
+        description: `Não foi possível limpar o cache: ${(error as any)?.message || 'Erro desconhecido'}`,
         variant: "destructive",
       });
     } finally {
@@ -186,7 +194,7 @@ const AdminSettings = () => {
       console.error('Backup failed:', error);
       toast({
         title: "Erro",
-        description: `Não foi possível criar backup: ${error?.message}`,
+        description: `Não foi possível criar backup: ${(error as any)?.message || 'Erro desconhecido'}`,
         variant: "destructive",
       });
     } finally {
@@ -219,7 +227,15 @@ const AdminSettings = () => {
         'vm_session_timeout': '60',
       };
 
-      // Reset all settings to defaults
+      // Initialize settings via API (this will create defaults if they don't exist)
+      const response = await fetch('/api/admin/init-settings', { method: 'POST' });
+      const result = await response.json();
+      
+      if (!response.ok || result.status === 'error') {
+        throw new Error(result.message || 'Falha ao inicializar configurações');
+      }
+      
+      // Reset all settings to defaults in parallel
       const promises = Object.entries(defaultSettings).map(([key, value]) => {
         return updateSettings.mutateAsync({ 
           key, 
@@ -247,6 +263,84 @@ const AdminSettings = () => {
       });
     } finally {
       setIsResetting(false);
+    }
+  };
+
+  const handleSystemHealth = async () => {
+    setIsCheckingHealth(true);
+    try {
+      console.log('Checking system health...');
+      
+      const healthData = await AdminAPI.getSystemHealth();
+      
+      const healthEmoji = (status: string) => {
+        switch (status) {
+          case 'healthy': return '✅';
+          case 'warning': return '⚠️';  
+          case 'unhealthy': return '❌';
+          default: return '❓';
+        }
+      };
+
+      toast({
+        title: "Status do Sistema",
+        description: `${healthEmoji(healthData.database)} BD: ${healthData.database} | ${healthEmoji(healthData.cache)} Cache: ${healthData.cache} | 🟢 Server: ${healthData.server}`,
+      });
+    } catch (error) {
+      console.error('Health check failed:', error);
+      toast({
+        title: "Erro na verificação",
+        description: `Falha ao verificar status: ${(error as any)?.message || 'Erro desconhecido'}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsCheckingHealth(false);
+    }
+  };
+
+  const handleToggleMaintenance = async () => {
+    setIsToggling(true);
+    try {
+      const currentMode = settings.maintenance_mode === 'true';
+      const newMode = !currentMode;
+      
+      console.log('Toggling maintenance mode:', { from: currentMode, to: newMode });
+      
+      const response = await fetch('/api/admin/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          enabled: newMode,
+          message: settings.maintenance_message || 'O site está em manutenção. Voltaremos em breve!'
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok || result.status === 'error') {
+        throw new Error(result.message || 'Falha ao alterar modo de manutenção');
+      }
+      
+      // Update local state
+      setSettings(prev => ({
+        ...prev,
+        maintenance_mode: newMode ? 'true' : 'false'
+      }));
+      setHasChanges(true);
+
+      toast({
+        title: "Modo de manutenção",
+        description: `🔧 Modo de manutenção ${newMode ? 'ativado' : 'desativado'} com sucesso!`,
+      });
+    } catch (error) {
+      console.error('Maintenance toggle failed:', error);
+      toast({
+        title: "Erro",
+        description: `Falha ao alterar modo de manutenção: ${(error as any)?.message || 'Erro desconhecido'}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsToggling(false);
     }
   };
 
@@ -502,7 +596,7 @@ const AdminSettings = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Button 
               variant="outline" 
               onClick={handleTestDatabase}
@@ -548,6 +642,32 @@ const AdminSettings = () => {
               <RefreshCw className="w-6 h-6" />
               <span className="text-xs">
                 {isResetting ? 'Resetando...' : 'Restaurar Padrão'}
+              </span>
+            </Button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mt-4">
+            <Button 
+              variant={isCheckingHealth ? "default" : "outline"}
+              onClick={handleSystemHealth}
+              disabled={isCheckingHealth}
+              className="flex-col h-20 gap-2"
+            >
+              <Activity className="w-6 h-6" />
+              <span className="text-xs">
+                {isCheckingHealth ? 'Verificando...' : 'Status Sistema'}
+              </span>
+            </Button>
+
+            <Button 
+              variant={settings.maintenance_mode === 'true' ? "destructive" : "outline"}
+              onClick={handleToggleMaintenance}
+              disabled={isToggling}
+              className="flex-col h-20 gap-2"
+            >
+              <Power className="w-6 h-6" />
+              <span className="text-xs">
+                {isToggling ? 'Alterando...' : (settings.maintenance_mode === 'true' ? 'Desativar Manutenção' : 'Ativar Manutenção')}
               </span>
             </Button>
           </div>
