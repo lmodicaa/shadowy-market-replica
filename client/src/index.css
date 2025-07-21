@@ -74,6 +74,22 @@
 /* Performance optimizations */
 @layer base {
   * {
+    box-sizing: border-box;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+  }
+  * {
     /* Hardware acceleration */
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
@@ -158,11 +174,12 @@
   }
 
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
 
   body {
-    @apply text-foreground overflow-x-hidden;
+    color: hsl(var(--foreground));
+    overflow-x: hidden;
     background: var(--gradient-background);
     min-height: 100vh;
     position: relative;

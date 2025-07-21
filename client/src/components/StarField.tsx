@@ -11,8 +11,8 @@ interface Star {
 const StarField = () => {
   const [stars, setStars] = useState<Star[]>([]);
 
-  // Reduce star count for better performance
-  const starCount = 50; // Reduced from 100
+  // Optimized star count for better performance
+  const starCount = 30;
 
   const generateStars = useMemo(() => {
     const newStars: Star[] = [];

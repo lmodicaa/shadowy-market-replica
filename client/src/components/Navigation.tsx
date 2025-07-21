@@ -6,8 +6,9 @@ import {
   ChevronDown,
   Shield,
 } from "lucide-react";
+import { OptimizedImage } from './OptimizedImage';
 import logoImage from "@assets/logo.png";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";  
 import { throttle } from "@/utils/performance";
 
 import {
@@ -66,11 +67,13 @@ const Navigation = ({ session }: { session: any }) => {
           className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() => navigate("/")}
         >
-          <img 
+          <OptimizedImage 
             src={logoImage} 
             alt="MateCloud Logo - Plataforma de Cloud Gaming" 
-            className="w-12 h-12 object-contain"
-            loading="eager"
+            className="w-12 h-12"
+            width={48}
+            height={48}
+            priority={true}
           />
           <span className="text-2xl font-bold text-foreground">MateCloud</span>
         </div>

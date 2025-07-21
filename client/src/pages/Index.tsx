@@ -3,9 +3,7 @@ import { useLocation } from 'wouter';
 import StarField from '@/components/StarField';
 import Navigation from '@/components/Navigation';
 import HeroSection from '@/components/HeroSection';
-import FeaturesSection from '@/components/FeaturesSection';
-import PlansSection from '@/components/PlansSection';
-import TutorialsSection from '@/components/TutorialsSection';
+import { LazySection, LazyFeaturesSection, LazyPlansSection, LazyTutorialsSection } from '@/components/LazySection';
 
 interface IndexProps {
   session: any;
@@ -33,9 +31,15 @@ const Index = ({ session }: IndexProps) => {
       {/* Main Content */}
       <main className="relative z-10">
         <HeroSection />
-        <FeaturesSection />
-        <PlansSection session={session} />
-        <TutorialsSection />
+        <LazySection>
+          <LazyFeaturesSection />
+        </LazySection>
+        <LazySection>
+          <LazyPlansSection session={session} />
+        </LazySection>
+        <LazySection>
+          <LazyTutorialsSection />
+        </LazySection>
       </main>
     </div>
   );

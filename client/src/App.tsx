@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Toaster } from "@/components/ui/toaster";
+// Lazy load Toaster for better performance
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -8,11 +8,13 @@ import { queryClient } from "@/lib/queryClient";
 import { supabase } from "@/lib/supabase";
 import { useIsAdmin } from "@/hooks/useAdmin";
 
-import Index from "./pages/Index";
-import Profile from "./pages/Profile";
-import Settings from "./pages/Settings";
-import Admin from "./pages/Admin";
-import NotFound from "./pages/NotFound";
+import { lazy, Suspense } from "react";
+
+const Index = lazy(() => import("./pages/Index"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Admin = lazy(() => import("./pages/Admin"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 import Footer from "./components/Footer";
 import MaintenanceMode from "./components/MaintenanceMode";
 import { PerformanceOptimizer } from "./components/PerformanceOptimizer";
@@ -24,13 +26,15 @@ const AppContent = ({ session }: { session: any }) => {
     <MaintenanceMode userIsAdmin={isAdmin}>
       <PerformanceOptimizer />
       <Router>
-        <Switch>
-          <Route path="/" component={() => <Index session={session} />} />
-          <Route path="/profile" component={() => <Profile session={session} />} />
-          <Route path="/settings" component={() => <Settings session={session} />} />
-          <Route path="/admin" component={() => <Admin session={session} />} />
-          <Route component={NotFound} />
-        </Switch>
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-pulse text-blue-400">Carregando...</div></div>}>
+          <Switch>
+            <Route path="/" component={() => <Index session={session} />} />
+            <Route path="/profile" component={() => <Profile session={session} />} />
+            <Route path="/settings" component={() => <Settings session={session} />} />
+            <Route path="/admin" component={() => <Admin session={session} />} />
+            <Route component={NotFound} />
+          </Switch>
+        </Suspense>
       </Router>
       <Footer />
     </MaintenanceMode>
@@ -114,7 +118,6 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
         <Sonner />
         <AppContent session={session} />
       </TooltipProvider>
