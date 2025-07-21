@@ -61,7 +61,7 @@ const TutorialsSection = () => {
                         <Clock className="w-5 h-5" />
                         <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
                       </div>
-                      <span className="font-semibold text-sm">Próximamente</span>
+                      <span className="font-semibold text-sm">Em breve</span>
                       <Sparkles className="w-4 h-4 text-yellow-300 animate-pulse" />
                     </div>
                   </div>
