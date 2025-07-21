@@ -6,7 +6,7 @@ import {
   ChevronDown,
   Shield,
 } from "lucide-react";
-import logoImage from "@assets/logo_1753070520527.png";
+import logoImage from "@assets/logo.svg";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

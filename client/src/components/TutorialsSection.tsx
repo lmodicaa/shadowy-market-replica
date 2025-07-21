@@ -1,7 +1,7 @@
 import { Play, Clock, Sparkles, CreditCard, Monitor } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import logoImage from "@assets/logo_1753070520527.png";
+import logoImage from "@assets/logo.svg";
 
 const tutorials = [
   {

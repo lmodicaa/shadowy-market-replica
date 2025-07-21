@@ -14,23 +14,27 @@ const useMaintenanceMode = () => {
   return useQuery({
     queryKey: ['maintenanceMode'],
     queryFn: async () => {
-
-      
-      const { data, error } = await supabase
-        .from('admin_settings')
-        .select('value')
-        .eq('key', 'maintenance_mode')
-        .maybeSingle(); // Use maybeSingle ao invés de single para evitar erro quando não existe
-      
-      if (error) {
-        console.error('Erro ao verificar modo de manutenção:', error);
-        return false; // Em caso de erro, assumir que não está em manutenção
+      try {
+        const { data, error } = await supabase
+          .from('admin_settings')
+          .select('value')
+          .eq('key', 'maintenance_mode')
+          .maybeSingle(); // Use maybeSingle ao invés de single para evitar erro quando não existe
+        
+        if (error) {
+          console.error('Erro ao verificar modo de manutenção:', error);
+          return false; // Em caso de erro, assumir que não está em manutenção
+        }
+        
+        return data?.value === 'true';
+      } catch (error) {
+        console.error('Erro na conexão com Supabase:', error);
+        return false; // Em caso de erro de conexão, assumir que não está em manutenção
       }
-      
-      return data?.value === 'true';
     },
     refetchInterval: 10000, // Verifica a cada 10 segundos para resposta mais rápida
     staleTime: 5000, // Cache por apenas 5 segundos
+    retry: false, // Não tentar novamente em caso de erro para evitar loops
   });
 };
 
@@ -39,19 +43,25 @@ const useMaintenanceMessage = () => {
   return useQuery({
     queryKey: ['maintenanceMessage'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('admin_settings')
-        .select('value')
-        .eq('key', 'maintenance_message')
-        .maybeSingle();
-      
-      if (error) {
-
+      try {
+        const { data, error } = await supabase
+          .from('admin_settings')
+          .select('value')
+          .eq('key', 'maintenance_message')
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Erro ao obter mensagem de manutenção:', error);
+          return 'O site está em manutenção. Voltaremos em breve!';
+        }
+        
+        return data?.value || 'O site está em manutenção. Voltaremos em breve!';
+      } catch (error) {
+        console.error('Erro na conexão com Supabase para mensagem:', error);
         return 'O site está em manutenção. Voltaremos em breve!';
       }
-      
-      return data?.value || 'O site está em manutenção. Voltaremos em breve!';
     },
+    retry: false, // Não tentar novamente em caso de erro
   });
 };
 
