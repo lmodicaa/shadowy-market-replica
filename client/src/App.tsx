@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-// Lazy load Toaster for better performance
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Toaster as Sonner } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -7,8 +6,6 @@ import { Router, Route, Switch } from "wouter";
 import { queryClient } from "@/lib/queryClient";
 import { supabase } from "@/lib/supabase";
 import { useIsAdmin } from "@/hooks/useAdmin";
-
-import { lazy, Suspense } from "react";
 
 const Index = lazy(() => import("./pages/Index"));
 const Profile = lazy(() => import("./pages/Profile"));
