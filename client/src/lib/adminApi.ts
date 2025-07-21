@@ -118,8 +118,19 @@ export class AdminAPI {
 
       console.log('AdminAPI.toggleMaintenance: Response status:', response.status);
       console.log('AdminAPI.toggleMaintenance: Response URL:', response.url);
+      console.log('AdminAPI.toggleMaintenance: Response headers:', Object.fromEntries(response.headers.entries()));
 
-      const result = await response.json();
+      const responseText = await response.text();
+      console.log('AdminAPI.toggleMaintenance: Raw response text:', responseText.substring(0, 200));
+
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('AdminAPI.toggleMaintenance: JSON parse error:', parseError);
+        console.error('AdminAPI.toggleMaintenance: Full response text:', responseText);
+        throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}...`);
+      }
       
       if (!response.ok) {
         throw new Error(result.message || 'Failed to toggle maintenance mode');
