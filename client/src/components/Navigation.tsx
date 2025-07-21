@@ -1,5 +1,4 @@
 import {
-  Cloud,
   ExternalLink,
   User,
   Settings,
@@ -7,6 +6,7 @@ import {
   ChevronDown,
   Shield,
 } from "lucide-react";
+import MateCloudLogo from "./MateCloudLogo";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -65,7 +65,7 @@ const Navigation = ({ session }: { session: any }) => {
           onClick={() => navigate("/")}
         >
           <div className="p-2 rounded-lg bg-card/20 backdrop-blur-sm border border-border/30">
-            <Cloud className="w-6 h-6 text-cloud-blue" />
+            <MateCloudLogo className="w-6 h-6 text-cloud-blue" />
           </div>
           <span className="text-xl font-bold text-foreground">MateCloud</span>
         </div>
