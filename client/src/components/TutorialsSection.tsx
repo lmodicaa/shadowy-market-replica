@@ -1,4 +1,4 @@
-import { Play } from 'lucide-react';
+import { Play, Clock, Sparkles } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import logoImage from "@assets/logo_1753070520527.png";
@@ -54,15 +54,17 @@ const TutorialsSection = () => {
                   alt={tutorial.title}
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center group-hover:bg-black/30 transition-colors">
-                  <Button 
-                    size="lg" 
-                    variant="hero"
-                    className="shadow-xl"
-                  >
-                    <Play className="w-6 h-6 mr-2" />
-                    Assistir
-                  </Button>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-center justify-center group-hover:from-black/70 transition-all duration-300">
+                  <div className="bg-gradient-to-r from-cloud-blue/90 to-cloud-blue-dark/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-2xl border border-white/20 transform group-hover:scale-110 transition-all duration-300">
+                    <div className="flex items-center gap-2 text-white">
+                      <div className="relative">
+                        <Clock className="w-5 h-5" />
+                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                      </div>
+                      <span className="font-semibold text-sm">Próximamente</span>
+                      <Sparkles className="w-4 h-4 text-yellow-300 animate-pulse" />
+                    </div>
+                  </div>
                 </div>
               </div>
               
