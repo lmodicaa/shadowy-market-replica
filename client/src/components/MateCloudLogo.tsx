@@ -2,7 +2,7 @@ interface MateCloudLogoProps {
   className?: string;
 }
 
-const MateCloudLogo = ({ className = "w-6 h-6" }: MateCloudLogoProps) => {
+const MateCloudLogo = ({ className = "w-8 h-8" }: MateCloudLogoProps) => {
   return (
     <svg
       viewBox="0 0 24 24"

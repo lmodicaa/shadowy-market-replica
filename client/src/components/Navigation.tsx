@@ -64,8 +64,8 @@ const Navigation = ({ session }: { session: any }) => {
           className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() => navigate("/")}
         >
-          <div className="p-2 rounded-lg bg-card/20 backdrop-blur-sm border border-border/30">
-            <MateCloudLogo className="w-6 h-6 text-cloud-blue" />
+          <div className="p-3 rounded-lg bg-card/20 backdrop-blur-sm border border-border/30">
+            <MateCloudLogo className="w-8 h-8 text-cloud-blue" />
           </div>
           <span className="text-xl font-bold text-foreground">MateCloud</span>
         </div>
