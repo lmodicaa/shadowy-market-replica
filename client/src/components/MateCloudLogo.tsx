@@ -17,61 +17,61 @@ const MateCloudLogo = ({ className = "w-12 h-12" }: MateCloudLogoProps) => {
         opacity="0.8"
       />
       
-      {/* Mate gourd - larger and more prominent */}
+      {/* Mate gourd - rotated sideways */}
       <ellipse
         cx="16"
         cy="15"
-        rx="4"
-        ry="5"
+        rx="5"
+        ry="3.5"
         fill="#D97706"
       />
       
-      {/* Mate rim */}
+      {/* Mate rim/opening - now on the side */}
       <ellipse
-        cx="16"
-        cy="11.5"
-        rx="3.2"
-        ry="1.2"
+        cx="20.5"
+        cy="15"
+        rx="1.2"
+        ry="2.8"
         fill="#92400E"
       />
       
       {/* Mate opening (interior) */}
       <ellipse
-        cx="16"
-        cy="11.5"
-        rx="2.2"
-        ry="0.8"
+        cx="20.5"
+        cy="15"
+        rx="0.8"
+        ry="2"
         fill="#451A03"
       />
       
-      {/* Bombilla (metal straw) - more prominent */}
+      {/* Bombilla (metal straw) - now horizontal and more visible */}
       <rect
-        x="15.6"
-        y="7"
-        width="0.8"
-        height="6"
+        x="21"
+        y="14.6"
+        width="6"
+        height="0.8"
         fill="#9CA3AF"
         rx="0.4"
       />
       
       {/* Bombilla tip/filter */}
       <ellipse
-        cx="16"
-        cy="8"
-        rx="0.6"
-        ry="0.4"
+        cx="26.5"
+        cy="15"
+        rx="0.4"
+        ry="0.6"
         fill="#6B7280"
       />
       
-      {/* Mate texture - enhanced details */}
+      {/* Mate texture - adjusted for sideways position */}
       <path
-        d="M13 14C13 15.5 14 17 16 17C18 17 19 15.5 19 14"
+        d="M14 13C15.5 13 17 14 17 16C17 18 15.5 19 14 19"
         stroke="#92400E"
         strokeWidth="0.6"
         fill="none"
       />
       <path
-        d="M13.5 16C13.5 17.2 14.5 18.5 16 18.5C17.5 18.5 18.5 17.2 18.5 16"
+        d="M16 13.5C17.2 13.5 18.5 14.5 18.5 16C18.5 17.5 17.2 18.5 16 18.5"
         stroke="#92400E"
         strokeWidth="0.6"
         fill="none"
@@ -79,10 +79,10 @@ const MateCloudLogo = ({ className = "w-12 h-12" }: MateCloudLogoProps) => {
       
       {/* Mate highlights */}
       <ellipse
-        cx="14.5"
-        cy="13"
-        rx="0.8"
-        ry="1.2"
+        cx="15"
+        cy="14.5"
+        rx="1.2"
+        ry="0.8"
         fill="#F59E0B"
         opacity="0.6"
       />
