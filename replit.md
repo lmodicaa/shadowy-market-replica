@@ -73,7 +73,8 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
   - ✅ Admin API endpoints tested and working: /api/admin/health, /api/admin/maintenance, /api/admin/test-db
   - ✅ React application mounting correctly with performance monitoring active
   - ✅ Client/server separation maintained with security best practices
-  - ⚠️ Frontend API calls may have cached production URLs - browser refresh recommended
+  - ✅ Fixed frontend API routing issue by using absolute URLs in development mode
+  - ✅ Admin API calls now correctly target http://localhost:5000 instead of being intercepted by Vite
   - ✅ All required packages (tsx, React, Express, Supabase) verified and working
   - ✅ Supabase environment variables configured and connected
   - ✅ Express server running successfully on port 5000

@@ -1,5 +1,6 @@
 // Admin API utilities
-const API_BASE_URL = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_BASE_URL || '');
+// For development, use absolute URL to ensure requests go to the correct server
+const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:5000' : (import.meta.env.VITE_API_BASE_URL || '');
 
 console.log('AdminAPI Environment Check:', {
   isDev: import.meta.env.DEV,
@@ -100,9 +101,6 @@ export class AdminAPI {
   static async toggleMaintenance(enabled: boolean, message?: string) {
     try {
       const url = `${API_BASE_URL}/api/admin/maintenance`;
-      console.log('AdminAPI.toggleMaintenance: Making request to', url);
-      console.log('AdminAPI.toggleMaintenance: API_BASE_URL =', API_BASE_URL);
-      console.log('AdminAPI.toggleMaintenance: Full URL constructed =', url);
       
       const response = await fetch(url, {
         method: 'POST',
@@ -116,21 +114,7 @@ export class AdminAPI {
         })
       });
 
-      console.log('AdminAPI.toggleMaintenance: Response status:', response.status);
-      console.log('AdminAPI.toggleMaintenance: Response URL:', response.url);
-      console.log('AdminAPI.toggleMaintenance: Response headers:', Object.fromEntries(response.headers.entries()));
-
-      const responseText = await response.text();
-      console.log('AdminAPI.toggleMaintenance: Raw response text:', responseText.substring(0, 200));
-
-      let result;
-      try {
-        result = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('AdminAPI.toggleMaintenance: JSON parse error:', parseError);
-        console.error('AdminAPI.toggleMaintenance: Full response text:', responseText);
-        throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}...`);
-      }
+      const result = await response.json();
       
       if (!response.ok) {
         throw new Error(result.message || 'Failed to toggle maintenance mode');
