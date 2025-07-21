@@ -83,11 +83,7 @@ const MaintenanceScreen = ({ message }: { message: string }) => {
               <span>Tempo estimado: Em breve</span>
             </div>
             
-            <div className="mt-8 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-              <p className="text-sm text-amber-800 dark:text-amber-200">
-                <strong>Administradores:</strong> Vocês podem acessar o painel normalmente durante a manutenção.
-              </p>
-            </div>
+
           </CardContent>
         </Card>
       </div>
