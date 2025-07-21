@@ -2,51 +2,59 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Enhanced error handling for production
-try {
+console.log('🚀 Main.tsx starting...');
+
+// Wait for DOM to be ready
+const initApp = () => {
+  console.log('🚀 Initializing app...');
   const root = document.getElementById("root");
-  if (root) {
-    // Clear any loading content
-    root.innerHTML = '';
-    createRoot(root).render(<App />);
-  } else {
-    console.error('Root element not found');
-    // Fallback: create root element
-    const newRoot = document.createElement('div');
-    newRoot.id = 'root';
-    document.body.appendChild(newRoot);
-    createRoot(newRoot).render(<App />);
+  
+  if (!root) {
+    console.error('❌ Root element not found');
+    return;
   }
-} catch (error) {
-  console.error('Failed to render app:', error);
-  // Fallback UI
-  document.body.innerHTML = `
-    <div style="
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-family: Inter, system-ui, sans-serif;
-    ">
-      <div style="text-align: center;">
-        <h1 style="font-size: 24px; margin-bottom: 16px;">MateCloud</h1>
-        <p>Erro ao carregar a aplicação. Tente recarregar a página.</p>
-        <button onclick="location.reload()" style="
-          margin-top: 20px;
-          padding: 10px 20px;
-          background: #3b82f6;
-          color: white;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-        ">Recarregar</button>
+
+  console.log('🚀 Root element found, clearing loading content...');
+  
+  try {
+    // Clear loading content but keep a simple fallback
+    root.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: Inter, sans-serif; color: white;">Inicializando React...</div>';
+    
+    console.log('🚀 Creating React root...');
+    const reactRoot = createRoot(root);
+    
+    console.log('🚀 Rendering App component...');
+    reactRoot.render(<App />);
+    
+    console.log('✅ App rendered successfully');
+  } catch (error) {
+    console.error('❌ Failed to render app:', error);
+    root.innerHTML = `
+      <div style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+        color: white;
+        font-family: Inter, sans-serif;
+        text-align: center;
+      ">
+        <div>
+          <h1>MateCloud</h1>
+          <p>Erro ao carregar: ${error instanceof Error ? error.message : String(error)}</p>
+          <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Recarregar
+          </button>
+        </div>
       </div>
-    </div>
-  `;
+    `;
+  }
+};
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
 }

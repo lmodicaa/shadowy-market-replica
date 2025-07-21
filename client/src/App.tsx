@@ -39,13 +39,18 @@ const AppContent = ({ session }: { session: any }) => {
 };
 
 const App = () => {
+  console.log('🚀 App component initializing...');
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('🚀 App useEffect running...');
+    
     const getInitialSession = async () => {
+      console.log('🚀 Getting initial session...');
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
+        console.log('🚀 Session data:', session ? 'User logged in' : 'No session', error ? `Error: ${error.message}` : 'No error');
         if (error) {
           console.error('Error getting session:', error);
         }
@@ -53,6 +58,7 @@ const App = () => {
       } catch (error) {
         console.error('Error in getInitialSession:', error);
       } finally {
+        console.log('🚀 Setting loading to false...');
         setLoading(false);
       }
     };
@@ -104,14 +110,21 @@ const App = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  console.log('🚀 App render - Loading state:', loading);
+
   if (loading) {
+    console.log('🚀 Showing loading spinner...');
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cloud-blue"></div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)' }}>
+        <div className="text-center text-white">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p>Carregando MateCloud...</p>
+        </div>
       </div>
     );
   }
 
+  console.log('🚀 Rendering main app content...');
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
