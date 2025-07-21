@@ -65,9 +65,9 @@ const Navigation = ({ session }: { session: any }) => {
           onClick={() => navigate("/")}
         >
           <div className="p-2 rounded-lg bg-card/20 backdrop-blur-sm border border-border/30">
-            <MateCloudLogo className="w-10 h-10" />
+            <MateCloudLogo className="w-12 h-12" />
           </div>
-          <span className="text-xl font-bold text-foreground">MateCloud</span>
+          <span className="text-2xl font-bold text-foreground">MateCloud</span>
         </div>
 
         {/* Navigation Links */}
