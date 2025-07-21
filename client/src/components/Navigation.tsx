@@ -60,7 +60,10 @@ const Navigation = ({ session }: { session: any }) => {
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 bg-background/80 backdrop-blur-md border-b border-border/20">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2">
+        <div 
+          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => navigate("/")}
+        >
           <div className="p-2 rounded-lg bg-card/20 backdrop-blur-sm border border-border/30">
             <Cloud className="w-6 h-6 text-cloud-blue" />
           </div>

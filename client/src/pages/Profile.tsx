@@ -11,6 +11,8 @@ import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import UserPlanStatus from '@/components/UserPlanStatus';
 import VMDashboard from '@/components/VMDashboard';
+import Navigation from '@/components/Navigation';
+import StarField from '@/components/StarField';
 import { useUserProfile, useSubscriptionHistory } from '@/hooks/useUserProfile';
 import { useActivePlan } from '@/hooks/useActivePlan';
 
@@ -103,7 +105,9 @@ const Profile = ({ session }: ProfileProps) => {
 
   return (
     <div className="min-h-screen bg-background pt-20 pb-8">
-      <div className="max-w-4xl mx-auto px-6">
+      <StarField />
+      <Navigation session={session} />
+      <div className="max-w-4xl mx-auto px-6 relative z-10">
         <div className="grid gap-6">
           {/* Header */}
           <div className="flex items-center justify-between">

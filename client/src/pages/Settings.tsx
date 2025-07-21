@@ -30,6 +30,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import Navigation from '@/components/Navigation';
+import StarField from '@/components/StarField';
 
 interface SettingsProps {
   session: any;
@@ -161,7 +163,9 @@ const Settings = ({ session }: SettingsProps) => {
 
   return (
     <div className="min-h-screen bg-background pt-20 pb-8">
-      <div className="max-w-4xl mx-auto px-6">
+      <StarField />
+      <Navigation session={session} />
+      <div className="max-w-4xl mx-auto px-6 relative z-10">
         <div className="space-y-6">
           {/* Header */}
           <div>
