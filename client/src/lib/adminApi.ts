@@ -1,6 +1,6 @@
 // Admin API utilities
-// Force localhost for development to avoid routing issues
-const API_BASE_URL = 'http://localhost:5000';
+// Use Netlify deployment URL as specified by user
+const API_BASE_URL = 'https://matecloud-store.netlify.app';
 
 console.log('AdminAPI Environment Check:', {
   isDev: import.meta.env.DEV,
