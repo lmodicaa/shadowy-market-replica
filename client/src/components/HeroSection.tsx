@@ -8,11 +8,11 @@ const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(true);
 
   const heroTexts = [
-    "Acesse uma máquina virtual de alto desempenho e jogue seus títulos favoritos em qualquer dispositivo.",
-    "RTX 4090 na nuvem com ray tracing em tempo real. Transforme qualquer dispositivo em um PC gamer.",
-    "Latência ultra-baixa, performance máxima. Seus jogos AAA rodando a 144+ FPS instantaneamente.",
-    "Sem downloads, sem instalações. Clique e jogue imediatamente com a melhor qualidade gráfica.",
-    "Gaming em nuvem premium com armazenamento SSD NVMe e backup automático dos seus saves."
+    "Servidores dedicados no Brasil garantem ping baixíssimo para os gamers brasileiros. Conecte e jogue instantaneamente.",
+    "Sua biblioteca Steam, Epic e Xbox Game Pass rodando em servidores de São Paulo com latência de menos de 5ms.",
+    "Não precisa de PC caro! Use seu celular, tablet ou notebook antigo para jogar Cyberpunk 2077 e GTA VI em ultra.",
+    "Enquanto você trabalha ou estuda, sua VM fica salvando seu progresso. Volte e continue exatamente onde parou.",
+    "MateCloud: O primeiro serviço brasileiro de cloud gaming com suporte 24/7 em português e pagamento em reais."
   ];
 
   useEffect(() => {

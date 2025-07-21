@@ -10,13 +10,13 @@ const features = [
   },
   {
     icon: Cpu,
-    title: 'RTX 4090 & Ryzen 9',
-    description: 'Máquinas virtuais equipadas com as placas de vídeo e processadores mais avançados do mercado. Ray tracing em tempo real e 144+ FPS garantidos.'
+    title: 'NVIDIA & AMD',
+    description: 'Máquinas virtuais equipadas com as placas de vídeo e processadores mais avançados do mercado. Ray tracing em tempo real e 60+ FPS garantidos.'
   },
   {
     icon: Wifi,
     title: 'Rede Otimizada',
-    description: 'Infraestrutura de fibra óptica dedicada com edge computing. Latência ultra-baixa de menos de 10ms para uma experiência responsiva e fluida.'
+    description: 'Infraestrutura de fibra óptica dedicada com edge computing. Latência ultra-baixa de menos de 38ms para uma experiência responsiva e fluida.'
   },
   {
     icon: HardDrive,
