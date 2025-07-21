@@ -1,12 +1,13 @@
 // Admin API utilities
-// For development, use absolute URL to ensure requests go to the correct server
-const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:5000' : (import.meta.env.VITE_API_BASE_URL || '');
+// Force localhost for development to avoid routing issues
+const API_BASE_URL = 'http://localhost:5000';
 
 console.log('AdminAPI Environment Check:', {
   isDev: import.meta.env.DEV,
   envApiBaseUrl: import.meta.env.VITE_API_BASE_URL,
   finalApiBaseUrl: API_BASE_URL,
-  currentOrigin: window.location.origin
+  currentOrigin: window.location.origin,
+  mode: import.meta.env.MODE
 });
 
 export class AdminAPI {
@@ -101,6 +102,8 @@ export class AdminAPI {
   static async toggleMaintenance(enabled: boolean, message?: string) {
     try {
       const url = `${API_BASE_URL}/api/admin/maintenance`;
+      console.log('🔧 AdminAPI.toggleMaintenance: Using URL:', url);
+      console.log('🔧 AdminAPI.toggleMaintenance: API_BASE_URL:', API_BASE_URL);
       
       const response = await fetch(url, {
         method: 'POST',
