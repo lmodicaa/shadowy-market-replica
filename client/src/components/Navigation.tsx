@@ -6,7 +6,7 @@ import {
   ChevronDown,
   Shield,
 } from "lucide-react";
-import MateCloudLogo from "./MateCloudLogo";
+import logoImage from "@assets/logo_1753069358389.png";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -65,7 +65,11 @@ const Navigation = ({ session }: { session: any }) => {
           onClick={() => navigate("/")}
         >
           <div className="p-2 rounded-lg bg-card/20 backdrop-blur-sm border border-border/30">
-            <MateCloudLogo className="w-12 h-12" />
+            <img 
+              src={logoImage} 
+              alt="MateCloud Logo" 
+              className="w-12 h-12 object-contain"
+            />
           </div>
           <span className="text-2xl font-bold text-foreground">MateCloud</span>
         </div>
