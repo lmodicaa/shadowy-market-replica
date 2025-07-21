@@ -5,23 +5,23 @@ import logoImage from "@assets/logo_1753070520527.png";
 const features = [
   {
     icon: Smartphone,
-    title: 'Jogue em qualquer dispositivo',
-    description: 'Acesse sua máquina virtual de qualquer lugar, em qualquer dispositivo com conexão à internet.'
+    title: 'Gaming Multiplataforma',
+    description: 'Transforme qualquer dispositivo em um console de alta performance. Jogue AAA titles no seu smartphone, tablet ou laptop antigo com a mesma qualidade.'
   },
   {
     icon: Cpu,
-    title: 'Hardware de alto desempenho',
-    description: 'Equipamentos de última geração para rodar seus jogos com gráficos impressionantes e alta taxa de quadros.'
+    title: 'RTX 4090 & Ryzen 9',
+    description: 'Máquinas virtuais equipadas com as placas de vídeo e processadores mais avançados do mercado. Ray tracing em tempo real e 144+ FPS garantidos.'
   },
   {
     icon: Wifi,
-    title: 'Baixa latência',
-    description: 'Servidores estrategicamente posicionados para garantir a menor latência possível durante suas sessões de jogo.'
+    title: 'Rede Otimizada',
+    description: 'Infraestrutura de fibra óptica dedicada com edge computing. Latência ultra-baixa de menos de 10ms para uma experiência responsiva e fluida.'
   },
   {
     icon: HardDrive,
-    title: 'Armazenamento dedicado',
-    description: 'Espaço de armazenamento exclusivo para instalar seus jogos favoritos e salvar seu progresso.'
+    title: 'SSD NVMe Exclusivo',
+    description: 'Armazenamento pessoal de alta velocidade com backup automático. Instale até 500GB de jogos com carregamento instantâneo e saves sincronizados.'
   }
 ];
 
