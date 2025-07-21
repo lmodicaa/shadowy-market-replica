@@ -96,12 +96,11 @@ const AdminSettings = () => {
   const handleTestDatabase = async () => {
     setIsTestingDatabase(true);
     try {
-      console.log('Testing database connection via API...');
+      console.log('Testing database connection via AdminAPI...');
       
-      const response = await fetch('/api/admin/test-db');
-      const result = await response.json();
+      const result = await AdminAPI.testDatabase();
       
-      if (!response.ok || result.status === 'error') {
+      if (result.status === 'error') {
         throw new Error(result.message || 'Teste de banco de dados falhou');
       }
 

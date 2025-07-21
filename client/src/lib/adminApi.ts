@@ -1,14 +1,40 @@
 // Admin API utilities
 export class AdminAPI {
   static async testDatabase() {
-    const response = await fetch('/api/admin/test-db');
-    const result = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(result.message || 'Database test failed');
+    try {
+      console.log('AdminAPI.testDatabase: Making request to /api/admin/test-db');
+      const response = await fetch('/api/admin/test-db', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log('AdminAPI.testDatabase: Response status:', response.status);
+      console.log('AdminAPI.testDatabase: Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      const text = await response.text();
+      console.log('AdminAPI.testDatabase: Raw response:', text.substring(0, 200));
+      
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch (parseError) {
+        console.error('AdminAPI.testDatabase: JSON parse error:', parseError);
+        console.error('AdminAPI.testDatabase: Response text:', text);
+        throw new Error(`Invalid JSON response: ${text.substring(0, 100)}...`);
+      }
+      
+      if (!response.ok) {
+        throw new Error(result.message || 'Database test failed');
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('AdminAPI.testDatabase: Full error:', error);
+      throw error;
     }
-    
-    return result;
   }
 
   static async clearCache() {
