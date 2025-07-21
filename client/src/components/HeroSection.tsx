@@ -45,9 +45,9 @@ const HeroSection = () => {
             webpSrc={logoWebp}
             avifSrc={logoAvif}
             alt="MateCloud Logo - Gaming na Nuvem Premium" 
-            className="w-5 h-5"
-            width={20}
-            height={20}
+            className="w-4 h-4"
+            width={16}
+            height={16}
             priority={true}
           />
           <span className="text-sm font-medium text-foreground/60">MateCloud</span>

@@ -41,10 +41,10 @@ const FeaturesSection = () => {
               webpSrc={logoWebp}
               avifSrc={logoAvif}
               alt="MateCloud Logo - Cloud Gaming Platform" 
-              className="w-6 h-6"
-              width={24}
-              height={24}
-              priority={true}
+              className="w-5 h-5"
+              width={20}
+              height={20}
+              loading="lazy"
             />
             <span className="text-lg font-semibold text-foreground/80">MateCloud | FAQ</span>
           </div>

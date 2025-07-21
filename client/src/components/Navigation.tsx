@@ -73,9 +73,9 @@ const Navigation = ({ session }: { session: any }) => {
             webpSrc={logoWebp}
             avifSrc={logoAvif}
             alt="MateCloud Logo - Plataforma de Cloud Gaming" 
-            className="w-12 h-12"
-            width={48}
-            height={48}
+            className="w-8 h-8"
+            width={32}
+            height={32}
             priority={true}
           />
           <span className="text-2xl font-bold text-foreground">MateCloud</span>
