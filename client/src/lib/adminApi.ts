@@ -1,9 +1,12 @@
 // Admin API utilities
+const API_BASE_URL = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_BASE_URL || '');
+
 export class AdminAPI {
   static async testDatabase() {
     try {
-      console.log('AdminAPI.testDatabase: Making request to /api/admin/test-db');
-      const response = await fetch('/api/admin/test-db', {
+      const url = `${API_BASE_URL}/api/admin/test-db`;
+      console.log('AdminAPI.testDatabase: Making request to', url);
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -38,7 +41,7 @@ export class AdminAPI {
   }
 
   static async clearCache() {
-    const response = await fetch('/api/admin/clear-cache', { method: 'POST' });
+    const response = await fetch(`${API_BASE_URL}/api/admin/clear-cache`, { method: 'POST' });
     const result = await response.json();
     
     if (!response.ok) {
@@ -49,7 +52,7 @@ export class AdminAPI {
   }
 
   static async initializeSettings() {
-    const response = await fetch('/api/admin/init-settings', { method: 'POST' });
+    const response = await fetch(`${API_BASE_URL}/api/admin/init-settings`, { method: 'POST' });
     const result = await response.json();
     
     if (!response.ok) {
@@ -63,7 +66,7 @@ export class AdminAPI {
     try {
       const [dbTest, cacheStatus] = await Promise.all([
         this.testDatabase().catch(e => ({ status: 'error', error: e.message })),
-        fetch('/api/health').then(r => r.json()).catch(() => ({ status: 'unknown' }))
+        fetch(`${API_BASE_URL}/api/admin/health`).then(r => r.json()).catch(() => ({ status: 'unknown' }))
       ]);
 
       return {
@@ -84,6 +87,33 @@ export class AdminAPI {
         timestamp: new Date().toISOString(),
         error: (error as any).message
       };
+    }
+  }
+
+  static async toggleMaintenance(enabled: boolean, message?: string) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/maintenance`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          enabled,
+          message: message || 'O site está em manutenção. Voltaremos em breve!'
+        })
+      });
+
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to toggle maintenance mode');
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('AdminAPI.toggleMaintenance: Error:', error);
+      throw error;
     }
   }
 }

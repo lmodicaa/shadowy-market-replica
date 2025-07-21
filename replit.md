@@ -46,6 +46,14 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - Authentication handled securely through Supabase
 
 ## Recent Changes
+- 2025-01-21: **NETLIFY DEPLOYMENT ISSUE RESOLVED** - Fixed API routing for production deployment
+  - ✅ Identified root cause: Netlify frontend trying to access backend APIs that don't exist in static deployment
+  - ✅ Implemented environment-aware API configuration (VITE_API_BASE_URL)
+  - ✅ Created AdminAPI utility class with proper URL handling for dev/prod environments
+  - ✅ Enhanced error handling and logging for better debugging
+  - ✅ Created NETLIFY_BACKEND_SETUP.md with deployment instructions
+  - ✅ Updated .env.example with backend configuration options
+  - ⚠️ **Action Required**: Backend needs separate deployment (Heroku/Railway/Render) for full functionality in production
 - 2025-01-21: **ADMIN PANEL CONFIGURATIONS FULLY FUNCTIONAL** - Complete admin settings system implemented
   - ✅ Created dedicated admin API routes (/api/admin/test-db, /api/admin/clear-cache, /api/admin/init-settings, /api/admin/health, /api/admin/maintenance)
   - ✅ Enhanced AdminSettings component with real server communication

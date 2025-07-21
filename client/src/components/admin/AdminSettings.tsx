@@ -126,10 +126,9 @@ const AdminSettings = () => {
       console.log('Clearing application cache...');
       
       // Clear server-side cache via API
-      const response = await fetch('/api/admin/clear-cache', { method: 'POST' });
-      const result = await response.json();
+      const result = await AdminAPI.clearCache();
       
-      if (!response.ok || result.status === 'error') {
+      if (result.status === 'error') {
         throw new Error(result.message || 'Falha ao limpar cache');
       }
       
@@ -227,10 +226,9 @@ const AdminSettings = () => {
       };
 
       // Initialize settings via API (this will create defaults if they don't exist)
-      const response = await fetch('/api/admin/init-settings', { method: 'POST' });
-      const result = await response.json();
+      const result = await AdminAPI.initializeSettings();
       
-      if (!response.ok || result.status === 'error') {
+      if (result.status === 'error') {
         throw new Error(result.message || 'Falha ao inicializar configurações');
       }
       
@@ -305,18 +303,12 @@ const AdminSettings = () => {
       
       console.log('Toggling maintenance mode:', { from: currentMode, to: newMode });
       
-      const response = await fetch('/api/admin/maintenance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          enabled: newMode,
-          message: settings.maintenance_message || 'O site está em manutenção. Voltaremos em breve!'
-        })
-      });
+      const result = await AdminAPI.toggleMaintenance(
+        newMode,
+        settings.maintenance_message || 'O site está em manutenção. Voltaremos em breve!'
+      );
       
-      const result = await response.json();
-      
-      if (!response.ok || result.status === 'error') {
+      if (result.status === 'error') {
         throw new Error(result.message || 'Falha ao alterar modo de manutenção');
       }
       
