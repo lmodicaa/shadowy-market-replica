@@ -91,7 +91,7 @@ export const initializeAdminSettings = async () => {
     );
     
     if (settingsToInsert.length > 0) {
-      console.log('Inserindo configurações faltantes:', settingsToInsert.map(s => s.key));
+
       
       const { data, error } = await supabase
         .from('admin_settings')
@@ -103,10 +103,10 @@ export const initializeAdminSettings = async () => {
       if (error) {
         console.error('Erro ao inserir configurações padrão:', error);
       } else {
-        console.log('Configurações padrão inseridas com sucesso');
+
       }
     } else {
-      console.log('Todas as configurações padrão já existem');
+
     }
     
   } catch (error) {
