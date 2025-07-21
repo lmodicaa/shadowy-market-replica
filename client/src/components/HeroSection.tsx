@@ -2,6 +2,8 @@ import { Power, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import logoImage from "@assets/logo.png";
+import { LazyImage } from './LazyImage';
+import { SEOHead } from './SEOHead';
 
 const HeroSection = () => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
