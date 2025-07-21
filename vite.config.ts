@@ -35,16 +35,21 @@ export default defineConfig({
   },
   root: path.resolve(__dirname, "client"),
   build: {
+    target: "es2020", // solo navegadores modernos
     outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true,
-    minify: "esbuild", // más rápido que terser
+    minify: "esbuild", // rápido y eficiente
     sourcemap: false,
     cssCodeSplit: true,
+    assetsInlineLimit: 4096, // imágenes pequeñas embebidas
     rollupOptions: {
       output: {
         manualChunks: {
           react: ["react", "react-dom"],
         },
+      },
+      treeshake: {
+        moduleSideEffects: false,
       },
     },
   },
