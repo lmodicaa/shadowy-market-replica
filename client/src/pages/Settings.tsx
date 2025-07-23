@@ -124,12 +124,49 @@ const Settings = ({ session }: SettingsProps) => {
       linkElement.setAttribute('download', exportFileDefaultName);
       linkElement.click();
 
+      // Alerta de confirmação de exportação
+      const exportSummary = [
+        `✅ Arquivo: ${exportFileDefaultName}`,
+        `📊 Dados incluídos:`,
+        `   • Perfil completo`,
+        `   • Configurações de notificações`,
+        `   • ${subscriptionsData?.length || 0} assinaturas no histórico`,
+        `   • Metadados de exportação`,
+        ``,
+        `💾 Arquivo baixado com sucesso!`
+      ].join('\n');
+
+      // Mostrar alerta nativo para melhor visibilidade
+      setTimeout(() => {
+        alert(exportSummary);
+      }, 100);
+
       toast({
         title: "Dados exportados com sucesso",
         description: `Arquivo ${exportFileDefaultName} baixado. Inclui perfil, configurações e ${subscriptionsData?.length || 0} assinaturas.`,
       });
     } catch (error) {
       console.error('Erro na exportação:', error);
+      
+      // Alerta de erro detalhado
+      const errorMessage = [
+        `❌ ERRO NA EXPORTAÇÃO`,
+        ``,
+        `Detalhes do erro:`,
+        `${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+        ``,
+        `Possíveis soluções:`,
+        `• Verifique sua conexão com a internet`,
+        `• Tente fazer login novamente`,
+        `• Aguarde alguns instantes e tente novamente`,
+        ``,
+        `Se o problema persistir, entre em contato com o suporte.`
+      ].join('\n');
+
+      setTimeout(() => {
+        alert(errorMessage);
+      }, 100);
+
       toast({
         title: "Erro na exportação",
         description: "Não foi possível exportar os dados. Tente novamente.",
@@ -189,14 +226,61 @@ const Settings = ({ session }: SettingsProps) => {
           }
         }
 
+        // Alerta de confirmação de importação
+        const importDate = new Date(importedData.export_metadata.exported_at).toLocaleDateString('pt-BR');
+        const importTime = new Date(importedData.export_metadata.exported_at).toLocaleTimeString('pt-BR');
+        
+        const importSummary = [
+          `✅ IMPORTAÇÃO REALIZADA COM SUCESSO`,
+          ``,
+          `📁 Arquivo de backup: ${importDate} às ${importTime}`,
+          `👤 Exportado por: ${importedData.export_metadata.exported_by}`,
+          ``,
+          `📦 Dados restaurados:`,
+          `   • Configurações de notificações`,
+          importedData.user_profile.username ? `   • Nome de usuário: ${importedData.user_profile.username}` : '',
+          importedData.user_profile.avatar_url ? `   • Foto do perfil` : '',
+          `   • ${importedData.subscription_history?.length || 0} assinaturas no histórico`,
+          ``,
+          `🔄 Todas as configurações foram aplicadas!`
+        ].filter(line => line !== '').join('\n');
+
+        setTimeout(() => {
+          alert(importSummary);
+        }, 200);
+
         toast({
           title: "Dados importados com sucesso",
-          description: `Configurações restauradas do backup de ${new Date(importedData.export_metadata.exported_at).toLocaleDateString('pt-BR')}.`,
+          description: `Configurações restauradas do backup de ${importDate}.`,
         });
 
       } catch (error) {
         console.error('Erro na importação:', error);
         const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+        
+        // Alerta de erro detalhado para importação
+        const importErrorAlert = [
+          `❌ ERRO NA IMPORTAÇÃO`,
+          ``,
+          `Motivo: ${errorMessage}`,
+          ``,
+          `Verificações necessárias:`,
+          `• O arquivo é um backup válido do MateCloud?`,
+          `• O arquivo pertence à sua conta?`,
+          `• O arquivo não está corrompido?`,
+          `• Você tem permissão para acessar este arquivo?`,
+          ``,
+          `Formatos aceitos:`,
+          `• Arquivos .json exportados pelo MateCloud`,
+          `• Backups da mesma conta de usuário`,
+          ``,
+          `💡 Dica: Tente exportar um novo backup e depois importá-lo para testar.`
+        ].join('\n');
+
+        setTimeout(() => {
+          alert(importErrorAlert);
+        }, 100);
+
         toast({
           title: "Erro na importação",
           description: `Não foi possível importar os dados: ${errorMessage}`,
