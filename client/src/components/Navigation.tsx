@@ -88,7 +88,13 @@ const Navigation = ({ session }: { session: any }) => {
             className="text-foreground/90 hover:text-cloud-blue transition-colors cursor-pointer"
             onClick={(e) => {
               e.preventDefault();
-              window.scrollTo({ top: 0, behavior: "smooth" });
+              // Si estamos en la página principal, hacer scroll
+              if (window.location.pathname === '/') {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } else {
+                // Si estamos en otra página, navegar a inicio
+                navigate("/");
+              }
             }}
           >
             Início
@@ -98,10 +104,22 @@ const Navigation = ({ session }: { session: any }) => {
             className="text-foreground/90 hover:text-cloud-blue transition-colors cursor-pointer"
             onClick={(e) => {
               e.preventDefault();
-              document.getElementById("planos")?.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-              });
+              // Si estamos en la página principal, hacer scroll a planos
+              if (window.location.pathname === '/') {
+                document.getElementById("planos")?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+              } else {
+                // Si estamos en otra página, navegar a inicio y luego a planos
+                navigate("/");
+                setTimeout(() => {
+                  document.getElementById("planos")?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+                }, 100);
+              }
             }}
           >
             Planos
@@ -118,13 +136,28 @@ const Navigation = ({ session }: { session: any }) => {
             className="text-foreground/90 hover:text-cloud-blue transition-colors cursor-pointer"
             onClick={(e) => {
               e.preventDefault();
-              const faqElement =
-                document.querySelector("#faq") ||
-                document.querySelector('[id*="features"]');
-              faqElement?.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-              });
+              // Si estamos en la página principal, hacer scroll a FAQ
+              if (window.location.pathname === '/') {
+                const faqElement =
+                  document.querySelector("#faq") ||
+                  document.querySelector('[id*="features"]');
+                faqElement?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+              } else {
+                // Si estamos en otra página, navegar a inicio y luego a FAQ
+                navigate("/");
+                setTimeout(() => {
+                  const faqElement =
+                    document.querySelector("#faq") ||
+                    document.querySelector('[id*="features"]');
+                  faqElement?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+                }, 100);
+              }
             }}
           >
             FAQ
