@@ -8,8 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Bell, 
   Shield, 
-  Moon, 
-  Sun, 
   Globe, 
   Database,
   Trash2,
@@ -38,7 +36,7 @@ interface SettingsProps {
 }
 
 const Settings = ({ session }: SettingsProps) => {
-  const [darkMode, setDarkMode] = useState(false);
+
   const [notifications, setNotifications] = useState({
     email: true,
     push: false,
@@ -48,29 +46,7 @@ const Settings = ({ session }: SettingsProps) => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    // Detectar el modo oscuro actual
-    const isDark = document.documentElement.classList.contains('dark');
-    setDarkMode(isDark);
-  }, []);
 
-  const handleDarkModeToggle = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    
-    if (newDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-
-    toast({
-      title: "Tema actualizado",
-      description: `Modo ${newDarkMode ? 'oscuro' : 'claro'} activado.`,
-    });
-  };
 
   const handleNotificationChange = (type: keyof typeof notifications) => {
     setNotifications(prev => ({
@@ -96,7 +72,6 @@ const Settings = ({ session }: SettingsProps) => {
           created_at: session?.user?.created_at,
         },
         settings: {
-          darkMode,
           notifications,
         },
         exported_at: new Date().toISOString(),
@@ -173,36 +148,7 @@ const Settings = ({ session }: SettingsProps) => {
             <p className="text-muted-foreground">Gerencie as preferências da sua conta</p>
           </div>
 
-          {/* Appearance Settings */}
-          <Card className="bg-card/50 backdrop-blur-sm border-border/30">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Moon className="w-5 h-5" />
-                Aparência
-              </CardTitle>
-              <CardDescription>
-                Personalize como o aplicativo é exibido
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label className="text-base">Modo escuro</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Ative o tema escuro para uma experiência visual mais confortável
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Sun className="w-4 h-4 text-muted-foreground" />
-                  <Switch
-                    checked={darkMode}
-                    onCheckedChange={handleDarkModeToggle}
-                  />
-                  <Moon className="w-4 h-4 text-muted-foreground" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+
 
           {/* Notifications Settings */}
           <Card className="bg-card/50 backdrop-blur-sm border-border/30">
