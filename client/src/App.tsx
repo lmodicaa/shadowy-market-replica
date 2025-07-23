@@ -76,16 +76,7 @@ const App = () => {
 
     // Performance optimizations
     const optimizeApp = () => {
-      // Preload critical images
-      const preloadImage = (src: string) => {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.href = src;
-        link.as = 'image';
-        document.head.appendChild(link);
-      };
-      
-      // Basic Web Vitals monitoring
+      // Basic Web Vitals monitoring - LCP only
       if ('PerformanceObserver' in window) {
         try {
           const observer = new PerformanceObserver((list) => {
@@ -100,9 +91,6 @@ const App = () => {
           // Silently handle if not supported
         }
       }
-      
-      preloadImage('/logo.avif');
-      preloadImage('/matecloud-favicon.avif');
     };
     
     optimizeApp();
