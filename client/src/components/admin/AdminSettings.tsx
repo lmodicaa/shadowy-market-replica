@@ -76,19 +76,13 @@ const AdminSettings = () => {
 
   const getSettingDescription = (key: string) => {
     const descriptions: Record<string, string> = {
-      'site_name': 'Nome do site exibido na interface',
-      'site_description': 'Descrição do site para SEO',
       'maintenance_mode': 'Ativar modo de manutenção',
       'maintenance_message': 'Mensagem exibida durante manutenção',
       'max_concurrent_users': 'Máximo de usuários simultâneos',
       'default_plan_duration': 'Duração padrão dos planos em dias',
-      'support_email': 'Email de suporte técnico',
-      'discord_invite': 'Link do convite do Discord',
-
       'stock_low_threshold': 'Limite para alerta de estoque baixo',
       'stock_empty_message': 'Mensagem quando estoque esgotado',
-      'vm_default_password': 'Senha padrão das VMs',
-      'vm_session_timeout': 'Timeout das sessões de VM (minutos)',
+
     };
     return descriptions[key] || '';
   };
@@ -210,19 +204,13 @@ const AdminSettings = () => {
       console.log('Resetting settings to defaults...');
       
       const defaultSettings = {
-        'site_name': 'MateCloud',
-        'site_description': 'A melhor plataforma de cloud gaming do Brasil',
         'maintenance_mode': 'false',
         'maintenance_message': 'O site está em manutenção. Voltaremos em breve!',
         'max_concurrent_users': '100',
         'default_plan_duration': '30',
-        'support_email': 'suporte@matecloud.com.br',
-        'discord_invite': 'https://discord.gg/matecloud',
-
         'stock_low_threshold': '5',
         'stock_empty_message': 'Este plano está temporariamente indisponível.',
-        'vm_default_password': 'matecloud123',
-        'vm_session_timeout': '60',
+
       };
 
       // Initialize settings via API (this will create defaults if they don't exist)
@@ -480,37 +468,7 @@ const AdminSettings = () => {
         </CardContent>
       </Card>
 
-      {/* VM Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Configurações de Máquinas Virtuais</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="vm_default_password">Senha Padrão das VMs</Label>
-              <Input
-                id="vm_default_password"
-                type="password"
-                value={settings.vm_default_password || ''}
-                onChange={(e) => handleSettingChange('vm_default_password', e.target.value)}
-                placeholder="matecloud123"
-              />
-            </div>
 
-            <div>
-              <Label htmlFor="vm_session_timeout">Timeout de Sessão (minutos)</Label>
-              <Input
-                id="vm_session_timeout"
-                type="number"
-                value={settings.vm_session_timeout || '60'}
-                onChange={(e) => handleSettingChange('vm_session_timeout', e.target.value)}
-                min="5"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* System Actions */}
       <Card>

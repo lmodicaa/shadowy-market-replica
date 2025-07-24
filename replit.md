@@ -46,16 +46,18 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - Authentication handled securely through Supabase
 
 ## Recent Changes
-- 2025-01-24: **CONFIGURAÇÕES GERAIS REMOVIDAS** - Removido sistema de configurações dinâmicas conforme solicitado pelo usuário
+- 2025-01-24: **CONFIGURAÇÕES GERAIS REMOVIDAS COMPLETAMENTE** - Sistema de configurações dinâmicas totalmente eliminado
   - ✅ Seção "Configurações Gerais" removida do AdminSettings.tsx
+  - ✅ Seção "Configurações de VM" removida do AdminSettings.tsx 
   - ✅ Hook useSettings.ts removido completamente do projeto
+  - ✅ Todos os campos removidos do sistema de salvamento (site_name, site_description, support_email, discord_invite, vm_default_password)
   - ✅ Navigation.tsx revertido para usar "MateCloud" fixo
   - ✅ Footer.tsx revertido para valores estáticos
   - ✅ HeroSection.tsx revertido para nome fixo "MateCloud"
   - ✅ SEOHead.tsx revertido para configurações estáticas
   - ✅ VMDashboard.tsx revertido para senha fixa "matecloud123"
   - ✅ Sistema de manutenção mantido (funciona independentemente)
-  - ✅ Aplicação funcionando sem configurações dinâmicas
+  - ✅ Base de dados não recebe mais configurações desnecessárias
 - 2025-01-24: **REGISTRATION BLOCKING SYSTEM REMOVED** - Simplified application by removing complex registration blocking
   - ✅ Removed RegistrationStatus component that caused UI complexity
   - ✅ Eliminated registration-status API endpoint from server routes
