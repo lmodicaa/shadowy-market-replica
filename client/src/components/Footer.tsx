@@ -53,20 +53,36 @@ const Footer = () => {
 
           {/* Ícones com hover effects aprimorados */}
           <div className="flex space-x-4 mt-8 md:mt-0">
-            <a href="#" className="group p-2 rounded-full bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 
-                                   hover:bg-blue-600/20 hover:border-blue-500/50 transition-all duration-300 hover:scale-110 hover:rotate-3">
+            <a href="https://facebook.com/matecloud" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               className="group p-2 rounded-full bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 
+                          hover:bg-blue-600/20 hover:border-blue-500/50 transition-all duration-300 hover:scale-110 hover:rotate-3"
+               title="Seguir no Facebook">
               <Facebook size={20} className="text-gray-400 group-hover:text-blue-400 transition-colors duration-300" />
             </a>
-            <a href="#" className="group p-2 rounded-full bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 
-                                   hover:bg-sky-600/20 hover:border-sky-500/50 transition-all duration-300 hover:scale-110 hover:-rotate-3">
+            <a href="https://twitter.com/matecloud" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               className="group p-2 rounded-full bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 
+                          hover:bg-sky-600/20 hover:border-sky-500/50 transition-all duration-300 hover:scale-110 hover:-rotate-3"
+               title="Seguir no Twitter">
               <Twitter size={20} className="text-gray-400 group-hover:text-sky-400 transition-colors duration-300" />
             </a>
-            <a href="#" className="group p-2 rounded-full bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 
-                                   hover:bg-pink-600/20 hover:border-pink-500/50 transition-all duration-300 hover:scale-110 hover:rotate-3">
+            <a href="https://instagram.com/matecloud" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               className="group p-2 rounded-full bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 
+                          hover:bg-pink-600/20 hover:border-pink-500/50 transition-all duration-300 hover:scale-110 hover:rotate-3"
+               title="Seguir no Instagram">
               <Instagram size={20} className="text-gray-400 group-hover:text-pink-400 transition-colors duration-300" />
             </a>
-            <a href="https://discord.gg/Tfj9zMuwry" className="group p-2 rounded-full bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 
-                                                              hover:bg-indigo-600/20 hover:border-indigo-500/50 transition-all duration-300 hover:scale-110 hover:-rotate-3">
+            <a href="https://discord.gg/Tfj9zMuwry" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               className="group p-2 rounded-full bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 
+                          hover:bg-indigo-600/20 hover:border-indigo-500/50 transition-all duration-300 hover:scale-110 hover:-rotate-3"
+               title="Entrar no Discord">
               <FontAwesomeIcon icon={faDiscord} className="text-gray-400 group-hover:text-indigo-400 transition-colors duration-300 w-5 h-5" />
             </a>
           </div>
