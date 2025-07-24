@@ -207,33 +207,35 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
     }
 
     try {
-      // Verificar se estamos em um ambiente com backend disponível
-      const checkBackendAvailability = async () => {
+      // Verificar se estamos em um ambiente onde o backend deve estar disponível
+      const hostname = window.location.hostname;
+      const isReplit = hostname.includes('.replit.dev');
+      const isLocalhost = hostname === 'localhost';
+      
+      // Solo verificar backend si estamos en un entorno que debería tenerlo
+      if (!isReplit && !isLocalhost) {
+        // En producción (matecloud.store), verificar si backend está disponível
         try {
           const testResponse = await fetch('/api/admin/health', { method: 'GET' });
           const responseText = await testResponse.text();
           
           // Se a resposta contém HTML (como página 404 do Netlify), backend não está disponível
           if (responseText.includes('<!DOCTYPE html>') || responseText.includes('<html')) {
-            return false;
+            toast({
+              title: "Sistema de pagamentos em desenvolvimento",
+              description: "O sistema de pagamentos Pix ainda não está ativo em produção. Entre em contato conosco para mais informações.",
+              variant: "default",
+            });
+            return;
           }
-          
-          return testResponse.ok;
         } catch {
-          return false;
+          toast({
+            title: "Sistema temporariamente indisponível",
+            description: "Tente novamente em alguns minutos ou entre em contato conosco.",
+            variant: "default",
+          });
+          return;
         }
-      };
-      
-      const isBackendAvailable = await checkBackendAvailability();
-      
-      if (!isBackendAvailable) {
-        // Se o backend não está disponível, mostrar mensagem informativa
-        toast({
-          title: "Sistema de pagamentos em desenvolvimento",
-          description: "O sistema de pagamentos Pix ainda não está ativo em produção. Entre em contato conosco para mais informações.",
-          variant: "default",
-        });
-        return;
       }
       
       // Gerar ID único para o pedido
