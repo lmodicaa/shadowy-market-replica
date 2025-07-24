@@ -210,122 +210,46 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       return;
     }
 
-    console.log('🔥 Usuário logado, começando processo...');
+    console.log('🔥 Usuário logado, criando pedido Pix...');
     try {
-      // Verificar se estamos em um ambiente onde o backend deve estar disponível
-      const hostname = window.location.hostname;
-      const isReplit = hostname.includes('.replit.dev');
-      const isLocalhost = hostname === 'localhost';
-      const isMatecloud = hostname.includes('matecloud.store');
-      
-      console.log('🔥 Hostname:', hostname);
-      console.log('🔥 isReplit:', isReplit);
-      console.log('🔥 isLocalhost:', isLocalhost);
-      console.log('🔥 isMatecloud:', isMatecloud);
-      
-      // Em matecloud.store, verificar se backend está disponível antes de tentar criar pedido
-      if (isMatecloud) {
-        console.log('🔥 Verificando disponibilidade do backend em matecloud.store...');
-        try {
-          const testResponse = await fetch('/api/admin/health', { method: 'GET' });
-          const responseText = await testResponse.text();
-          
-          // Se a resposta contém HTML (como página 404 do Netlify), backend não está disponível
-          if (responseText.includes('<!DOCTYPE html>') || responseText.includes('<html')) {
-            console.log('🔥 Backend não disponível em matecloud.store, mostrando fallback...');
-            toast({
-              title: "Sistema de pagamentos em desenvolvimento",
-              description: "O sistema de pagamentos Pix será ativado em breve. Para adquirir um plano agora, entre em contato conosco via Discord ou WhatsApp.",
-              variant: "default",
-            });
-            return;
-          }
-        } catch (error) {
-          console.log('🔥 Erro ao verificar backend:', error);
-          toast({
-            title: "Sistema de pagamentos em desenvolvimento", 
-            description: "Para adquirir um plano, entre em contato conosco. O sistema automatizado será ativado em breve!",
-            variant: "default",
-          });
-          return;
-        }
-      }
-      
-      // Verificar backend só em ambientes desconhecidos (não Replit, localhost ou matecloud)
-      if (!isReplit && !isLocalhost && !isMatecloud) {
-        console.log('🔥 Verificando backend em ambiente externo...');
-        try {
-          const testResponse = await fetch('/api/admin/health', { method: 'GET' });
-          const responseText = await testResponse.text();
-          
-          // Se a resposta contém HTML (como página 404 do Netlify), backend não está disponível
-          if (responseText.includes('<!DOCTYPE html>') || responseText.includes('<html')) {
-            toast({
-              title: "Sistema de pagamentos em desenvolvimento",
-              description: "O sistema de pagamentos Pix ainda não está ativo em produção. Entre em contato conosco para mais informações.",
-              variant: "default",
-            });
-            return;
-          }
-        } catch {
-          toast({
-            title: "Sistema temporariamente indisponível",
-            description: "Tente novamente em alguns minutos ou entre em contato conosco.",
-            variant: "default",
-          });
-          return;
-        }
-      }
-      
-      console.log('🔥 Ambiente OK, prosseguindo com criação do pedido...');
-      
       // Gerar ID único para o pedido
       const orderId = `PIX_${plan.name.toUpperCase()}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       // Extrair valor numérico do preço (ex: "R$ 29,90" -> "29.90")
       const priceValue = plan.price.replace(/[^\d,]/g, '').replace(',', '.');
       
-      console.log('🔗 Criando pedido:', { orderId, planName: plan.name, amount: priceValue, userId: session.user.id });
-      
-      // Criar pedido Pix para o plano
-      const response = await fetch('/api/pix/manual', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id: orderId,
-          userId: session.user.id,
-          planId: plan.id,
-          planName: plan.name,
-          amount: parseFloat(priceValue),
-          description: `Plano ${plan.name} - 30 dias de acesso`
-        })
+      console.log('🔗 Criando pedido Pix diretamente no Supabase:', { 
+        orderId, 
+        planName: plan.name, 
+        amount: priceValue, 
+        userId: session.user.id 
       });
+      
+      // Criar pedido Pix diretamente no Supabase
+      const { data: pixOrder, error } = await supabase
+        .from('pix_orders')
+        .insert({
+          id: orderId,
+          user_id: session.user.id,
+          plan_id: plan.id,
+          plan_name: plan.name,
+          amount: priceValue,
+          description: `Plano ${plan.name} - 30 dias de acesso`,
+          status: 'pendiente'
+        })
+        .select()
+        .single();
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Erro da API:', response.status, errorText);
-        
-        // Se recebemos HTML em vez de JSON, significa que o backend não está disponível
-        if (errorText.includes('<!DOCTYPE html>') || errorText.includes('<html')) {
-          console.log('🔥 Backend não disponível, usando fallback graceful...');
-          toast({
-            title: "Sistema de pagamentos em desenvolvimento",
-            description: "Para adquirir este plano, entre em contato conosco via Discord ou WhatsApp. O sistema automatizado será ativado em breve!",
-            variant: "default",
-          });
-          return;
-        }
-        
-        throw new Error(`Erro ${response.status}: ${errorText || 'Erro ao criar pedido de pagamento'}`);
+      if (error) {
+        console.error('Erro ao criar pedido Pix:', error);
+        throw new Error(`Erro ao criar pedido: ${error.message}`);
       }
 
-      const result = await response.json();
+      console.log('✅ Pedido Pix criado com sucesso:', pixOrder);
 
       toast({
         title: "Pedido criado com sucesso!",
-        description: `Seu pedido para o plano ${plan.name} foi criado. Acesse seu perfil para ver o código Pix.`,
+        description: `Seu pedido para o plano ${plan.name} foi criado. Acesse seu perfil para ver o código Pix quando estiver disponível.`,
       });
 
       // Chamar callback se fornecido
