@@ -153,6 +153,73 @@ router.get('/registration-status', async (req, res) => {
   }
 });
 
+// Route to delete a user (server-side with proper permissions)
+router.delete('/users/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log('=== SERVER DELETE USER REQUEST ===');
+    console.log('User ID to delete:', userId);
+    
+    if (!userId) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'User ID is required'
+      });
+    }
+    
+    // First, delete related subscriptions using service role key
+    console.log('Deleting user subscriptions...');
+    const { data: subscriptionsData, error: subscriptionsError } = await supabase
+      .from('subscriptions')
+      .delete()
+      .eq('user_id', userId)
+      .select();
+    
+    console.log('Subscriptions deletion result:', { subscriptionsData, subscriptionsError });
+    
+    if (subscriptionsError) {
+      console.warn('Warning: Failed to delete subscriptions:', subscriptionsError);
+      // Continue with profile deletion even if subscriptions fail
+    }
+    
+    // Delete the user profile using service role key
+    console.log('Deleting user profile...');
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .delete()
+      .eq('id', userId)
+      .select();
+    
+    console.log('Profile deletion result:', { profileData, profileError });
+    
+    if (profileError) {
+      console.error('Critical error deleting user profile:', profileError);
+      return res.status(500).json({
+        status: 'error',
+        message: `Failed to delete user: ${profileError.message}`,
+        error: profileError
+      });
+    }
+    
+    console.log('✅ User deleted successfully');
+    res.json({
+      status: 'ok',
+      message: 'User deleted successfully',
+      deletedUserId: userId,
+      deletedSubscriptions: subscriptionsData?.length || 0,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('Server-side user deletion error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error during user deletion',
+      error: (error as any).message || 'Unknown error'
+    });
+  }
+});
+
 // Route to clear application cache (server-side)
 router.post('/clear-cache', async (req, res) => {
   try {

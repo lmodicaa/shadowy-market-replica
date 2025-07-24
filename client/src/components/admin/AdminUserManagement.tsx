@@ -111,20 +111,31 @@ const AdminUserManagement = () => {
   };
 
   const handleDeleteUser = async (userId: string, username?: string) => {
+    console.log('handleDeleteUser called with:', { userId, username });
+    
     if (!confirm(`Tem certeza que deseja excluir o usuário ${username || userId}? Esta ação não pode ser desfeita.`)) {
+      console.log('Exclusão cancelada pelo usuário');
       return;
     }
 
+    console.log('Iniciando processo de exclusão...');
+    
     try {
-      await deleteUser.mutateAsync(userId);
+      const result = await deleteUser.mutateAsync(userId);
+      console.log('Exclusão concluída com sucesso:', result);
+      
       toast({
         title: "Usuário excluído",
         description: `Usuário ${username || userId} foi excluído com sucesso.`,
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Erro durante exclusão:', error);
+      
+      const errorMessage = error?.message || 'Erro desconhecido ao excluir usuário';
+      
       toast({
-        title: "Erro",
-        description: "Não foi possível excluir o usuário.",
+        title: "Erro na exclusão",
+        description: errorMessage,
         variant: "destructive",
       });
     }

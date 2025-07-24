@@ -349,34 +349,51 @@ export const useUpdateUserPlan = () => {
   });
 };
 
-// Hook para excluir usuário
+// Hook para excluir usuário (using server endpoint with service role permissions)
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
     mutationFn: async (userId: string) => {
-      // Primeiro excluir assinaturas relacionadas
-      await supabase
-        .from('subscriptions')
-        .delete()
-        .eq('user_id', userId);
+      console.log('=== INÍCIO EXCLUSÃO DE USUÁRIO (SERVER ENDPOINT) ===');
+      console.log('User ID para exclusão:', userId);
       
-      // Depois excluir o perfil
-      const { error } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', userId);
-      
-      if (error) {
-        console.error('Erro ao excluir usuário:', error);
+      try {
+        // Use server endpoint for deletion with proper permissions
+        const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+        const response = await fetch(`${baseUrl}/api/admin/users/${userId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const result = await response.json();
+        console.log('Server response:', result);
+        
+        if (!response.ok || result.status !== 'ok') {
+          throw new Error(result.message || 'Falha na exclusão via servidor');
+        }
+        
+        console.log('✅ Usuário excluído com sucesso via servidor');
+        console.log('=== FIM EXCLUSÃO DE USUÁRIO ===');
+        return result;
+        
+      } catch (error) {
+        console.error('=== ERRO NA EXCLUSÃO ===');
+        console.error('Erro durante exclusão:', error);
         throw error;
       }
-      
-      return userId;
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      console.log('Exclusão bem-sucedida, invalidando cache...');
       queryClient.invalidateQueries({ queryKey: ['allUsers'] });
       queryClient.invalidateQueries({ queryKey: ['allSubscriptions'] });
+      queryClient.invalidateQueries({ queryKey: ['systemStats'] });
+      console.log('Cache invalidado para usuário:', result.deletedUserId);
+    },
+    onError: (error) => {
+      console.error('Erro na mutation de exclusão:', error);
     },
   });
 };
