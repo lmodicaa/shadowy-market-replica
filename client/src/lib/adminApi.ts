@@ -1,4 +1,4 @@
-// Admin API utilities - Configure for matecloud.store production domain
+// Admin API utilities - Fixed for proper API routing
 const getApiBaseUrl = () => {
   const hostname = window.location.hostname;
   
@@ -7,13 +7,13 @@ const getApiBaseUrl = () => {
     return 'https://matecloud.store';
   }
   
-  // Replit development domain
+  // Replit development domain - use same origin but ensure it goes to Express server
   if (hostname.includes('.replit.dev')) {
     return window.location.origin;
   }
   
-  // Local development - use relative URLs to work with Vite proxy
-  return '';
+  // Local development - must use full URL to bypass Vite middleware
+  return window.location.origin;
 };
 
 const API_BASE_URL = getApiBaseUrl();
