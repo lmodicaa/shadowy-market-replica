@@ -207,40 +207,32 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
     }
 
     try {
+      // Verificar se o endpoint está disponível primeiro
+      const checkEndpoint = async () => {
+        try {
+          const testResponse = await fetch('/api/admin/health', { method: 'GET' });
+          return testResponse.ok;
+        } catch {
+          return false;
+        }
+      };
+      
+      const isServerAvailable = await checkEndpoint();
+      
+      if (!isServerAvailable) {
+        throw new Error('Servidor temporariamente indisponível. Tente novamente em alguns minutos.');
+      }
+      
       // Gerar ID único para o pedido
       const orderId = `PIX_${plan.name.toUpperCase()}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       // Extrair valor numérico do preço (ex: "R$ 29,90" -> "29.90")
       const priceValue = plan.price.replace(/[^\d,]/g, '').replace(',', '.');
       
-      // Determinar URL da API
-      const getApiUrl = () => {
-        const hostname = window.location.hostname;
-        
-        // Para Replit sempre usar URL relativa (vai para o Express server local)
-        if (hostname.includes('.replit.dev')) {
-          return '/api/pix/manual';
-        }
-        
-        // Para localhost também usar relativa
-        if (hostname === 'localhost') {
-          return '/api/pix/manual';
-        }
-        
-        // Solo para matecloud.store real usar la URL completa
-        if (hostname === 'matecloud.store') {
-          return 'https://matecloud.store/api/pix/manual';
-        }
-        
-        // Por defecto usar URL relativa
-        return '/api/pix/manual';
-      };
+      console.log('🔗 Criando pedido:', { orderId, planName: plan.name, amount: priceValue });
       
       // Criar pedido Pix para o plano
-      const apiUrl = getApiUrl();
-      console.log('🔗 API URL determinada:', apiUrl, 'hostname:', window.location.hostname);
-      
-      const response = await fetch(apiUrl, {
+      const response = await fetch('/api/pix/manual', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -256,7 +248,9 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       });
 
       if (!response.ok) {
-        throw new Error('Erro ao criar pedido de pagamento');
+        const errorText = await response.text();
+        console.error('Erro da API:', response.status, errorText);
+        throw new Error(`Erro ${response.status}: ${errorText || 'Erro ao criar pedido de pagamento'}`);
       }
 
       const result = await response.json();
