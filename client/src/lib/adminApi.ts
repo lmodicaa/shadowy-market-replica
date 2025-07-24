@@ -1,20 +1,10 @@
-// Admin API utilities - Replit environment configuration
-const getApiBaseUrl = () => {
-  // En Replit, usar la URL del dominio actual sin especificar puerto
-  if (window.location.hostname.includes('.replit.dev')) {
-    return window.location.origin;
-  }
-  // Para desarrollo local
-  return 'http://localhost:5000';
-};
-
-const API_BASE_URL = getApiBaseUrl();
+// Admin API utilities - Use relative URLs for Replit compatibility
+const API_BASE_URL = '';
 
 console.log('AdminAPI Environment Check:', {
   hostname: window.location.hostname,
   isDev: import.meta.env.DEV,
-  envApiBaseUrl: import.meta.env.VITE_API_BASE_URL,
-  finalApiBaseUrl: API_BASE_URL,
+  finalApiBaseUrl: API_BASE_URL || 'relative',
   currentOrigin: window.location.origin,
   mode: import.meta.env.MODE
 });
