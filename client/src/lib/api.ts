@@ -2,12 +2,22 @@
 export const getApiBaseUrl = () => {
   const hostname = window.location.hostname;
   
-  // For Replit development, always use relative URLs to go through Vite proxy
-  if (hostname.includes('.replit.dev') || hostname === 'localhost') {
+  // Production domain - use matecloud.store API
+  if (hostname === 'matecloud.store' || hostname.includes('matecloud.store')) {
+    return 'https://matecloud.store';
+  }
+  
+  // Replit development - use relative URLs to go through Vite proxy to Express server
+  if (hostname.includes('.replit.dev')) {
     return '';
   }
   
-  // For production or other environments, use same origin
+  // Local development
+  if (hostname === 'localhost') {
+    return '';
+  }
+  
+  // Fallback to same origin
   return window.location.origin;
 };
 

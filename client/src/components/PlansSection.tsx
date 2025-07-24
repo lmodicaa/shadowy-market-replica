@@ -213,8 +213,21 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       // Extrair valor numérico do preço (ex: "R$ 29,90" -> "29.90")
       const priceValue = plan.price.replace(/[^\d,]/g, '').replace(',', '.');
       
+      // Determinar URL da API
+      const getApiUrl = () => {
+        const hostname = window.location.hostname;
+        
+        // Produção - usar matecloud.store
+        if (hostname === 'matecloud.store' || hostname.includes('matecloud.store')) {
+          return 'https://matecloud.store/api/pix/manual';
+        }
+        
+        // Desenvolvimento - usar URL relativa
+        return '/api/pix/manual';
+      };
+      
       // Criar pedido Pix para o plano
-      const response = await fetch('/api/pix/manual', {
+      const response = await fetch(getApiUrl(), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

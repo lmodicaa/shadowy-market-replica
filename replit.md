@@ -46,6 +46,14 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - Authentication handled securely through Supabase
 
 ## Recent Changes
+- 2025-01-24: **SISTEMA INTEGRADO PIX + PLANES COMPLETADO** - Sistema completo de compra de planes con pagos Pix y activación automática
+  - ✅ Schema actualizado con tabla pix_orders integrada a los planes
+  - ✅ Backend configurado para crear pedidos Pix con información del plan (plan_id, plan_name)
+  - ✅ PlansSection modificada: botones "Comprar com Pix" crean pedidos en lugar de activar directamente
+  - ✅ Ativación automática cuando admin marca pago como "pagado" (activatePlan function)
+  - ✅ URLs inteligentes: desarrollo (relativas) vs producción (https://matecloud.store)
+  - ✅ Archivo SQL_PIX_INTEGRATION.sql creado para setup en Supabase
+  - ✅ Flujo completo: compra → pedido → admin carga QR → cliente paga → activación automática
 - 2025-01-24: **SISTEMA MANUAL DE PAGOS PIX IMPLEMENTADO** - Funcionalidad completa de gestión manual de pagos Pix con Belo
   - ✅ Backend: Endpoint `/api/pix/manual` para crear pedidos con almacenamiento en memoria
   - ✅ Backend: API completa para gestión de pedidos (/api/pix/orders - GET, PATCH, DELETE)
