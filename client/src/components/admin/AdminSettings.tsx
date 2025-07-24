@@ -45,8 +45,11 @@ const AdminSettings = () => {
     console.log('Saving admin settings:', settings);
     
     try {
-      // Save all changed settings
-      const promises = Object.entries(settings).map(([key, value]) => {
+      // Save only valid settings (filter out any invalid keys)
+      const validKeys = ['maintenance_mode', 'maintenance_message', 'max_concurrent_users', 'default_plan_duration', 'stock_low_threshold', 'stock_empty_message'];
+      const validSettings = Object.entries(settings).filter(([key]) => validKeys.includes(key));
+      
+      const promises = validSettings.map(([key, value]) => {
         console.log(`Saving setting ${key}:`, value);
         return updateSettings.mutateAsync({ 
           key, 

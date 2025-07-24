@@ -53,7 +53,7 @@ export const SEOHead = ({
     updateMeta('og:image', image, true);
     updateMeta('og:url', url, true);
     updateMeta('og:type', 'website', true);
-    updateMeta('og:site_name', siteName, true);
+    updateMeta('og:site_name', 'MateCloud', true);
     updateMeta('og:locale', 'pt_BR', true);
     
     // Twitter tags

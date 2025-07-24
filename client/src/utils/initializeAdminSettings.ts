@@ -1,17 +1,7 @@
 import { supabase } from '@/lib/supabase';
 
-// Configurações padrão do sistema
+// Configurações padrão do sistema (apenas essenciais)
 const defaultSettings = [
-  {
-    key: 'site_name',
-    value: 'MateCloud',
-    description: 'Nome do site exibido na interface'
-  },
-  {
-    key: 'site_description', 
-    value: 'A melhor plataforma de cloud gaming do Brasil',
-    description: 'Descrição do site para SEO'
-  },
   {
     key: 'maintenance_mode',
     value: 'false',
@@ -33,21 +23,6 @@ const defaultSettings = [
     description: 'Duração padrão dos planos em dias'
   },
   {
-    key: 'support_email',
-    value: 'suporte@matecloud.com.br',
-    description: 'Email de suporte técnico'
-  },
-  {
-    key: 'discord_invite',
-    value: 'https://discord.gg/matecloud',
-    description: 'Link do convite do Discord'
-  },
-  {
-    key: 'enable_registrations',
-    value: 'true',
-    description: 'Permitir novos registros'
-  },
-  {
     key: 'stock_low_threshold',
     value: '5',
     description: 'Limite para alerta de estoque baixo'
@@ -56,16 +31,6 @@ const defaultSettings = [
     key: 'stock_empty_message',
     value: 'Este plano está temporariamente indisponível.',
     description: 'Mensagem quando estoque esgotado'
-  },
-  {
-    key: 'vm_default_password',
-    value: 'matecloud123',
-    description: 'Senha padrão das VMs'
-  },
-  {
-    key: 'vm_session_timeout',
-    value: '60',
-    description: 'Timeout das sessões de VM (minutos)'
   }
 ];
 

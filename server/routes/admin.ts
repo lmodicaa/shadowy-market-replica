@@ -47,19 +47,12 @@ router.post('/init-settings', async (req, res) => {
     console.log('Initializing admin settings...');
     
     const defaultSettings = [
-      { key: 'site_name', value: 'MateCloud', description: 'Nome do site exibido na interface' },
-      { key: 'site_description', value: 'A melhor plataforma de cloud gaming do Brasil', description: 'Descrição do site para SEO' },
       { key: 'maintenance_mode', value: 'false', description: 'Ativar modo de manutenção' },
       { key: 'maintenance_message', value: 'O site está em manutenção. Voltaremos em breve!', description: 'Mensagem exibida durante manutenção' },
       { key: 'max_concurrent_users', value: '100', description: 'Máximo de usuários simultâneos' },
       { key: 'default_plan_duration', value: '30', description: 'Duração padrão dos planos em dias' },
-      { key: 'support_email', value: 'suporte@matecloud.com.br', description: 'Email de suporte técnico' },
-      { key: 'discord_invite', value: 'https://discord.gg/matecloud', description: 'Link do convite do Discord' },
-
       { key: 'stock_low_threshold', value: '5', description: 'Limite para alerta de estoque baixo' },
-      { key: 'stock_empty_message', value: 'Este plano está temporariamente indisponível.', description: 'Mensagem quando estoque esgotado' },
-      { key: 'vm_default_password', value: 'matecloud123', description: 'Senha padrão das VMs' },
-      { key: 'vm_session_timeout', value: '60', description: 'Timeout das sessões de VM (minutos)' }
+      { key: 'stock_empty_message', value: 'Este plano está temporariamente indisponível.', description: 'Mensagem quando estoque esgotado' }
     ];
 
     // Check existing settings
