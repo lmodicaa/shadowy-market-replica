@@ -246,7 +246,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       
       // Verificar se Supabase está configurado
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
       
       if (!supabaseUrl || !supabaseKey) {
         console.log('🔥 Supabase não configurado, mostrando mensagem de fallback...');
