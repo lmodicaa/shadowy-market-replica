@@ -223,6 +223,34 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       console.log('🔥 isLocalhost:', isLocalhost);
       console.log('🔥 isMatecloud:', isMatecloud);
       
+      // Em matecloud.store, verificar se backend está disponível antes de tentar criar pedido
+      if (isMatecloud) {
+        console.log('🔥 Verificando disponibilidade do backend em matecloud.store...');
+        try {
+          const testResponse = await fetch('/api/admin/health', { method: 'GET' });
+          const responseText = await testResponse.text();
+          
+          // Se a resposta contém HTML (como página 404 do Netlify), backend não está disponível
+          if (responseText.includes('<!DOCTYPE html>') || responseText.includes('<html')) {
+            console.log('🔥 Backend não disponível em matecloud.store, mostrando fallback...');
+            toast({
+              title: "Sistema de pagamentos em desenvolvimento",
+              description: "O sistema de pagamentos Pix será ativado em breve. Para adquirir um plano agora, entre em contato conosco via Discord ou WhatsApp.",
+              variant: "default",
+            });
+            return;
+          }
+        } catch (error) {
+          console.log('🔥 Erro ao verificar backend:', error);
+          toast({
+            title: "Sistema de pagamentos em desenvolvimento", 
+            description: "Para adquirir um plano, entre em contato conosco. O sistema automatizado será ativado em breve!",
+            variant: "default",
+          });
+          return;
+        }
+      }
+      
       // Verificar backend só em ambientes desconhecidos (não Replit, localhost ou matecloud)
       if (!isReplit && !isLocalhost && !isMatecloud) {
         console.log('🔥 Verificando backend em ambiente externo...');
@@ -281,7 +309,13 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
         
         // Se recebemos HTML em vez de JSON, significa que o backend não está disponível
         if (errorText.includes('<!DOCTYPE html>') || errorText.includes('<html')) {
-          throw new Error('Sistema de pagamentos temporariamente indisponível. Tente novamente mais tarde ou entre em contato conosco.');
+          console.log('🔥 Backend não disponível, usando fallback graceful...');
+          toast({
+            title: "Sistema de pagamentos em desenvolvimento",
+            description: "Para adquirir este plano, entre em contato conosco via Discord ou WhatsApp. O sistema automatizado será ativado em breve!",
+            variant: "default",
+          });
+          return;
         }
         
         throw new Error(`Erro ${response.status}: ${errorText || 'Erro ao criar pedido de pagamento'}`);
