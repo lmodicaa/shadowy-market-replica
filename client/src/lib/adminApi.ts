@@ -1,6 +1,14 @@
-// Admin API utilities
-// Use local Replit backend which is working perfectly
-const API_BASE_URL = 'http://localhost:5000';
+// Admin API utilities - Replit environment configuration
+const getApiBaseUrl = () => {
+  // En Replit, usar la URL del dominio actual sin especificar puerto
+  if (window.location.hostname.includes('.replit.dev')) {
+    return window.location.origin;
+  }
+  // Para desarrollo local
+  return 'http://localhost:5000';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 console.log('AdminAPI Environment Check:', {
   hostname: window.location.hostname,
