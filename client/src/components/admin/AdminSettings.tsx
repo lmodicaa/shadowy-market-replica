@@ -84,7 +84,7 @@ const AdminSettings = () => {
       'default_plan_duration': 'Duração padrão dos planos em dias',
       'support_email': 'Email de suporte técnico',
       'discord_invite': 'Link do convite do Discord',
-      'enable_registrations': 'Permitir novos registros',
+
       'stock_low_threshold': 'Limite para alerta de estoque baixo',
       'stock_empty_message': 'Mensagem quando estoque esgotado',
       'vm_default_password': 'Senha padrão das VMs',
@@ -218,7 +218,7 @@ const AdminSettings = () => {
         'default_plan_duration': '30',
         'support_email': 'suporte@matecloud.com.br',
         'discord_invite': 'https://discord.gg/matecloud',
-        'enable_registrations': 'true',
+
         'stock_low_threshold': '5',
         'stock_empty_message': 'Este plano está temporariamente indisponível.',
         'vm_default_password': 'matecloud123',
@@ -456,46 +456,7 @@ const AdminSettings = () => {
             </div>
           </div>
 
-          <div className={`flex items-center justify-between p-4 border rounded-lg ${
-            settings.enable_registrations === 'false' 
-              ? 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-950/20' 
-              : 'border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-950/20'
-          }`}>
-            <div>
-              <Label className="flex items-center gap-2">
-                Permitir Novos Registros
-                {settings.enable_registrations === 'false' && (
-                  <span className="text-xs bg-red-600 text-white px-2 py-1 rounded-full">
-                    BLOQUEADO
-                  </span>
-                )}
-                {settings.enable_registrations !== 'false' && (
-                  <span className="text-xs bg-green-600 text-white px-2 py-1 rounded-full">
-                    ATIVO
-                  </span>
-                )}
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                {settings.enable_registrations === 'false' 
-                  ? '🚫 Novos usuários serão automaticamente desconectados após tentativa de login'
-                  : '✅ Novos usuários podem se registrar normalmente via Discord OAuth'
-                }
-              </p>
-            </div>
-            <Switch
-              checked={settings.enable_registrations !== 'false'}
-              onCheckedChange={(checked) => {
-                handleSettingChange('enable_registrations', checked.toString());
-                toast({
-                  title: checked ? "Registros Habilitados" : "Registros Bloqueados",
-                  description: checked 
-                    ? "Novos usuários agora podem se registrar via Discord OAuth" 
-                    : "Novos registros foram bloqueados. Usuários existentes não são afetados",
-                  variant: checked ? "default" : "destructive",
-                });
-              }}
-            />
-          </div>
+
         </CardContent>
       </Card>
 

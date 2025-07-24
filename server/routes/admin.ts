@@ -55,7 +55,7 @@ router.post('/init-settings', async (req, res) => {
       { key: 'default_plan_duration', value: '30', description: 'Duração padrão dos planos em dias' },
       { key: 'support_email', value: 'suporte@matecloud.com.br', description: 'Email de suporte técnico' },
       { key: 'discord_invite', value: 'https://discord.gg/matecloud', description: 'Link do convite do Discord' },
-      { key: 'enable_registrations', value: 'true', description: 'Permitir novos registros' },
+
       { key: 'stock_low_threshold', value: '5', description: 'Limite para alerta de estoque baixo' },
       { key: 'stock_empty_message', value: 'Este plano está temporariamente indisponível.', description: 'Mensagem quando estoque esgotado' },
       { key: 'vm_default_password', value: 'matecloud123', description: 'Senha padrão das VMs' },
@@ -111,55 +111,7 @@ router.post('/init-settings', async (req, res) => {
   }
 });
 
-// Route to check registration status (ENHANCED FOR BLOCKING)
-router.get('/registration-status', async (req, res) => {
-  try {
-    console.log('🔍 Checking registration status for blocking verification...');
-    
-    const { data, error } = await supabase
-      .from('admin_settings')
-      .select('value')
-      .eq('key', 'enable_registrations')
-      .single();
-      
-    if (error) {
-      console.log('⚠️ Registration setting not found, defaulting to enabled');
-      // Default to enabled if setting doesn't exist
-      res.json({
-        status: 'ok',
-        enabled: true,
-        message: 'Registration setting not found, defaulting to enabled',
-        source: 'default',
-        timestamp: new Date().toISOString()
-      });
-      return;
-    }
-    
-    const enabled = data?.value === 'true';
-    
-    console.log(`📋 Registration status retrieved: ${enabled ? 'ENABLED' : 'DISABLED'} (value: ${data?.value})`);
-    
-    res.json({
-      status: 'ok',
-      enabled: enabled,
-      message: `Registrations are currently ${enabled ? 'ENABLED - New users can register' : 'DISABLED - New users will be blocked'}`,
-      source: 'database',
-      raw_value: data?.value,
-      timestamp: new Date().toISOString()
-    });
-    
-  } catch (error) {
-    console.error('Registration status check error:', error);
-    res.status(500).json({
-      status: 'error',
-      enabled: true, // Safe default to avoid blocking existing users
-      message: 'Failed to check registration status - defaulting to enabled for safety',
-      error: (error as any).message || 'Unknown error',
-      source: 'error_fallback',
-      timestamp: new Date().toISOString()
-    });
-  }
-});
+
 
 // Route to delete a user (server-side with proper permissions)
 router.delete('/users/:userId', async (req, res) => {

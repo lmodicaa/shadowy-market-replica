@@ -12,7 +12,7 @@ import AdminPlanManagement from '@/components/admin/AdminPlanManagement';
 import AdminPlanManager from '@/components/AdminPlanManager';
 import AdminSettings from '@/components/admin/AdminSettings';
 import AdminStats from '@/components/admin/AdminStats';
-import RegistrationStatus from '@/components/admin/RegistrationStatus';
+
 
 interface AdminProps {
   session: any;
@@ -208,10 +208,7 @@ const Admin = ({ session }: AdminProps) => {
           </TabsContent>
 
           <TabsContent value="settings">
-            <div className="space-y-6">
-              <RegistrationStatus />
-              <AdminSettings />
-            </div>
+            <AdminSettings />
           </TabsContent>
 
           <TabsContent value="stats">

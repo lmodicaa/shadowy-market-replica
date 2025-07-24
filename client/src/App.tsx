@@ -67,69 +67,11 @@ const App = () => {
 
     getInitialSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('🔐 Auth state change:', event, session ? 'User present' : 'No user');
       
-      try {
-        // BLOQUEO TEMPRANO: Verificar si los registros están habilitados ANTES de procesar
-        if (event === 'SIGNED_IN' && session) {
-          console.log('🔍 Verificando estado de registros para usuario:', session.user.id);
-          
-          // Verificar si el usuario ya existe en la base de datos
-          const { data: existingUser, error: userError } = await supabase
-            .from('profiles')
-            .select('id, created_at')
-            .eq('id', session.user.id)
-            .single();
-            
-          console.log('👤 Usuario existente encontrado:', existingUser ? 'Sí' : 'No');
-          
-          // Si NO es un usuario existente, verificar si los registros están habilitados
-          if (!existingUser) {
-            console.log('🆕 Usuario nuevo detectado, verificando configuración de registros...');
-            
-            // Consultar configuración de admin usando el API helper
-            const AdminAPI = {
-              getRegistrationStatus: async () => {
-                const baseUrl = window.location.hostname === 'localhost' 
-                  ? 'http://localhost:5000' 
-                  : '';
-                const response = await fetch(`${baseUrl}/api/admin/registration-status`);
-                return response.json();
-              }
-            };
-            
-            const registrationConfig = await AdminAPI.getRegistrationStatus();
-            
-            console.log('⚙️ Configuración de registros:', registrationConfig);
-            
-            if (!registrationConfig.enabled) {
-              console.log('🚫 REGISTROS DESHABILITADOS - Bloqueando acceso');
-              
-              // Cerrar sesión inmediatamente
-              await supabase.auth.signOut();
-              
-              // Mostrar mensaje de bloqueo más amigable
-              alert('🚫 Acceso Restringido\n\nActualmente no estamos aceptando nuevos usuarios.\n\nSi ya tienes una cuenta, contacta al soporte para obtener ayuda.\n\nGracias por tu interés en MateCloud!');
-              
-              // Redirigir a la página principal
-              window.location.href = '/';
-              return;
-            } else {
-              console.log('✅ Registros habilitados - Permitiendo acceso');
-            }
-          } else if (existingUser) {
-            console.log('✅ Usuario existente - Acceso permitido');
-          }
-        }
-      } catch (error) {
-        console.error('❌ Error verificando estado de registros:', error);
-        // En caso de error, permitir acceso para no bloquear usuarios existentes
-      } finally {
-        // SIEMPRE actualizar el estado, incluso si hay errores
-        setSession(session);
-        setLoading(false);
-      }
+      setSession(session);
+      setLoading(false);
 
       if (event === 'SIGNED_IN' && session && window.location.hash.includes('access_token=')) {
         window.history.replaceState({}, document.title, window.location.pathname);
