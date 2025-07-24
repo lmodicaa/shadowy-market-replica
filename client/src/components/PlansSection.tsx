@@ -197,7 +197,11 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
 
 
   const handleSelectPlan = async (plan: { id: string; name: string; price: string }) => {
+    console.log('🔥 Botão clicado! Plan:', plan);
+    console.log('🔥 Session user:', session?.user?.id);
+    
     if (!session?.user?.id) {
+      console.log('🔥 Sem login, mostrando toast');
       toast({
         title: "Login necessário",
         description: "Você precisa fazer login para escolher um plano.",
@@ -206,14 +210,20 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       return;
     }
 
+    console.log('🔥 Usuário logado, começando processo...');
     try {
       // Verificar se estamos em um ambiente onde o backend deve estar disponível
       const hostname = window.location.hostname;
       const isReplit = hostname.includes('.replit.dev');
       const isLocalhost = hostname === 'localhost';
       
+      console.log('🔥 Hostname:', hostname);
+      console.log('🔥 isReplit:', isReplit);
+      console.log('🔥 isLocalhost:', isLocalhost);
+      
       // Solo verificar backend si estamos en un entorno que debería tenerlo
       if (!isReplit && !isLocalhost) {
+        console.log('🔥 Verificando backend em ambiente externo...');
         // En producción (matecloud.store), verificar si backend está disponível
         try {
           const testResponse = await fetch('/api/admin/health', { method: 'GET' });
@@ -238,13 +248,15 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
         }
       }
       
+      console.log('🔥 Ambiente OK, prosseguindo com criação do pedido...');
+      
       // Gerar ID único para o pedido
       const orderId = `PIX_${plan.name.toUpperCase()}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       // Extrair valor numérico do preço (ex: "R$ 29,90" -> "29.90")
       const priceValue = plan.price.replace(/[^\d,]/g, '').replace(',', '.');
       
-      console.log('🔗 Criando pedido:', { orderId, planName: plan.name, amount: priceValue });
+      console.log('🔗 Criando pedido:', { orderId, planName: plan.name, amount: priceValue, userId: session.user.id });
       
       // Criar pedido Pix para o plano
       const response = await fetch('/api/pix/manual', {
