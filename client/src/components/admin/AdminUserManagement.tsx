@@ -24,11 +24,18 @@ const AdminUserManagement = () => {
   const deleteUser = useDeleteUser();
   const { toast } = useToast();
 
+  // Debug: Log users data
+  console.log('AdminUserManagement - Raw users data:', users);
+  console.log('AdminUserManagement - Users count:', users?.length || 0);
+
   const filteredUsers = (users || []).filter((user: any) => 
     user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.id.includes(searchTerm)
   );
+
+  console.log('AdminUserManagement - Filtered users:', filteredUsers);
+  console.log('AdminUserManagement - Filtered count:', filteredUsers.length);
 
   const handleUpdateUserPlan = async () => {
     if (!editingUser) return;

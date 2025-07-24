@@ -19,24 +19,14 @@ export const useIsAdmin = (userId?: string) => {
   });
 };
 
-// Hook para obter todos os usuários (via função SQL ou RPC)
+// Hook para obter todos os usuários (somente dados reais da base de dados)
 export const useAllUsers = () => {
   return useQuery({
     queryKey: ['allUsers'],
     queryFn: async () => {
-      console.log('🔄 Fetching all users from database...');
+      console.log('🔄 Fetching REAL users from profiles table...');
       
-      // Try to get users via RPC function first
-      const { data: rpcData, error: rpcError } = await supabase.rpc('get_all_users_admin');
-      
-      if (!rpcError && rpcData) {
-        console.log('✅ Users fetched via RPC:', rpcData.length);
-        return rpcData;
-      }
-      
-      console.log('⚠️ RPC failed, using direct profiles query');
-      
-      // Fallback to profiles with enhanced data
+      // Query directly from profiles table - NO FALLBACK DATA
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
@@ -47,22 +37,17 @@ export const useAllUsers = () => {
         throw profilesError;
       }
       
-      console.log('✅ Users fetched via profiles table:', profiles?.length || 0);
+      console.log('✅ REAL users from database:', profiles?.length || 0);
+      console.log('Users data:', profiles);
       
-      // Enhance profiles with missing data
-      const enhancedProfiles = profiles?.map(profile => ({
-        ...profile,
-        username: profile.username || `Usuário ${profile.id.substring(0, 8)}`,
-        email: profile.username || 'email@example.com', // This will be filled by RPC function
-        last_sign_in: null,
-        email_confirmed: true,
-      })) || [];
-      
-      return enhancedProfiles;
+      // Return ONLY real data from database - no fake/fallback data
+      return profiles || [];
     },
     // Force fresh data on every request for user management
     staleTime: 0,
-    gcTime: 0, // Updated from cacheTime in React Query v5
+    gcTime: 0,
+    // Don't retry on error to avoid showing cached data
+    retry: false,
   });
 };
 
