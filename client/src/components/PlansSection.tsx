@@ -135,6 +135,25 @@ const getFallbackPlans = () => [
   }
 ];
 
+interface Plan {
+  id: string;
+  name: string;
+  price: string;
+  description?: string;
+  ram?: string;
+  cpu?: string;
+  storage?: string;
+  gpu?: string;
+  max_resolution?: string;
+  duration?: number;
+  stock?: number;
+  status?: string;
+  icon: any;
+  popular: boolean;
+  features: string[];
+  period: string;
+}
+
 interface PlansSectionProps {
   session?: any;
   onPlanSelect?: (planName: string) => void;
@@ -146,7 +165,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
   const { toast } = useToast();
 
   // Buscar planos reais da base de dados com fallback - optimized
-  const { data: plans = [], isLoading: loadingPlans, error: plansError } = useQuery({
+  const { data: plans = [], isLoading: loadingPlans, error: plansError } = useQuery<Plan[]>({
     queryKey: ['plans'],
     staleTime: 10 * 60 * 1000, // 10 minutes cache
     gcTime: 15 * 60 * 1000, // Keep in cache for 15 minutes
@@ -182,9 +201,9 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
             `GPU: ${plan.gpu || 'Integrada'}`,
             `Resolução até ${plan.max_resolution || '1080p'}`,
             'Suporte técnico incluído'
-          ],
+          ] as string[],
           period: `/${plan.duration || 30} dias`
-        }));
+        })) as Plan[];
       } catch (error) {
         console.error('Error fetching plans:', error);
         // Retornar planos de exemplo se houver erro
@@ -225,6 +244,20 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
         userId: session.user.id 
       });
       
+      // Verificar se Supabase está configurado
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseKey) {
+        console.log('🔥 Supabase não configurado, mostrando mensagem de fallback...');
+        toast({
+          title: "Sistema de pagamentos em desenvolvimento",
+          description: "Para adquirir este plano, entre em contato conosco via Discord ou WhatsApp. O sistema automatizado será ativado em breve!",
+          variant: "default",
+        });
+        return;
+      }
+
       // Criar pedido Pix diretamente no Supabase
       const { data: pixOrder, error } = await supabase
         .from('pix_orders')
@@ -242,6 +275,17 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
 
       if (error) {
         console.error('Erro ao criar pedido Pix:', error);
+        
+        // Se o erro é devido a configuração/conexão, mostrar mensagem amigável
+        if (error.message.includes('Failed to fetch') || error.message.includes('network') || error.code === 'PGRST301') {
+          toast({
+            title: "Sistema de pagamentos temporariamente indisponível",
+            description: "Para adquirir este plano, entre em contato conosco via Discord ou WhatsApp.",
+            variant: "default",
+          });
+          return;
+        }
+        
         throw new Error(`Erro ao criar pedido: ${error.message}`);
       }
 
@@ -354,7 +398,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
                 </div>
 
                 {/* Stock Info */}
-                {plan.stock !== null && (
+                {plan.stock !== null && plan.stock !== undefined && (
                   <div className="flex items-center justify-center gap-1 mt-2">
                     <Package className="w-4 h-4 text-foreground/60" />
                     <span className="text-sm text-foreground/60">
@@ -380,7 +424,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
                 
                 <Button 
                   onClick={() => handleSelectPlan({ id: plan.id, name: plan.name, price: plan.price })}
-                  disabled={(activePlan?.isActive && activePlan.name === plan.name) || (plan.stock !== null && plan.stock <= 0)}
+                  disabled={(activePlan?.isActive && activePlan.name === plan.name) || (plan.stock !== null && plan.stock !== undefined && plan.stock <= 0)}
                   className={`w-full ${
                     plan.popular 
                       ? 'bg-cloud-blue hover:bg-cloud-blue/90 text-white' 
@@ -388,7 +432,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
                   }`}
                   size="lg"
                 >
-                  {plan.stock !== null && plan.stock <= 0
+                  {plan.stock !== null && plan.stock !== undefined && plan.stock <= 0
                     ? 'Esgotado'
                     : activePlan?.isActive && activePlan.name === plan.name
                       ? 'Plano Ativo'
