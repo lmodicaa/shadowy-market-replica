@@ -196,7 +196,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
 
 
 
-  const handleSelectPlan = async (plan: { id: string; name: string }) => {
+  const handleSelectPlan = async (plan: { id: string; name: string; price: string }) => {
     if (!session?.user?.id) {
       toast({
         title: "Login necessário",
@@ -207,28 +207,49 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
     }
 
     try {
-      await createSubscription.mutateAsync({
-        userId: session.user.id,
-        planId: plan.id,
-        planName: plan.name,
-        duration: 30, // 30 dias
+      // Gerar ID único para o pedido
+      const orderId = `PIX_${plan.name.toUpperCase()}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Extrair valor numérico do preço (ex: "R$ 29,90" -> "29.90")
+      const priceValue = plan.price.replace(/[^\d,]/g, '').replace(',', '.');
+      
+      // Criar pedido Pix para o plano
+      const response = await fetch('/api/pix/manual', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: orderId,
+          userId: session.user.id,
+          planId: plan.id,
+          planName: plan.name,
+          amount: parseFloat(priceValue),
+          description: `Plano ${plan.name} - 30 dias de acesso`
+        })
       });
 
+      if (!response.ok) {
+        throw new Error('Erro ao criar pedido de pagamento');
+      }
+
+      const result = await response.json();
+
       toast({
-        title: "Plano ativado com sucesso!",
-        description: `Seu plano ${plan.name} foi ativado por 30 dias.`,
+        title: "Pedido criado com sucesso!",
+        description: `Seu pedido para o plano ${plan.name} foi criado. Acesse seu perfil para ver o código Pix.`,
       });
 
       // Chamar callback se fornecido
       onPlanSelect?.(plan.name);
 
     } catch (error: any) {
-      console.error('Erro ao ativar plano:', error);
+      console.error('Erro ao criar pedido:', error);
       
       const errorMessage = error?.message || "Ocorreu um erro ao processar sua solicitação. Tente novamente.";
       
       toast({
-        title: "Erro ao ativar plano",
+        title: "Erro ao criar pedido",
         description: errorMessage,
         variant: "destructive",
       });
@@ -346,8 +367,8 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
                 </ul>
                 
                 <Button 
-                  onClick={() => handleSelectPlan({ id: plan.id, name: plan.name })}
-                  disabled={createSubscription.isPending || (activePlan?.isActive && activePlan.name === plan.name) || (plan.stock !== null && plan.stock <= 0)}
+                  onClick={() => handleSelectPlan({ id: plan.id, name: plan.name, price: plan.price })}
+                  disabled={(activePlan?.isActive && activePlan.name === plan.name) || (plan.stock !== null && plan.stock <= 0)}
                   className={`w-full ${
                     plan.popular 
                       ? 'bg-cloud-blue hover:bg-cloud-blue/90 text-white' 
@@ -355,15 +376,13 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
                   }`}
                   size="lg"
                 >
-                  {createSubscription.isPending 
-                    ? 'Processando...' 
-                    : plan.stock !== null && plan.stock <= 0
-                      ? 'Esgotado'
-                      : activePlan?.isActive && activePlan.name === plan.name
-                        ? 'Plano Ativo'
-                        : activePlan?.isActive
-                          ? 'Já Possui Plano'
-                          : `Escolher ${plan.name}`
+                  {plan.stock !== null && plan.stock <= 0
+                    ? 'Esgotado'
+                    : activePlan?.isActive && activePlan.name === plan.name
+                      ? 'Plano Ativo'
+                      : activePlan?.isActive
+                        ? 'Já Possui Plano'
+                        : `Comprar com Pix`
                   }
                 </Button>
               </CardContent>

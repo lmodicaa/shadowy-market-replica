@@ -42,6 +42,20 @@ export const subscriptions = pgTable("subscriptions", {
   created_at: timestamp("created_at").defaultNow(),
 });
 
+// Tabela de pedidos Pix
+export const pix_orders = pgTable("pix_orders", {
+  id: text("id").primaryKey(),
+  user_id: text("user_id"),
+  plan_id: uuid("plan_id"), // Referência ao plano sendo comprado
+  plan_name: text("plan_name"),
+  amount: text("amount"), // Valor como string para manter formato
+  description: text("description"),
+  status: text("status").default('pendiente'), // pendiente, pagado, cancelado
+  pix_code: text("pix_code"),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
 // Tabela de configurações administrativas
 export const admin_settings = pgTable("admin_settings", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -101,6 +115,11 @@ export const insertAdminsSchema = createInsertSchema(admins).omit({
   created_at: true,
 });
 
+export const insertPixOrderSchema = createInsertSchema(pix_orders).omit({
+  created_at: true,
+  updated_at: true,
+});
+
 // Tipos
 export type InsertProfile = z.infer<typeof insertProfileSchema>;
 export type Profile = typeof profiles.$inferSelect;
@@ -119,6 +138,9 @@ export type PlanStock = typeof plan_stock.$inferSelect;
 
 export type InsertAdmins = z.infer<typeof insertAdminsSchema>;
 export type Admins = typeof admins.$inferSelect;
+
+export type InsertPixOrder = z.infer<typeof insertPixOrderSchema>;
+export type PixOrder = typeof pix_orders.$inferSelect;
 
 // Aliases para compatibilidade com storage.ts
 export type User = Profile;

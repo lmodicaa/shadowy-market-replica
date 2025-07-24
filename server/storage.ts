@@ -1,24 +1,12 @@
-import { type Profile as User, type InsertProfile as InsertUser } from "@shared/schema";
+import { 
+  type Profile as User, 
+  type InsertProfile as InsertUser,
+  type PixOrder,
+  type InsertPixOrder,
+  type Plan,
+  type InsertSubscription
+} from "@shared/schema";
 import { db } from "./db";
-
-// Tipos para gestión de pedidos Pix
-export interface PixOrder {
-  id: string;
-  userId?: string;
-  amount?: number;
-  description?: string;
-  status: 'pendiente' | 'pagado' | 'cancelado';
-  pixCode?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface InsertPixOrder {
-  id: string;
-  userId?: string;
-  amount?: number;
-  description?: string;
-}
 
 // modify the interface with any CRUD methods
 // you might need
@@ -34,6 +22,11 @@ export interface IStorage {
   getPixOrder(id: string): Promise<PixOrder | undefined>;
   updatePixOrder(id: string, updates: Partial<PixOrder>): Promise<PixOrder | undefined>;
   deletePixOrder(id: string): Promise<boolean>;
+  
+  // Métodos para gestión de planes y suscripciones
+  getPlan(id: string): Promise<Plan | undefined>;
+  createSubscription(subscription: InsertSubscription): Promise<void>;
+  activatePlan(userId: string, planId: string, planName: string, duration: number): Promise<void>;
 }
 
 export class SupabaseStorage implements IStorage {
@@ -89,7 +82,9 @@ export class SupabaseStorage implements IStorage {
       .from('pix_orders')
       .insert({
         id: orderData.id,
-        user_id: orderData.userId,
+        user_id: orderData.user_id,
+        plan_id: orderData.plan_id,
+        plan_name: orderData.plan_name,
         amount: orderData.amount,
         description: orderData.description,
         status: 'pendiente'
@@ -102,26 +97,16 @@ export class SupabaseStorage implements IStorage {
       throw new Error(`Failed to create pix order: ${error.message}`);
     }
     
-    const order: PixOrder = {
-      id: data.id,
-      userId: data.user_id,
-      amount: data.amount,
-      description: data.description,
-      status: data.status,
-      pixCode: data.pix_code,
-      createdAt: new Date(data.created_at),
-      updatedAt: new Date(data.updated_at)
-    };
-    
     // Notificación para admin
     console.log(`🔔 NUEVO PAGO PIX PENDIENTE:`, {
-      pedidoId: order.id,
-      userId: order.userId,
-      amount: order.amount,
-      hora: order.createdAt.toLocaleString('es-ES')
+      pedidoId: data.id,
+      planName: data.plan_name,
+      userId: data.user_id,
+      amount: data.amount,
+      hora: new Date(data.created_at).toLocaleString('es-ES')
     });
     
-    return order;
+    return data as PixOrder;
   }
 
   async getPixOrders(): Promise<PixOrder[]> {
@@ -135,16 +120,7 @@ export class SupabaseStorage implements IStorage {
       return [];
     }
     
-    return data.map(row => ({
-      id: row.id,
-      userId: row.user_id,
-      amount: row.amount,
-      description: row.description,
-      status: row.status,
-      pixCode: row.pix_code,
-      createdAt: new Date(row.created_at),
-      updatedAt: new Date(row.updated_at)
-    }));
+    return data as PixOrder[];
   }
 
   async getPixOrder(id: string): Promise<PixOrder | undefined> {
@@ -159,23 +135,14 @@ export class SupabaseStorage implements IStorage {
       return undefined;
     }
     
-    return {
-      id: data.id,
-      userId: data.user_id,
-      amount: data.amount,
-      description: data.description,
-      status: data.status,
-      pixCode: data.pix_code,
-      createdAt: new Date(data.created_at),
-      updatedAt: new Date(data.updated_at)
-    };
+    return data as PixOrder;
   }
 
   async updatePixOrder(id: string, updates: Partial<PixOrder>): Promise<PixOrder | undefined> {
     const updateData: any = {};
     
     if (updates.status) updateData.status = updates.status;
-    if (updates.pixCode) updateData.pix_code = updates.pixCode;
+    if (updates.pix_code) updateData.pix_code = updates.pix_code;
     if (updates.amount) updateData.amount = updates.amount;
     if (updates.description) updateData.description = updates.description;
     
@@ -191,22 +158,27 @@ export class SupabaseStorage implements IStorage {
       return undefined;
     }
     
-    const updated: PixOrder = {
-      id: data.id,
-      userId: data.user_id,
-      amount: data.amount,
-      description: data.description,
-      status: data.status,
-      pixCode: data.pix_code,
-      createdAt: new Date(data.created_at),
-      updatedAt: new Date(data.updated_at)
-    };
+    const updated = data as PixOrder;
     
     console.log(`📝 PEDIDO PIX ACTUALIZADO:`, {
       pedidoId: id,
       cambios: updates,
       estado: updated.status
     });
+    
+    // Si el pago fue marcado como pagado, activar el plan automáticamente
+    if (updated.status === 'pagado' && updated.plan_id && updated.user_id && updated.plan_name) {
+      try {
+        await this.activatePlan(updated.user_id, updated.plan_id, updated.plan_name, 30);
+        console.log(`🎉 PLAN ACTIVADO AUTOMÁTICAMENTE:`, {
+          userId: updated.user_id,
+          planName: updated.plan_name,
+          pedidoId: id
+        });
+      } catch (error) {
+        console.error('Error activating plan after payment:', error);
+      }
+    }
     
     return updated;
   }
@@ -224,6 +196,69 @@ export class SupabaseStorage implements IStorage {
     
     console.log(`🗑️ PEDIDO PIX ELIMINADO: ${id}`);
     return true;
+  }
+
+  // Métodos para gestión de planes y suscripciones
+  async getPlan(id: string): Promise<Plan | undefined> {
+    const { data, error } = await db
+      .from('plans')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) {
+      console.error('Error fetching plan:', error);
+      return undefined;
+    }
+    
+    return data as Plan;
+  }
+
+  async createSubscription(subscription: InsertSubscription): Promise<void> {
+    const { error } = await db
+      .from('subscriptions')
+      .insert(subscription);
+    
+    if (error) {
+      console.error('Error creating subscription:', error);
+      throw new Error(`Failed to create subscription: ${error.message}`);
+    }
+  }
+
+  async activatePlan(userId: string, planId: string, planName: string, duration: number): Promise<void> {
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + duration);
+    
+    // Crear suscripción
+    await this.createSubscription({
+      user_id: userId,
+      plan_id: planId,
+      plan_name: planName,
+      start_date: new Date(),
+      end_date: endDate
+    });
+    
+    // Actualizar perfil con plano ativo
+    const { error } = await db
+      .from('profiles')
+      .update({
+        active_plan: planId,
+        active_plan_until: endDate.toISOString()
+      })
+      .eq('id', userId);
+    
+    if (error) {
+      console.error('Error updating user profile:', error);
+      throw new Error(`Failed to activate plan: ${error.message}`);
+    }
+    
+    console.log(`✅ PLAN ACTIVADO:`, {
+      userId,
+      planId,
+      planName,
+      duration,
+      endDate: endDate.toISOString()
+    });
   }
 }
 

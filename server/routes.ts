@@ -10,7 +10,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Endpoint para crear pedido Pix manual
   app.post("/api/pix/manual", async (req, res) => {
     try {
-      const { id, userId, amount, description } = req.body;
+      const { id, userId, planId, planName, amount, description } = req.body;
 
       if (!id) {
         return res.status(400).json({ error: "ID del pedido es requerido" });
@@ -24,8 +24,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const order = await storage.createPixOrder({
         id,
-        userId,
-        amount,
+        user_id: userId,
+        plan_id: planId,
+        plan_name: planName,
+        amount: amount.toString(),
         description
       });
 
