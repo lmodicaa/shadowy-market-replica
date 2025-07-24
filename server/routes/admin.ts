@@ -111,6 +111,48 @@ router.post('/init-settings', async (req, res) => {
   }
 });
 
+// Route to check registration status
+router.get('/registration-status', async (req, res) => {
+  try {
+    console.log('Checking registration status...');
+    
+    const { data, error } = await supabase
+      .from('admin_settings')
+      .select('value')
+      .eq('key', 'enable_registrations')
+      .single();
+      
+    if (error) {
+      // Default to enabled if setting doesn't exist
+      res.json({
+        status: 'ok',
+        enabled: true,
+        message: 'Registration setting not found, defaulting to enabled',
+        timestamp: new Date().toISOString()
+      });
+      return;
+    }
+    
+    const enabled = data?.value !== 'false';
+    
+    res.json({
+      status: 'ok',
+      enabled: enabled,
+      message: `Registrations are currently ${enabled ? 'enabled' : 'disabled'}`,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('Registration status check error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to check registration status',
+      error: (error as any).message || 'Unknown error',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Route to clear application cache (server-side)
 router.post('/clear-cache', async (req, res) => {
   try {

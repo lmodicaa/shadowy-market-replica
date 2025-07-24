@@ -46,6 +46,16 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - Authentication handled securely through Supabase
 
 ## Recent Changes
+- 2025-01-24: **ADMIN REGISTRATION BLOCKING SYSTEM IMPLEMENTED** - Complete user registration control system
+  - ✅ Frontend enforcement in App.tsx that automatically signs out new users when registrations are disabled
+  - ✅ Enhanced AdminSettings component with visual status indicators (ATIVO/BLOQUEADO badges)
+  - ✅ Real-time RegistrationStatus component showing current enforcement status
+  - ✅ Server-side API endpoint (/api/admin/registration-status) for status verification
+  - ✅ Toast notifications when admin toggles registration settings
+  - ✅ Color-coded UI feedback (green for enabled, red for disabled)
+  - ✅ Automatic user detection (new users created within last 30 seconds are checked)
+  - ✅ Existing users remain unaffected when registrations are disabled
+  - ✅ Admin panel shows real-time status with live updates every 10 seconds
 - 2025-01-24: **MIGRATION FROM REPLIT AGENT TO REPLIT COMPLETED** - Full migration successfully completed with UI enhancements
   - ✅ Express server running successfully on port 5000 with all required packages
   - ✅ Supabase environment variables (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY) configured
