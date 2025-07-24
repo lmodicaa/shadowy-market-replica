@@ -31,9 +31,9 @@ const AdminPixOrders = () => {
   const queryClient = useQueryClient();
 
   // Obtener todos los pedidos desde Supabase
-  const { data: orders = [], isLoading } = useQuery({
+  const { data: orders = [], isLoading } = useQuery<PixOrder[]>({
     queryKey: ['admin_pix_orders'],
-    queryFn: async () => {
+    queryFn: async (): Promise<PixOrder[]> => {
       const { data, error } = await supabase
         .from('pix_orders')
         .select('*')
@@ -44,7 +44,7 @@ const AdminPixOrders = () => {
         throw error;
       }
       
-      return data || [];
+      return (data || []) as PixOrder[];
     },
     refetchInterval: 5000, // Actualizar cada 5 segundos
   });
@@ -78,22 +78,35 @@ const AdminPixOrders = () => {
   // Mutación para eliminar pedido
   const deleteOrderMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      console.log('🗑️ Tentando excluir pedido:', id);
+      
+      const { data, error } = await supabase
         .from('pix_orders')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .select();
       
-      if (error) throw error;
-      return { success: true };
+      if (error) {
+        console.error('Erro ao excluir pedido:', error);
+        throw error;
+      }
+      
+      console.log('✅ Pedido excluído:', data);
+      return { success: true, data };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      console.log('✅ Exclusão bem-sucedida:', result);
       queryClient.invalidateQueries({ queryKey: ['admin_pix_orders'] });
       queryClient.invalidateQueries({ queryKey: ['pix_orders'] });
       toast({ title: "Pedido excluído com sucesso" });
     },
     onError: (error: any) => {
-      console.error('Error deleting order:', error);
-      toast({ title: "Erro ao excluir pedido", variant: "destructive" });
+      console.error('❌ Erro na exclusão:', error);
+      toast({ 
+        title: "Erro ao excluir pedido", 
+        description: error.message || "Verifique as permissões de administrador",
+        variant: "destructive" 
+      });
     },
   });
 
