@@ -92,7 +92,7 @@ const Footer = () => {
         <div className="mt-12 pt-8 text-center text-sm border-t border-gradient-to-r from-transparent via-gray-600/50 to-transparent relative">
           <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-px bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400"></div>
           <p className="text-gray-500 hover:text-gray-300 transition-colors duration-300 cursor-default">
-            &copy; 2024 MateCloud. Todos os direitos reservados.
+            &copy; 2025 MateCloud. Todos os direitos reservados.
           </p>
         </div>
       </div>
