@@ -19,7 +19,7 @@ const AdminUserManagement = () => {
   const [planDuration, setPlanDuration] = useState(30);
   const [debugInfo, setDebugInfo] = useState<any>(null);
 
-  const { data: users, isLoading } = useAllUsers();
+  const { data: users, isLoading, refetch: refetchUsers } = useAllUsers();
   const updateUserPlan = useUpdateUserPlan();
   const deleteUser = useDeleteUser();
   const { toast } = useToast();
@@ -123,6 +123,10 @@ const AdminUserManagement = () => {
     try {
       const result = await deleteUser.mutateAsync(userId);
       console.log('Exclusão concluída com sucesso:', result);
+      
+      // Force immediate refetch of users data
+      console.log('Forçando refetch imediato dos usuários...');
+      await refetchUsers();
       
       toast({
         title: "Usuário excluído",

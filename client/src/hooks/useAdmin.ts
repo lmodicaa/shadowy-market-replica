@@ -441,11 +441,22 @@ export const useDeleteUser = () => {
       }
     },
     onSuccess: (result) => {
-      console.log('Exclusão bem-sucedida, invalidando cache...');
+      console.log('Exclusão bem-sucedida, invalidando cache e forçando refetch...');
+      
+      // Invalidate and immediately refetch all related queries
       queryClient.invalidateQueries({ queryKey: ['allUsers'] });
+      queryClient.refetchQueries({ queryKey: ['allUsers'] });
+      
       queryClient.invalidateQueries({ queryKey: ['allSubscriptions'] });
+      queryClient.refetchQueries({ queryKey: ['allSubscriptions'] });
+      
       queryClient.invalidateQueries({ queryKey: ['systemStats'] });
-      console.log('Cache invalidado para usuário:', result.deletedUserId);
+      queryClient.refetchQueries({ queryKey: ['systemStats'] });
+      
+      // Also invalidate any cached profile data
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      
+      console.log('Cache invalidado e refetch forçado para usuário:', result.deletedUserId || result);
     },
     onError: (error) => {
       console.error('Erro na mutation de exclusão:', error);
