@@ -355,34 +355,89 @@ export const useDeleteUser = () => {
   
   return useMutation({
     mutationFn: async (userId: string) => {
-      console.log('=== INÍCIO EXCLUSÃO DE USUÁRIO (SERVER ENDPOINT) ===');
+      console.log('=== INÍCIO EXCLUSÃO DE USUÁRIO ===');
       console.log('User ID para exclusão:', userId);
+      console.log('Hostname:', window.location.hostname);
       
       try {
-        // Use server endpoint for deletion with proper permissions
-        const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
-        const response = await fetch(`${baseUrl}/api/admin/users/${userId}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json'
+        // Check if we're in development (localhost) or production
+        const isDevelopment = window.location.hostname === 'localhost';
+        console.log('Environment:', isDevelopment ? 'development' : 'production');
+        
+        if (isDevelopment) {
+          // Use server endpoint for development
+          const response = await fetch(`/api/admin/users/${userId}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          let result;
+          try {
+            result = await response.json();
+          } catch (parseError) {
+            console.error('Failed to parse JSON response:', parseError);
+            const text = await response.text();
+            console.error('Response text:', text);
+            throw new Error(`Server error: ${response.status} - ${text}`);
           }
-        });
-        
-        const result = await response.json();
-        console.log('Server response:', result);
-        
-        if (!response.ok || result.status !== 'ok') {
-          throw new Error(result.message || 'Falha na exclusão via servidor');
+          
+          console.log('Server response:', result);
+          
+          if (!response.ok || result.status !== 'ok') {
+            throw new Error(result.message || 'Falha na exclusão via servidor');
+          }
+          
+          return result;
+        } else {
+          // For production, fall back to direct Supabase deletion
+          console.log('Using direct Supabase deletion for production...');
+          
+          // First, delete related subscriptions
+          console.log('Tentando excluir assinaturas relacionadas...');
+          const { data: subscriptionsData, error: subscriptionsError } = await supabase
+            .from('subscriptions')
+            .delete()
+            .eq('user_id', userId)
+            .select();
+          
+          console.log('Resultado da exclusão de assinaturas:', { subscriptionsData, subscriptionsError });
+          
+          // Even if subscriptions deletion fails, continue with profile deletion
+          if (subscriptionsError) {
+            console.warn('Aviso: Erro ao excluir assinaturas (continuando):', subscriptionsError);
+          }
+          
+          // Now delete the profile
+          console.log('Tentando excluir perfil do usuário...');
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .delete()
+            .eq('id', userId)
+            .select();
+          
+          console.log('Resultado da exclusão do perfil:', { profileData, profileError });
+          
+          if (profileError) {
+            console.error('Erro crítico ao excluir usuário:', profileError);
+            console.error('Detalhes do erro:', JSON.stringify(profileError, null, 2));
+            throw new Error(`Falha na exclusão: ${profileError.message} (Código: ${profileError.code})`);
+          }
+          
+          return {
+            status: 'ok',
+            deletedUserId: userId,
+            deletedSubscriptions: subscriptionsData?.length || 0
+          };
         }
-        
-        console.log('✅ Usuário excluído com sucesso via servidor');
-        console.log('=== FIM EXCLUSÃO DE USUÁRIO ===');
-        return result;
         
       } catch (error) {
         console.error('=== ERRO NA EXCLUSÃO ===');
         console.error('Erro durante exclusão:', error);
         throw error;
+      } finally {
+        console.log('=== FIM EXCLUSÃO DE USUÁRIO ===');
       }
     },
     onSuccess: (result) => {

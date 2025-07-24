@@ -1,0 +1,102 @@
+DELETE https://matecloud.store/api/admin/users/fdc872c5-b875-4372-bb4b-ba847fdb0f07 405 (Method Not Allowed)
+s.fetch @ requests.js:1
+(anonymous) @ traffic.js:1
+fetch @ traffic.js:1
+mutationFn @ index-BKyzw5rM.js:59
+fn @ index-BKyzw5rM.js:41
+y @ index-BKyzw5rM.js:41
+(anonymous) @ index-BKyzw5rM.js:41
+Promise.then
+(anonymous) @ index-BKyzw5rM.js:41
+Promise.catch
+y @ index-BKyzw5rM.js:41
+start @ index-BKyzw5rM.js:41
+execute @ index-BKyzw5rM.js:41
+await in execute
+mutate @ index-BKyzw5rM.js:41
+M @ Admin-DO4Ar-ux.js:46
+onClick @ Admin-DO4Ar-ux.js:46
+X1 @ index-BKyzw5rM.js:38
+eb @ index-BKyzw5rM.js:38
+tb @ index-BKyzw5rM.js:38
+tp @ index-BKyzw5rM.js:38
+Ey @ index-BKyzw5rM.js:38
+(anonymous) @ index-BKyzw5rM.js:38
+Of @ index-BKyzw5rM.js:41
+Gg @ index-BKyzw5rM.js:38
+ku @ index-BKyzw5rM.js:38
+tf @ index-BKyzw5rM.js:38
+yb @ index-BKyzw5rM.js:38
+index-BKyzw5rM.js:59 === ERRO NA EXCLUSÃO ===
+mutationFn @ index-BKyzw5rM.js:59
+await in mutationFn
+fn @ index-BKyzw5rM.js:41
+y @ index-BKyzw5rM.js:41
+(anonymous) @ index-BKyzw5rM.js:41
+Promise.then
+(anonymous) @ index-BKyzw5rM.js:41
+Promise.catch
+y @ index-BKyzw5rM.js:41
+start @ index-BKyzw5rM.js:41
+execute @ index-BKyzw5rM.js:41
+await in execute
+mutate @ index-BKyzw5rM.js:41
+M @ Admin-DO4Ar-ux.js:46
+onClick @ Admin-DO4Ar-ux.js:46
+X1 @ index-BKyzw5rM.js:38
+eb @ index-BKyzw5rM.js:38
+tb @ index-BKyzw5rM.js:38
+tp @ index-BKyzw5rM.js:38
+Ey @ index-BKyzw5rM.js:38
+(anonymous) @ index-BKyzw5rM.js:38
+Of @ index-BKyzw5rM.js:41
+Gg @ index-BKyzw5rM.js:38
+ku @ index-BKyzw5rM.js:38
+tf @ index-BKyzw5rM.js:38
+yb @ index-BKyzw5rM.js:38
+index-BKyzw5rM.js:59 Erro durante exclusão: SyntaxError: Unexpected token 'M', "Method not allowed." is not valid JSON
+mutationFn @ index-BKyzw5rM.js:59
+await in mutationFn
+fn @ index-BKyzw5rM.js:41
+y @ index-BKyzw5rM.js:41
+(anonymous) @ index-BKyzw5rM.js:41
+Promise.then
+(anonymous) @ index-BKyzw5rM.js:41
+Promise.catch
+y @ index-BKyzw5rM.js:41
+start @ index-BKyzw5rM.js:41
+execute @ index-BKyzw5rM.js:41
+await in execute
+mutate @ index-BKyzw5rM.js:41
+M @ Admin-DO4Ar-ux.js:46
+onClick @ Admin-DO4Ar-ux.js:46
+X1 @ index-BKyzw5rM.js:38
+eb @ index-BKyzw5rM.js:38
+tb @ index-BKyzw5rM.js:38
+tp @ index-BKyzw5rM.js:38
+Ey @ index-BKyzw5rM.js:38
+(anonymous) @ index-BKyzw5rM.js:38
+Of @ index-BKyzw5rM.js:41
+Gg @ index-BKyzw5rM.js:38
+ku @ index-BKyzw5rM.js:38
+tf @ index-BKyzw5rM.js:38
+yb @ index-BKyzw5rM.js:38
+index-BKyzw5rM.js:59 Erro na mutation de exclusão: SyntaxError: Unexpected token 'M', "Method not allowed." is not valid JSON
+onError @ index-BKyzw5rM.js:59
+execute @ index-BKyzw5rM.js:41
+await in execute
+mutate @ index-BKyzw5rM.js:41
+M @ Admin-DO4Ar-ux.js:46
+onClick @ Admin-DO4Ar-ux.js:46
+X1 @ index-BKyzw5rM.js:38
+eb @ index-BKyzw5rM.js:38
+tb @ index-BKyzw5rM.js:38
+tp @ index-BKyzw5rM.js:38
+Ey @ index-BKyzw5rM.js:38
+(anonymous) @ index-BKyzw5rM.js:38
+Of @ index-BKyzw5rM.js:41
+Gg @ index-BKyzw5rM.js:38
+ku @ index-BKyzw5rM.js:38
+tf @ index-BKyzw5rM.js:38
+yb @ index-BKyzw5rM.js:38
+Admin-DO4Ar-ux.js:46 Erro durante exclusão: SyntaxError: Unexpected token 'M', "Method not allowed." is not valid JSON

@@ -46,6 +46,14 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - Authentication handled securely through Supabase
 
 ## Recent Changes
+- 2025-01-24: **ADMIN USER DELETION FUNCTIONALITY FIXED** - Complete solution for user management
+  - ✅ Fixed server-side DELETE route with proper error handling
+  - ✅ Enhanced client-side deletion with development/production environment detection
+  - ✅ Added comprehensive error handling and JSON parsing safeguards
+  - ✅ Implemented fallback to direct Supabase deletion for production environments
+  - ✅ Added detailed logging for debugging deletion processes
+  - ✅ Handles both subscriptions and profile deletion properly
+  - ✅ Cache invalidation after successful deletion operations
 - 2025-01-24: **ADMIN REGISTRATION BLOCKING SYSTEM IMPLEMENTED** - Complete user registration control system
   - ✅ Frontend enforcement in App.tsx that automatically signs out new users when registrations are disabled
   - ✅ Enhanced AdminSettings component with visual status indicators (ATIVO/BLOQUEADO badges)
