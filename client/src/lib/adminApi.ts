@@ -1,5 +1,22 @@
-// Admin API utilities - Use relative URLs for Replit compatibility
-const API_BASE_URL = '';
+// Admin API utilities - Configure for matecloud.store production domain
+const getApiBaseUrl = () => {
+  const hostname = window.location.hostname;
+  
+  // Production domain
+  if (hostname === 'matecloud.store' || hostname.includes('matecloud.store')) {
+    return 'https://matecloud.store';
+  }
+  
+  // Replit development domain
+  if (hostname.includes('.replit.dev')) {
+    return window.location.origin;
+  }
+  
+  // Local development - use relative URLs to work with Vite proxy
+  return '';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 console.log('AdminAPI Environment Check:', {
   hostname: window.location.hostname,

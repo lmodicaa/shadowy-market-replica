@@ -46,7 +46,7 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - Authentication handled securely through Supabase
 
 ## Recent Changes
-- 2025-01-24: **SISTEMA DE CONFIGURAÇÕES DINAMICAS ELIMINADO E ADMIM API CORRIGIDO** - Limpeza completa e correção de conectividade
+- 2025-01-24: **SISTEMA DE CONFIGURAÇÕES DINAMICAS ELIMINADO E ADMIM API CONFIGURADO PARA PRODUÇÃO** - Limpeza completa e configuração para matecloud.store
   - ✅ Seção "Configurações Gerais" removida do AdminSettings.tsx
   - ✅ Seção "Configurações de VM" removida do AdminSettings.tsx 
   - ✅ Hook useSettings.ts removido completamente do projeto
@@ -57,7 +57,8 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
   - ✅ HeroSection.tsx revertido para nome fixo "MateCloud"
   - ✅ SEOHead.tsx revertido para configurações estáticas
   - ✅ VMDashboard.tsx revertido para senha fixa "matecloud123"
-  - ✅ AdminAPI corrigido para usar URL dinâmica no ambiente Replit
+  - ✅ AdminAPI configurado para domínio oficial matecloud.store
+  - ✅ URLs inteligentes: produção (https://matecloud.store), desenvolvimento (relativas)
   - ✅ Sistema de manutenção mantido (funciona independentemente)
   - ✅ Base de dados limpa de configurações desnecessárias
 - 2025-01-24: **REGISTRATION BLOCKING SYSTEM REMOVED** - Simplified application by removing complex registration blocking
