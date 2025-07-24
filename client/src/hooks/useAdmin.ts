@@ -24,14 +24,17 @@ export const useAllUsers = () => {
   return useQuery({
     queryKey: ['allUsers'],
     queryFn: async () => {
+      console.log('🔄 Fetching all users from database...');
+      
       // Try to get users via RPC function first
       const { data: rpcData, error: rpcError } = await supabase.rpc('get_all_users_admin');
       
       if (!rpcError && rpcData) {
+        console.log('✅ Users fetched via RPC:', rpcData.length);
         return rpcData;
       }
       
-
+      console.log('⚠️ RPC failed, using direct profiles query');
       
       // Fallback to profiles with enhanced data
       const { data: profiles, error: profilesError } = await supabase
@@ -44,6 +47,8 @@ export const useAllUsers = () => {
         throw profilesError;
       }
       
+      console.log('✅ Users fetched via profiles table:', profiles?.length || 0);
+      
       // Enhance profiles with missing data
       const enhancedProfiles = profiles?.map(profile => ({
         ...profile,
@@ -55,6 +60,9 @@ export const useAllUsers = () => {
       
       return enhancedProfiles;
     },
+    // Force fresh data on every request for user management
+    staleTime: 0,
+    gcTime: 0, // Updated from cacheTime in React Query v5
   });
 };
 
@@ -441,22 +449,22 @@ export const useDeleteUser = () => {
       }
     },
     onSuccess: (result) => {
-      console.log('Exclusão bem-sucedida, invalidando cache e forçando refetch...');
+      console.log('Exclusão bem-sucedida, removendo cache e forçando refetch...');
       
-      // Invalidate and immediately refetch all related queries
-      queryClient.invalidateQueries({ queryKey: ['allUsers'] });
-      queryClient.refetchQueries({ queryKey: ['allUsers'] });
+      // Remove cache completely and force fresh data
+      queryClient.removeQueries({ queryKey: ['allUsers'] });
+      queryClient.removeQueries({ queryKey: ['allSubscriptions'] });
+      queryClient.removeQueries({ queryKey: ['systemStats'] });
       
-      queryClient.invalidateQueries({ queryKey: ['allSubscriptions'] });
-      queryClient.refetchQueries({ queryKey: ['allSubscriptions'] });
+      // Force immediate refetch
+      setTimeout(() => {
+        console.log('Forcing refetch after cache removal...');
+        queryClient.refetchQueries({ queryKey: ['allUsers'] });
+        queryClient.refetchQueries({ queryKey: ['allSubscriptions'] });
+        queryClient.refetchQueries({ queryKey: ['systemStats'] });
+      }, 50);
       
-      queryClient.invalidateQueries({ queryKey: ['systemStats'] });
-      queryClient.refetchQueries({ queryKey: ['systemStats'] });
-      
-      // Also invalidate any cached profile data
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-      
-      console.log('Cache invalidado e refetch forçado para usuário:', result.deletedUserId || result);
+      console.log('Cache removido e refetch agendado para usuário:', result.deletedUserId || result);
     },
     onError: (error) => {
       console.error('Erro na mutation de exclusão:', error);

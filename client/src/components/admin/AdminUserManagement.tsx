@@ -24,11 +24,11 @@ const AdminUserManagement = () => {
   const deleteUser = useDeleteUser();
   const { toast } = useToast();
 
-  const filteredUsers = users?.filter(user => 
+  const filteredUsers = (users || []).filter((user: any) => 
     user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.id.includes(searchTerm)
-  ) || [];
+  );
 
   const handleUpdateUserPlan = async () => {
     if (!editingUser) return;
@@ -51,7 +51,7 @@ const AdminUserManagement = () => {
       
       // Skip admin check to avoid recursion
       console.log('Skipping admin check to avoid recursion');
-      setDebugInfo(prev => ({ ...prev, admin_check: 'skipped_recursion' }));
+      setDebugInfo((prev: any) => ({ ...prev, admin_check: 'skipped_recursion' }));
       
       // Get actual plan UUIDs from database
       const { data: plansData } = await supabase.from('plans').select('id, name');
@@ -76,7 +76,7 @@ const AdminUserManagement = () => {
         .select();
       
       console.log('Direct update test:', directTest);
-      setDebugInfo(prev => ({ ...prev, direct_test: directTest }));
+      setDebugInfo((prev: any) => ({ ...prev, direct_test: directTest }));
       
       if (directTest.error) {
         throw new Error(`Permission Error: ${directTest.error.message} (Code: ${directTest.error.code})`);
@@ -100,11 +100,11 @@ const AdminUserManagement = () => {
       setDebugInfo(null);
     } catch (error) {
       console.error('Plan update error:', error);
-      setDebugInfo(prev => ({ ...prev, error: error }));
+      setDebugInfo((prev: any) => ({ ...prev, error: error }));
       
       toast({
         title: "Erro",
-        description: `Erro ao atualizar plano: ${error?.message || 'Erro desconhecido'}`,
+        description: `Erro ao atualizar plano: ${(error as any)?.message || 'Erro desconhecido'}`,
         variant: "destructive",
       });
     }
@@ -126,7 +126,10 @@ const AdminUserManagement = () => {
       
       // Force immediate refetch of users data
       console.log('Forçando refetch imediato dos usuários...');
-      await refetchUsers();
+      setTimeout(async () => {
+        await refetchUsers();
+        console.log('Refetch completed after timeout');
+      }, 100);
       
       toast({
         title: "Usuário excluído",
@@ -226,7 +229,7 @@ const AdminUserManagement = () => {
 
       {/* Users List */}
       <div className="grid gap-4">
-        {filteredUsers.map((user) => {
+        {filteredUsers.map((user: any) => {
           const planStatus = getPlanStatus(user.active_plan, user.active_plan_until);
           
           return (
