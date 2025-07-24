@@ -46,6 +46,17 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - Authentication handled securely through Supabase
 
 ## Recent Changes
+- 2025-01-24: **SISTEMA MANUAL DE PAGOS PIX IMPLEMENTADO** - Funcionalidad completa de gestión manual de pagos Pix con Belo
+  - ✅ Backend: Endpoint `/api/pix/manual` para crear pedidos con almacenamiento en memoria
+  - ✅ Backend: API completa para gestión de pedidos (/api/pix/orders - GET, PATCH, DELETE)
+  - ✅ Backend: Notificaciones automáticas en consola para nuevos pedidos pendientes
+  - ✅ Frontend: Componente AdminPixOrders en panel admin con gestión completa de pedidos
+  - ✅ Frontend: Modal para cargar códigos QR/Pix desde app de Belo
+  - ✅ Frontend: UserPixOrders para que clientes vean sus pedidos y códigos Pix
+  - ✅ Frontend: Integración en página Profile para mostrar pedidos del usuario
+  - ✅ Sistema probado: Creación, actualización y visualización de pedidos funcionando correctamente
+  - ✅ Panel admin: Nueva pestaña "Pedidos Pix" con gestión completa (listar, cargar QR, marcar pagado/cancelado, eliminar)
+  - ✅ Cliente: Vista de pedidos con códigos Pix, estados actualizados y funcionalidad de copiar
 - 2025-01-24: **SISTEMA DE CONFIGURAÇÕES DINAMICAS ELIMINADO E ADMIM API CONFIGURADO PARA PRODUÇÃO** - Limpeza completa e configuração para matecloud.store
   - ✅ Seção "Configurações Gerais" removida do AdminSettings.tsx
   - ✅ Seção "Configurações de VM" removida do AdminSettings.tsx 

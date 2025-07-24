@@ -6,13 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Mail, User, Edit2, Save, X, History } from 'lucide-react';
+import { Calendar, Mail, User, Edit2, Save, X, History, QrCode } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import UserPlanStatus from '@/components/UserPlanStatus';
 import VMDashboard from '@/components/VMDashboard';
 import Navigation from '@/components/Navigation';
 import StarField from '@/components/StarField';
+import UserPixOrders from '@/components/UserPixOrders';
 import { useUserProfile, useSubscriptionHistory } from '@/hooks/useUserProfile';
 import { useActivePlan } from '@/hooks/useActivePlan';
 
@@ -264,6 +265,9 @@ const Profile = ({ session }: ProfileProps) => {
               </CardContent>
             </Card>
           )}
+
+          {/* User Pix Orders */}
+          <UserPixOrders userId={session?.user?.id} />
         </div>
       </div>
     </div>

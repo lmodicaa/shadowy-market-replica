@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Shield, Users, Settings, Database, BarChart3, Package, AlertTriangle } from 'lucide-react';
+import { Shield, Users, Settings, Database, BarChart3, Package, AlertTriangle, QrCode } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,7 @@ import AdminPlanManagement from '@/components/admin/AdminPlanManagement';
 import AdminPlanManager from '@/components/AdminPlanManager';
 import AdminSettings from '@/components/admin/AdminSettings';
 import AdminStats from '@/components/admin/AdminStats';
+import AdminPixOrders from '@/components/admin/AdminPixOrders';
 
 
 interface AdminProps {
@@ -180,7 +181,7 @@ const Admin = ({ session }: AdminProps) => {
 
         {/* Main Content */}
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               Usuários
@@ -188,6 +189,10 @@ const Admin = ({ session }: AdminProps) => {
             <TabsTrigger value="plans" className="flex items-center gap-2">
               <Package className="w-4 h-4" />
               Planos
+            </TabsTrigger>
+            <TabsTrigger value="pix" className="flex items-center gap-2">
+              <QrCode className="w-4 h-4" />
+              Pedidos Pix
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="w-4 h-4" />
@@ -205,6 +210,10 @@ const Admin = ({ session }: AdminProps) => {
 
           <TabsContent value="plans">
             <AdminPlanManager />
+          </TabsContent>
+
+          <TabsContent value="pix">
+            <AdminPixOrders />
           </TabsContent>
 
           <TabsContent value="settings">
