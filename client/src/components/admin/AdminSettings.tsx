@@ -368,60 +368,7 @@ const AdminSettings = () => {
         </CardHeader>
       </Card>
 
-      {/* General Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Globe className="w-5 h-5" />
-            Configurações Gerais
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="site_name">Nome do Site</Label>
-              <Input
-                id="site_name"
-                value={settings.site_name || 'MateCloud'}
-                onChange={(e) => handleSettingChange('site_name', e.target.value)}
-                placeholder="MateCloud"
-              />
-            </div>
 
-            <div>
-              <Label htmlFor="support_email">Email de Suporte</Label>
-              <Input
-                id="support_email"
-                type="email"
-                value={settings.support_email || ''}
-                onChange={(e) => handleSettingChange('support_email', e.target.value)}
-                placeholder="suporte@matecloud.com.br"
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="site_description">Descrição do Site</Label>
-            <Textarea
-              id="site_description"
-              value={settings.site_description || ''}
-              onChange={(e) => handleSettingChange('site_description', e.target.value)}
-              placeholder="A melhor plataforma de cloud gaming do Brasil"
-              rows={3}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="discord_invite">Link do Discord</Label>
-            <Input
-              id="discord_invite"
-              value={settings.discord_invite || ''}
-              onChange={(e) => handleSettingChange('discord_invite', e.target.value)}
-              placeholder="https://discord.gg/matecloud"
-            />
-          </div>
-        </CardContent>
-      </Card>
 
       {/* System Settings */}
       <Card>

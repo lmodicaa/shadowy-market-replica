@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useSettings } from '@/hooks/useSettings';
+
 
 interface SEOHeadProps {
   title?: string;
@@ -16,11 +16,8 @@ export const SEOHead = ({
   image = "/favicon.png",
   url = window.location.href
 }: SEOHeadProps) => {
-  const { data: settings } = useSettings();
-  
-  // Usar configurações do banco ou fallbacks padrão
-  const siteName = settings?.site_name || 'MateCloud';
-  const siteDescription = settings?.site_description || 'Jogue seus games favoritos na nuvem com MateCloud. Gaming em alta qualidade sem downloads, com acesso multiplataforma e performance profissional.';
+  const siteName = 'MateCloud';
+  const siteDescription = 'Jogue seus games favoritos na nuvem com MateCloud. Gaming em alta qualidade sem downloads, com acesso multiplataforma e performance profissional.';
   
   const finalTitle = title || `${siteName} - Gaming na Nuvem | Plataforma de Cloud Gaming Premium`;
   const finalDescription = description || siteDescription;

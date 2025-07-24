@@ -7,7 +7,7 @@ import { useActivePlan } from '@/hooks/useActivePlan';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import { useSettings } from '@/hooks/useSettings';
+
 
 interface VMDashboardProps {
   userId?: string;
@@ -45,7 +45,7 @@ const VMDashboard = ({ userId }: VMDashboardProps) => {
   const [vmIP, setVmIP] = useState<string>('');
   const { data: activePlan } = useActivePlan(userId);
   const { toast } = useToast();
-  const { data: settings } = useSettings();
+
 
   // Buscar especificações usando o profile.active_plan (que é o UUID do plano)
   const { data: profile } = useQuery({
@@ -212,7 +212,7 @@ const VMDashboard = ({ userId }: VMDashboardProps) => {
                   <p><strong>IP:</strong> {vmIP}</p>
                   <p><strong>Porta:</strong> 3389 (RDP)</p>
                   <p><strong>Usuário:</strong> matecloud</p>
-                  <p><strong>Senha:</strong> {(settings as any)?.vm_default_password || 'matecloud123'}</p>
+                  <p><strong>Senha:</strong> matecloud123</p>
                 </div>
               </div>
             )}

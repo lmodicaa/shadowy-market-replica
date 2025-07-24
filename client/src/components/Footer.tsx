@@ -1,10 +1,9 @@
 import { Facebook, Twitter, Instagram } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDiscord } from '@fortawesome/free-brands-svg-icons';
-import { useSettings } from '@/hooks/useSettings';
+
 
 const Footer = () => {
-  const { data: settings } = useSettings();
   return (
     <footer className="bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 text-gray-300 py-12 mt-auto relative overflow-hidden">
       {/* Background decoration */}
@@ -18,7 +17,7 @@ const Footer = () => {
             <p className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent 
                          hover:from-blue-300 hover:via-purple-300 hover:to-blue-300 transition-all duration-300 
                          cursor-pointer transform group-hover:scale-105">
-              {settings?.site_name || 'MateCloud'}
+              MateCloud
             </p>
             <div className="h-1 w-0 bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-300 group-hover:w-full mt-1"></div>
           </div>
@@ -79,7 +78,7 @@ const Footer = () => {
                title="Seguir no Instagram">
               <Instagram size={20} className="text-gray-400 group-hover:text-pink-400 transition-colors duration-300" />
             </a>
-            <a href={settings?.discord_invite || "https://discord.gg/Tfj9zMuwry"} 
+            <a href="https://discord.gg/Tfj9zMuwry" 
                target="_blank" 
                rel="noopener noreferrer"
                className="group p-2 rounded-full bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 
