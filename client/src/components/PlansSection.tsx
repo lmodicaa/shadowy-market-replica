@@ -207,20 +207,33 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
     }
 
     try {
-      // Verificar se o endpoint está disponível primeiro
-      const checkEndpoint = async () => {
+      // Verificar se estamos em um ambiente com backend disponível
+      const checkBackendAvailability = async () => {
         try {
           const testResponse = await fetch('/api/admin/health', { method: 'GET' });
+          const responseText = await testResponse.text();
+          
+          // Se a resposta contém HTML (como página 404 do Netlify), backend não está disponível
+          if (responseText.includes('<!DOCTYPE html>') || responseText.includes('<html')) {
+            return false;
+          }
+          
           return testResponse.ok;
         } catch {
           return false;
         }
       };
       
-      const isServerAvailable = await checkEndpoint();
+      const isBackendAvailable = await checkBackendAvailability();
       
-      if (!isServerAvailable) {
-        throw new Error('Servidor temporariamente indisponível. Tente novamente em alguns minutos.');
+      if (!isBackendAvailable) {
+        // Se o backend não está disponível, mostrar mensagem informativa
+        toast({
+          title: "Sistema de pagamentos em desenvolvimento",
+          description: "O sistema de pagamentos Pix ainda não está ativo em produção. Entre em contato conosco para mais informações.",
+          variant: "default",
+        });
+        return;
       }
       
       // Gerar ID único para o pedido
@@ -250,6 +263,12 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Erro da API:', response.status, errorText);
+        
+        // Se recebemos HTML em vez de JSON, significa que o backend não está disponível
+        if (errorText.includes('<!DOCTYPE html>') || errorText.includes('<html')) {
+          throw new Error('Sistema de pagamentos temporariamente indisponível. Tente novamente mais tarde ou entre em contato conosco.');
+        }
+        
         throw new Error(`Erro ${response.status}: ${errorText || 'Erro ao criar pedido de pagamento'}`);
       }
 
