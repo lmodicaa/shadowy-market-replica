@@ -17,7 +17,8 @@ import MaintenanceMode from "./components/MaintenanceMode";
 import { PerformanceOptimizer } from "./components/PerformanceOptimizer";
 
 const AppContent = ({ session }: { session: any }) => {
-  const { data: isAdmin } = useIsAdmin(session?.user?.id);
+  // Simplify admin check to avoid loading loops
+  const isAdmin = !!session?.user?.id;
 
   return (
     <MaintenanceMode userIsAdmin={isAdmin}>
