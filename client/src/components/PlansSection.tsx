@@ -217,17 +217,30 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       const getApiUrl = () => {
         const hostname = window.location.hostname;
         
-        // Produção - usar matecloud.store
-        if (hostname === 'matecloud.store' || hostname.includes('matecloud.store')) {
+        // Para Replit sempre usar URL relativa (vai para o Express server local)
+        if (hostname.includes('.replit.dev')) {
+          return '/api/pix/manual';
+        }
+        
+        // Para localhost também usar relativa
+        if (hostname === 'localhost') {
+          return '/api/pix/manual';
+        }
+        
+        // Solo para matecloud.store real usar la URL completa
+        if (hostname === 'matecloud.store') {
           return 'https://matecloud.store/api/pix/manual';
         }
         
-        // Desenvolvimento - usar URL relativa
+        // Por defecto usar URL relativa
         return '/api/pix/manual';
       };
       
       // Criar pedido Pix para o plano
-      const response = await fetch(getApiUrl(), {
+      const apiUrl = getApiUrl();
+      console.log('🔗 API URL determinada:', apiUrl, 'hostname:', window.location.hostname);
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
