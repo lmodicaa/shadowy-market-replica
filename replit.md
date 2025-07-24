@@ -46,6 +46,16 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - Authentication handled securely through Supabase
 
 ## Recent Changes
+- 2025-01-24: **CONFIGURAÇÕES GERAIS DINÂMICAS IMPLEMENTADAS** - Sistema completo de configurações dinâmicas funcionando
+  - ✅ Hook useSettings criado para buscar configurações do banco de dados
+  - ✅ Navigation.tsx agora usa site_name dinâmico das configurações
+  - ✅ Footer.tsx usa site_name e discord_invite das configurações
+  - ✅ HeroSection.tsx usa site_name dinâmico
+  - ✅ SEOHead.tsx usa site_name e site_description das configurações  
+  - ✅ VMDashboard.tsx usa vm_default_password das configurações
+  - ✅ MaintenanceMode.tsx já estava implementado usando configurações dinâmicas
+  - ✅ AdminSettings.tsx salva e gerencia todas as configurações corretamente
+  - ✅ Configurações são refletidas em tempo real na interface
 - 2025-01-24: **REGISTRATION BLOCKING SYSTEM REMOVED** - Simplified application by removing complex registration blocking
   - ✅ Removed RegistrationStatus component that caused UI complexity
   - ✅ Eliminated registration-status API endpoint from server routes

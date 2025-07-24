@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useSettings } from '@/hooks/useSettings';
 
 interface SEOHeadProps {
   title?: string;
@@ -9,15 +10,23 @@ interface SEOHeadProps {
 }
 
 export const SEOHead = ({
-  title = "MateCloud - Gaming na Nuvem | Plataforma de Cloud Gaming Premium",
-  description = "Jogue seus games favoritos na nuvem com MateCloud. Gaming em alta qualidade sem downloads, com acesso multiplataforma e performance profissional.",
+  title,
+  description,
   keywords = "cloud gaming, gaming na nuvem, MateCloud, jogos online, streaming games",
   image = "/favicon.png",
   url = window.location.href
 }: SEOHeadProps) => {
+  const { data: settings } = useSettings();
+  
+  // Usar configurações do banco ou fallbacks padrão
+  const siteName = settings?.site_name || 'MateCloud';
+  const siteDescription = settings?.site_description || 'Jogue seus games favoritos na nuvem com MateCloud. Gaming em alta qualidade sem downloads, com acesso multiplataforma e performance profissional.';
+  
+  const finalTitle = title || `${siteName} - Gaming na Nuvem | Plataforma de Cloud Gaming Premium`;
+  const finalDescription = description || siteDescription;
   useEffect(() => {
     // Update document title
-    document.title = title;
+    document.title = finalTitle;
     
     // Update or create meta tags
     const updateMeta = (name: string, content: string, property?: boolean) => {
@@ -38,25 +47,25 @@ export const SEOHead = ({
     };
 
     // Standard meta tags
-    updateMeta('description', description);
+    updateMeta('description', finalDescription);
     updateMeta('keywords', keywords);
     
     // Open Graph tags
-    updateMeta('og:title', title, true);
-    updateMeta('og:description', description, true);
+    updateMeta('og:title', finalTitle, true);
+    updateMeta('og:description', finalDescription, true);
     updateMeta('og:image', image, true);
     updateMeta('og:url', url, true);
     updateMeta('og:type', 'website', true);
-    updateMeta('og:site_name', 'MateCloud', true);
+    updateMeta('og:site_name', siteName, true);
     updateMeta('og:locale', 'pt_BR', true);
     
     // Twitter tags
     updateMeta('twitter:card', 'summary_large_image');
-    updateMeta('twitter:title', title);
-    updateMeta('twitter:description', description);
+    updateMeta('twitter:title', finalTitle);
+    updateMeta('twitter:description', finalDescription);
     updateMeta('twitter:image', image);
     
-  }, [title, description, keywords, image, url]);
+  }, [finalTitle, finalDescription, keywords, image, url, siteName]);
 
   return null;
 };

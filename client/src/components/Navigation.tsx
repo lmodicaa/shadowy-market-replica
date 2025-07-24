@@ -24,10 +24,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/lib/supabase";
 import { useLocation } from "wouter";
 import { useIsAdmin } from "@/hooks/useAdmin";
+import { useSetting } from "@/hooks/useSettings";
 
 const Navigation = ({ session }: { session: any }) => {
   const [, navigate] = useLocation();
   const { data: isAdmin } = useIsAdmin(session?.user?.id);
+  const { value: siteName } = useSetting('site_name');
 
   const handleLogin = async () => {
     try {
@@ -78,7 +80,7 @@ const Navigation = ({ session }: { session: any }) => {
             height={32}
             priority={true}
           />
-          <span className="text-2xl font-bold text-foreground">MateCloud</span>
+          <span className="text-2xl font-bold text-foreground">{siteName || 'MateCloud'}</span>
         </div>
 
         {/* Navigation Links */}

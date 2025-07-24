@@ -4,12 +4,14 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { OptimizedPicture } from './OptimizedPicture';
 import logoWebp from "@assets/logo.webp";
 import logoAvif from "@assets/logo.avif";
+import { useSettings } from '@/hooks/useSettings';
 
 import { SEOHead } from './SEOHead';
 
 const HeroSection = () => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
+  const { data: settings } = useSettings();
 
   // Memoize hero texts to prevent recreation on every render
   const heroTexts = useMemo(() => [
@@ -50,7 +52,7 @@ const HeroSection = () => {
             height={16}
             priority={true}
           />
-          <span className="text-sm font-medium text-foreground/60">MateCloud</span>
+          <span className="text-sm font-medium text-foreground/60">{settings?.site_name || 'MateCloud'}</span>
         </div>
       </div>
 
@@ -59,7 +61,7 @@ const HeroSection = () => {
         <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight mt-16">
           Jogue em qualquer lugar
           <br />
-          com <span className="text-cloud-blue">MateCloud</span>
+          com <span className="text-cloud-blue">{settings?.site_name || 'MateCloud'}</span>
         </h1>
         
         <div className="text-xl md:text-2xl text-foreground/70 mb-12 max-w-3xl mx-auto leading-relaxed h-24 flex items-center justify-center">
