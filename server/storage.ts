@@ -37,8 +37,6 @@ export interface IStorage {
 }
 
 export class SupabaseStorage implements IStorage {
-  // Almacenamiento en memoria para pedidos Pix
-  private pixOrders: Map<string, PixOrder> = new Map();
 
   async getUser(id: number): Promise<User | undefined> {
     const { data, error } = await db
@@ -85,17 +83,35 @@ export class SupabaseStorage implements IStorage {
     return data as User;
   }
 
-  // Métodos para gestión de pedidos Pix
+  // Métodos para gestión de pedidos Pix usando Supabase
   async createPixOrder(orderData: InsertPixOrder): Promise<PixOrder> {
-    const now = new Date();
-    const order: PixOrder = {
-      ...orderData,
-      status: 'pendiente',
-      createdAt: now,
-      updatedAt: now
-    };
+    const { data, error } = await db
+      .from('pix_orders')
+      .insert({
+        id: orderData.id,
+        user_id: orderData.userId,
+        amount: orderData.amount,
+        description: orderData.description,
+        status: 'pendiente'
+      })
+      .select()
+      .single();
     
-    this.pixOrders.set(order.id, order);
+    if (error) {
+      console.error('Error creating pix order:', error);
+      throw new Error(`Failed to create pix order: ${error.message}`);
+    }
+    
+    const order: PixOrder = {
+      id: data.id,
+      userId: data.user_id,
+      amount: data.amount,
+      description: data.description,
+      status: data.status,
+      pixCode: data.pix_code,
+      createdAt: new Date(data.created_at),
+      updatedAt: new Date(data.updated_at)
+    };
     
     // Notificación para admin
     console.log(`🔔 NUEVO PAGO PIX PENDIENTE:`, {
@@ -109,25 +125,82 @@ export class SupabaseStorage implements IStorage {
   }
 
   async getPixOrders(): Promise<PixOrder[]> {
-    return Array.from(this.pixOrders.values())
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    const { data, error } = await db
+      .from('pix_orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching pix orders:', error);
+      return [];
+    }
+    
+    return data.map(row => ({
+      id: row.id,
+      userId: row.user_id,
+      amount: row.amount,
+      description: row.description,
+      status: row.status,
+      pixCode: row.pix_code,
+      createdAt: new Date(row.created_at),
+      updatedAt: new Date(row.updated_at)
+    }));
   }
 
   async getPixOrder(id: string): Promise<PixOrder | undefined> {
-    return this.pixOrders.get(id);
+    const { data, error } = await db
+      .from('pix_orders')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) {
+      console.error('Error fetching pix order:', error);
+      return undefined;
+    }
+    
+    return {
+      id: data.id,
+      userId: data.user_id,
+      amount: data.amount,
+      description: data.description,
+      status: data.status,
+      pixCode: data.pix_code,
+      createdAt: new Date(data.created_at),
+      updatedAt: new Date(data.updated_at)
+    };
   }
 
   async updatePixOrder(id: string, updates: Partial<PixOrder>): Promise<PixOrder | undefined> {
-    const existing = this.pixOrders.get(id);
-    if (!existing) return undefined;
+    const updateData: any = {};
+    
+    if (updates.status) updateData.status = updates.status;
+    if (updates.pixCode) updateData.pix_code = updates.pixCode;
+    if (updates.amount) updateData.amount = updates.amount;
+    if (updates.description) updateData.description = updates.description;
+    
+    const { data, error } = await db
+      .from('pix_orders')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Error updating pix order:', error);
+      return undefined;
+    }
     
     const updated: PixOrder = {
-      ...existing,
-      ...updates,
-      updatedAt: new Date()
+      id: data.id,
+      userId: data.user_id,
+      amount: data.amount,
+      description: data.description,
+      status: data.status,
+      pixCode: data.pix_code,
+      createdAt: new Date(data.created_at),
+      updatedAt: new Date(data.updated_at)
     };
-    
-    this.pixOrders.set(id, updated);
     
     console.log(`📝 PEDIDO PIX ACTUALIZADO:`, {
       pedidoId: id,
@@ -139,11 +212,18 @@ export class SupabaseStorage implements IStorage {
   }
 
   async deletePixOrder(id: string): Promise<boolean> {
-    const deleted = this.pixOrders.delete(id);
-    if (deleted) {
-      console.log(`🗑️ PEDIDO PIX ELIMINADO: ${id}`);
+    const { error } = await db
+      .from('pix_orders')
+      .delete()
+      .eq('id', id);
+    
+    if (error) {
+      console.error('Error deleting pix order:', error);
+      return false;
     }
-    return deleted;
+    
+    console.log(`🗑️ PEDIDO PIX ELIMINADO: ${id}`);
+    return true;
   }
 }
 
