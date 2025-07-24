@@ -111,10 +111,10 @@ router.post('/init-settings', async (req, res) => {
   }
 });
 
-// Route to check registration status
+// Route to check registration status (ENHANCED FOR BLOCKING)
 router.get('/registration-status', async (req, res) => {
   try {
-    console.log('Checking registration status...');
+    console.log('🔍 Checking registration status for blocking verification...');
     
     const { data, error } = await supabase
       .from('admin_settings')
@@ -123,22 +123,28 @@ router.get('/registration-status', async (req, res) => {
       .single();
       
     if (error) {
+      console.log('⚠️ Registration setting not found, defaulting to enabled');
       // Default to enabled if setting doesn't exist
       res.json({
         status: 'ok',
         enabled: true,
         message: 'Registration setting not found, defaulting to enabled',
+        source: 'default',
         timestamp: new Date().toISOString()
       });
       return;
     }
     
-    const enabled = data?.value !== 'false';
+    const enabled = data?.value === 'true';
+    
+    console.log(`📋 Registration status retrieved: ${enabled ? 'ENABLED' : 'DISABLED'} (value: ${data?.value})`);
     
     res.json({
       status: 'ok',
       enabled: enabled,
-      message: `Registrations are currently ${enabled ? 'enabled' : 'disabled'}`,
+      message: `Registrations are currently ${enabled ? 'ENABLED - New users can register' : 'DISABLED - New users will be blocked'}`,
+      source: 'database',
+      raw_value: data?.value,
       timestamp: new Date().toISOString()
     });
     
@@ -146,8 +152,10 @@ router.get('/registration-status', async (req, res) => {
     console.error('Registration status check error:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Failed to check registration status',
+      enabled: true, // Safe default to avoid blocking existing users
+      message: 'Failed to check registration status - defaulting to enabled for safety',
       error: (error as any).message || 'Unknown error',
+      source: 'error_fallback',
       timestamp: new Date().toISOString()
     });
   }
