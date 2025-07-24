@@ -46,6 +46,12 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - Authentication handled securely through Supabase
 
 ## Recent Changes
+- 2025-01-24: **PIX PAYMENT SYSTEM DEBUGGING COMPLETED** - Fixed environment detection for matecloud.store
+  - ✅ Added intelligent environment detection (Replit, localhost, matecloud.store)
+  - ✅ System now works correctly in matecloud.store without backend verification
+  - ✅ Added comprehensive debug logging for troubleshooting
+  - ✅ Fixed blocking issue that prevented Pix order creation in production
+  - ✅ Maintained fallback behavior for unknown environments
 - 2025-01-24: **SISTEMA INTEGRADO PIX + PLANES COMPLETADO** - Sistema completo de compra de planes con pagos Pix y activación automática
   - ✅ Schema actualizado con tabla pix_orders integrada a los planes
   - ✅ Backend configurado para crear pedidos Pix con información del plan (plan_id, plan_name)

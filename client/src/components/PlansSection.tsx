@@ -216,15 +216,16 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       const hostname = window.location.hostname;
       const isReplit = hostname.includes('.replit.dev');
       const isLocalhost = hostname === 'localhost';
+      const isMatecloud = hostname.includes('matecloud.store');
       
       console.log('🔥 Hostname:', hostname);
       console.log('🔥 isReplit:', isReplit);
       console.log('🔥 isLocalhost:', isLocalhost);
+      console.log('🔥 isMatecloud:', isMatecloud);
       
-      // Solo verificar backend si estamos en un entorno que debería tenerlo
-      if (!isReplit && !isLocalhost) {
+      // Verificar backend só em ambientes desconhecidos (não Replit, localhost ou matecloud)
+      if (!isReplit && !isLocalhost && !isMatecloud) {
         console.log('🔥 Verificando backend em ambiente externo...');
-        // En producción (matecloud.store), verificar si backend está disponível
         try {
           const testResponse = await fetch('/api/admin/health', { method: 'GET' });
           const responseText = await testResponse.text();
