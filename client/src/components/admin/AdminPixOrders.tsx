@@ -8,16 +8,19 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
 
 interface PixOrder {
   id: string;
-  userId?: string;
-  amount?: number;
+  user_id?: string;
+  plan_id?: string;
+  plan_name?: string;
+  amount?: string;
   description?: string;
   status: 'pendiente' | 'pagado' | 'cancelado';
-  pixCode?: string;
-  createdAt: string;
-  updatedAt: string;
+  pix_code?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 const AdminPixOrders = () => {
@@ -27,57 +30,76 @@ const AdminPixOrders = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Obtener todos los pedidos
-  const { data: ordersData, isLoading } = useQuery({
-    queryKey: ['/api/pix/orders'],
+  // Obtener todos los pedidos desde Supabase
+  const { data: orders = [], isLoading } = useQuery({
+    queryKey: ['admin_pix_orders'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pix_orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error fetching pix orders:', error);
+        throw error;
+      }
+      
+      return data || [];
+    },
     refetchInterval: 5000, // Actualizar cada 5 segundos
   });
-
-  const orders = (ordersData as { orders: PixOrder[] })?.orders || [];
 
   // Mutación para actualizar pedido
   const updateOrderMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: any }) => {
-      const response = await fetch(`/api/pix/orders/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
-      if (!response.ok) throw new Error('Error actualizando pedido');
-      return response.json();
+      const { data, error } = await supabase
+        .from('pix_orders')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/pix/orders'] });
-      toast({ title: "Pedido actualizado exitosamente" });
+      queryClient.invalidateQueries({ queryKey: ['admin_pix_orders'] });
+      queryClient.invalidateQueries({ queryKey: ['pix_orders'] });
+      toast({ title: "Pedido atualizado com sucesso" });
       setSelectedOrder(null);
       setPixCode('');
     },
-    onError: () => {
-      toast({ title: "Error actualizando pedido", variant: "destructive" });
+    onError: (error: any) => {
+      console.error('Error updating order:', error);
+      toast({ title: "Erro ao atualizar pedido", variant: "destructive" });
     },
   });
 
   // Mutación para eliminar pedido
   const deleteOrderMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/pix/orders/${id}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error('Error eliminando pedido');
-      return response.json();
+      const { error } = await supabase
+        .from('pix_orders')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      return { success: true };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/pix/orders'] });
-      toast({ title: "Pedido eliminado exitosamente" });
+      queryClient.invalidateQueries({ queryKey: ['admin_pix_orders'] });
+      queryClient.invalidateQueries({ queryKey: ['pix_orders'] });
+      toast({ title: "Pedido excluído com sucesso" });
     },
-    onError: () => {
-      toast({ title: "Error eliminando pedido", variant: "destructive" });
+    onError: (error: any) => {
+      console.error('Error deleting order:', error);
+      toast({ title: "Erro ao excluir pedido", variant: "destructive" });
     },
   });
 
   const handleLoadPixCode = (order: PixOrder) => {
     setSelectedOrder(order);
-    setPixCode(order.pixCode || '');
+    setPixCode(order.pix_code || '');
   };
 
   const handleSavePixCode = () => {
@@ -85,7 +107,7 @@ const AdminPixOrders = () => {
 
     updateOrderMutation.mutate({
       id: selectedOrder.id,
-      updates: { pixCode: pixCode.trim(), status: 'pagado' }
+      updates: { pix_code: pixCode.trim(), status: 'pendiente' }
     });
   };
 
@@ -104,7 +126,7 @@ const AdminPixOrders = () => {
   };
 
   const handleDeleteOrder = (order: PixOrder) => {
-    if (confirm(`¿Estás seguro de eliminar el pedido ${order.id}?`)) {
+    if (confirm(`Tem certeza que deseja excluir o pedido ${order.id}?`)) {
       deleteOrderMutation.mutate(order.id);
     }
   };
@@ -134,11 +156,13 @@ const AdminPixOrders = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('es-ES');
+    return new Date(dateString).toLocaleString('pt-BR');
   };
 
-  const formatCurrency = (amount?: number) => {
-    return amount ? `R$ ${amount.toFixed(2)}` : 'N/A';
+  const formatCurrency = (amount?: string) => {
+    if (!amount) return 'N/A';
+    const numericAmount = parseFloat(amount);
+    return isNaN(numericAmount) ? amount : `R$ ${numericAmount.toFixed(2).replace('.', ',')}`;
   };
 
   if (isLoading) {
@@ -221,7 +245,7 @@ const AdminPixOrders = () => {
                         <Label className="text-muted-foreground">Usuario</Label>
                         <p className="flex items-center gap-1">
                           <User className="w-3 h-3" />
-                          {order.userId || 'N/A'}
+                          {order.user_id || 'N/A'}
                         </p>
                       </div>
                       <div>
@@ -233,11 +257,11 @@ const AdminPixOrders = () => {
                       </div>
                       <div>
                         <Label className="text-muted-foreground">Creado</Label>
-                        <p>{formatDate(order.createdAt)}</p>
+                        <p>{formatDate(order.created_at)}</p>
                       </div>
                       <div>
                         <Label className="text-muted-foreground">Actualizado</Label>
-                        <p>{formatDate(order.updatedAt)}</p>
+                        <p>{formatDate(order.updated_at)}</p>
                       </div>
                     </div>
 
@@ -248,19 +272,19 @@ const AdminPixOrders = () => {
                       </div>
                     )}
 
-                    {order.pixCode && (
+                    {order.pix_code && (
                       <div className="mt-3">
                         <Label className="text-muted-foreground">Código Pix</Label>
                         <div className="flex items-center gap-2 mt-1">
                           <code className="bg-muted p-2 rounded text-xs flex-1 font-mono">
-                            {order.pixCode}
+                            {order.pix_code}
                           </code>
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => copyToClipboard(order.pixCode!)}
+                            onClick={() => copyToClipboard(order.pix_code!)}
                           >
-                            {copiedCode === order.pixCode ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                            {copiedCode === order.pix_code ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                           </Button>
                         </div>
                       </div>

@@ -6,16 +6,19 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
 
 interface PixOrder {
   id: string;
-  userId?: string;
-  amount?: number;
+  user_id?: string;
+  plan_id?: string;
+  plan_name?: string;
+  amount?: string;
   description?: string;
   status: 'pendiente' | 'pagado' | 'cancelado';
-  pixCode?: string;
-  createdAt: string;
-  updatedAt: string;
+  pix_code?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface UserPixOrdersProps {
@@ -26,23 +29,37 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
   const [copiedCode, setCopiedCode] = useState('');
   const { toast } = useToast();
 
-  // Obtener pedidos del usuario
-  const { data: ordersData, isLoading } = useQuery({
-    queryKey: ['/api/pix/orders'],
+  // Obtener pedidos del usuario desde Supabase
+  const { data: userOrders = [], isLoading } = useQuery({
+    queryKey: ['pix_orders', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      
+      const { data, error } = await supabase
+        .from('pix_orders')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error fetching pix orders:', error);
+        throw error;
+      }
+      
+      return data || [];
+    },
     refetchInterval: 10000, // Actualizar cada 10 segundos
+    enabled: !!userId, // Solo ejecutar si hay userId
   });
-
-  const allOrders = (ordersData as { orders: PixOrder[] })?.orders || [];
-  const userOrders = userId ? allOrders.filter(order => order.userId === userId) : allOrders;
 
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
       setCopiedCode(text);
-      toast({ title: "Código copiado al portapapeles" });
+      toast({ title: "Código copiado para a área de transferência" });
       setTimeout(() => setCopiedCode(''), 2000);
     } catch (error) {
-      toast({ title: "Error copiando al portapapeles", variant: "destructive" });
+      toast({ title: "Erro ao copiar para área de transferência", variant: "destructive" });
     }
   };
 
@@ -60,11 +77,13 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('es-ES');
+    return new Date(dateString).toLocaleString('pt-BR');
   };
 
-  const formatCurrency = (amount?: number) => {
-    return amount ? `R$ ${amount.toFixed(2)}` : 'N/A';
+  const formatCurrency = (amount?: string) => {
+    if (!amount) return 'N/A';
+    const numericAmount = parseFloat(amount);
+    return isNaN(numericAmount) ? amount : `R$ ${numericAmount.toFixed(2).replace('.', ',')}`;
   };
 
   if (isLoading) {
@@ -72,7 +91,7 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
       <Card>
         <CardContent className="p-6 text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cloud-blue mx-auto mb-4"></div>
-          <p>Cargando pedidos...</p>
+          <p>Carregando pedidos...</p>
         </CardContent>
       </Card>
     );
@@ -83,14 +102,14 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <QrCode className="w-5 h-5" />
-          Mis Pedidos Pix ({userOrders.length})
+          Meus Pedidos Pix ({userOrders.length})
         </CardTitle>
       </CardHeader>
       <CardContent>
         {userOrders.length === 0 ? (
           <div className="text-center py-8">
             <QrCode className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No tienes pedidos Pix registrados</p>
+            <p className="text-muted-foreground">Você não tem pedidos Pix registrados</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -103,7 +122,7 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
                       {getStatusBadge(order.status)}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {formatDate(order.createdAt)}
+                      {formatDate(order.created_at)}
                     </div>
                   </div>
                   
@@ -123,7 +142,7 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
                     )}
                   </div>
 
-                  {order.status === 'pendiente' && !order.pixCode && (
+                  {order.status === 'pendiente' && !order.pix_code && (
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                       <div className="flex items-center gap-2 text-yellow-800 mb-2">
                         <Clock className="w-4 h-4" />
@@ -135,7 +154,7 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
                     </div>
                   )}
 
-                  {order.pixCode && (
+                  {order.pix_code && (
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                       <div className="flex items-center gap-2 text-blue-800 mb-3">
                         <QrCode className="w-4 h-4" />
@@ -149,15 +168,15 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
                         
                         <div className="flex items-center gap-2">
                           <code className="bg-white border border-blue-300 p-3 rounded text-xs flex-1 font-mono break-all">
-                            {order.pixCode}
+                            {order.pix_code}
                           </code>
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => copyToClipboard(order.pixCode!)}
+                            onClick={() => copyToClipboard(order.pix_code!)}
                             className="shrink-0"
                           >
-                            {copiedCode === order.pixCode ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                            {copiedCode === order.pix_code ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                           </Button>
                         </div>
                         
