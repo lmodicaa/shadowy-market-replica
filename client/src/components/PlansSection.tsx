@@ -165,11 +165,41 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
     gcTime: 15 * 60 * 1000, // Keep in cache for 15 minutes
     queryFn: async () => {
       try {
-        const response = await fetch('/api/plans');
+        console.log('Fetching plans from API...');
+        const response = await fetch('/api/plans', {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache'
+          }
+        });
+        
+        console.log('Response status:', response.status);
+        console.log('Response content-type:', response.headers.get('content-type'));
+        
         if (!response.ok) {
-          throw new Error('Failed to fetch plans');
+          throw new Error(`Failed to fetch plans: ${response.status}`);
         }
-        const result = await response.json();
+        
+        const text = await response.text();
+        console.log('Response text (first 200 chars):', text.substring(0, 200));
+        
+        let result;
+        try {
+          result = JSON.parse(text);
+        } catch (parseError) {
+          console.error('JSON parse error:', parseError);
+          console.error('Response was not JSON, falling back to sample data');
+          return getFallbackPlans();
+        }
+        
+        if (!result.plans) {
+          console.warn('No plans in response, using fallback');
+          return getFallbackPlans();
+        }
+        
+        console.log('Successfully parsed plans:', result.plans.length);
         
         // Mapear os planos para o formato esperado pelo frontend
         return result.plans.map((plan: any) => ({

@@ -57,6 +57,15 @@ app.use((req, res, next) => {
     throw err;
   });
 
+  // Add a middleware to ensure API routes are handled before Vite catch-all
+  app.use('/api/*', (req, res, next) => {
+    // If we reach here, it means no API route matched, return 404
+    if (req.method === 'GET' && req.path.startsWith('/api/')) {
+      return res.status(404).json({ error: 'API endpoint not found' });
+    }
+    next();
+  });
+
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
