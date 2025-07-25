@@ -23,7 +23,7 @@ CREATE POLICY "Admins can view all pix orders" ON pix_orders
     USING (
         EXISTS (
             SELECT 1 FROM profiles 
-            WHERE profiles.id = auth.uid()::TEXT 
+            WHERE profiles.id::TEXT = auth.uid()::TEXT 
             AND (profiles.role = 'admin' OR profiles.is_admin = true)
         )
     );
@@ -34,14 +34,14 @@ CREATE POLICY "Admins can update any pix orders" ON pix_orders
     USING (
         EXISTS (
             SELECT 1 FROM profiles 
-            WHERE profiles.id = auth.uid()::TEXT 
+            WHERE profiles.id::TEXT = auth.uid()::TEXT 
             AND (profiles.role = 'admin' OR profiles.is_admin = true)
         )
     )
     WITH CHECK (
         EXISTS (
             SELECT 1 FROM profiles 
-            WHERE profiles.id = auth.uid()::TEXT 
+            WHERE profiles.id::TEXT = auth.uid()::TEXT 
             AND (profiles.role = 'admin' OR profiles.is_admin = true)
         )
     );
@@ -52,7 +52,7 @@ CREATE POLICY "Admins can delete any pix orders" ON pix_orders
     USING (
         EXISTS (
             SELECT 1 FROM profiles 
-            WHERE profiles.id = auth.uid()::TEXT 
+            WHERE profiles.id::TEXT = auth.uid()::TEXT 
             AND (profiles.role = 'admin' OR profiles.is_admin = true)
         )
     );
@@ -67,18 +67,18 @@ CREATE POLICY "Users can create own pix orders" ON pix_orders
     FOR INSERT 
     WITH CHECK (auth.uid()::TEXT = user_id);
 
--- 8. Verificar se o usuário atual tem permissões de administrador
+-- 9. Verificar se o usuário atual tem permissões de administrador
 SELECT 
-    id,
+    id::TEXT as user_id,
     email,
     role,
     is_admin,
     created_at
 FROM profiles 
-WHERE id = auth.uid()::TEXT;
+WHERE id::TEXT = auth.uid()::TEXT;
 
--- 9. Se você não for administrador, execute este comando para se tornar admin:
--- UPDATE profiles SET is_admin = true WHERE id = auth.uid()::TEXT;
+-- 10. Se você não for administrador, execute este comando para se tornar admin:
+-- UPDATE profiles SET is_admin = true WHERE id::TEXT = auth.uid()::TEXT;
 
 -- 10. Verificar se as políticas foram criadas corretamente
 SELECT schemaname, tablename, policyname, cmd, permissive, roles
