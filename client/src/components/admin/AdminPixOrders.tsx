@@ -149,7 +149,7 @@ const AdminPixOrders = () => {
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
+    // Don't prevent default here as it might interfere with file selection
     event.stopPropagation();
     
     const file = event.target.files?.[0];
@@ -165,10 +165,10 @@ const AdminPixOrders = () => {
         title: "Imagen cargada correctamente",
         description: `Archivo: ${file.name}`,
       });
-    } else {
+    } else if (event.target.files?.length) {
       toast({ 
         title: "Error de archivo",
-        description: "Por favor selecciona una imagen válida",
+        description: "Por favor selecciona una imagen válida (PNG, JPG, JPEG, WebP)",
         variant: "destructive" 
       });
     }
@@ -414,8 +414,22 @@ const AdminPixOrders = () => {
 
       {/* Modal para cargar código Pix o imagen QR */}
       {selectedOrder && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background border rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setSelectedOrder(null);
+              setPixCode('');
+              setQrImage(null);
+              setQrImagePreview('');
+              setPixType('text');
+            }
+          }}
+        >
+          <div 
+            className="bg-background border rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="p-0 mb-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <QrCode className="w-5 h-5" />
@@ -462,13 +476,19 @@ const AdminPixOrders = () => {
                     <p className="text-sm text-muted-foreground mb-2">
                       Sube una imagen del código QR desde la app de Belo
                     </p>
-                    <Input
-                      id="qrImage"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="cursor-pointer"
-                    />
+                    <div className="space-y-2">
+                      <Input
+                        id="qrImage"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="cursor-pointer"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Formatos soportados: PNG, JPG, JPEG, WebP
+                      </p>
+                    </div>
                   </div>
                   
                   {qrImagePreview && (

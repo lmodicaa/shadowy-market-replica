@@ -55,6 +55,8 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
   - ✅ Improved user instructions with clear guidance for both payment methods
   - ✅ Added visual enhancements with gradient backgrounds and better typography
   - ✅ Created SUPABASE_PIX_ENHANCEMENT.sql for database schema updates
+  - ✅ **FIXED PAGE REFRESH ISSUE**: Removed document-level event listeners causing interference
+  - ✅ **IMPROVED FILE UPLOAD**: Enhanced modal isolation and event handling
   - ✅ System now supports hybrid PIX approach: traditional text keys and modern QR images
 - 2025-01-25: **MIGRATION FROM REPLIT AGENT TO REPLIT COMPLETED** - Final migration successfully completed with PIX deletion fix
   - ✅ Express server running successfully on port 5000 with all required packages

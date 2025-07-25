@@ -27,35 +27,15 @@ const Admin = ({ session }: AdminProps) => {
   const { data: stats } = useSystemStats();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // Detectar cambios en formularios del admin
+  // Simplified unsaved changes tracking - removed problematic document listeners
   useEffect(() => {
-    const handleInput = () => {
-      setHasUnsavedChanges(true);
+    // Only track editing state in sessionStorage without interfering with form events
+    if (hasUnsavedChanges) {
       sessionStorage.setItem('editing', 'true');
-    };
-
-    const handleSave = () => {
-      setHasUnsavedChanges(false);
+    } else {
       sessionStorage.removeItem('editing');
-    };
-
-    const handleFormSubmit = () => {
-      setHasUnsavedChanges(false);
-      sessionStorage.removeItem('editing');
-    };
-
-    // Agregar listeners cuando la página esté montada
-    document.addEventListener('input', handleInput, { capture: true, passive: true });
-    document.addEventListener('change', handleInput, { capture: true, passive: true });
-    document.addEventListener('submit', handleFormSubmit, { capture: true, passive: true });
-
-    // Limpiar listeners cuando se desmonte
-    return () => {
-      document.removeEventListener('input', handleInput, true);
-      document.removeEventListener('change', handleInput, true);
-      document.removeEventListener('submit', handleFormSubmit, true);
-    };
-  }, []);
+    }
+  }, [hasUnsavedChanges]);
 
   // Verificar se usuário está logado
   if (!session) {
