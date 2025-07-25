@@ -44,7 +44,18 @@ const AdminPixOrders = () => {
         throw error;
       }
       
-      return (data || []) as PixOrder[];
+      return (data || []).map(order => ({
+        id: order.id as string,
+        user_id: order.user_id as string | undefined,
+        plan_id: order.plan_id as string | undefined,
+        plan_name: order.plan_name as string | undefined,
+        amount: order.amount as string | undefined,
+        description: order.description as string | undefined,
+        status: order.status as 'pendiente' | 'pagado' | 'cancelado',
+        pix_code: order.pix_code as string | undefined,
+        created_at: order.created_at as string,
+        updated_at: order.updated_at as string
+      }));
     },
     refetchInterval: 5000, // Actualizar cada 5 segundos
   });
@@ -80,19 +91,23 @@ const AdminPixOrders = () => {
     mutationFn: async (id: string) => {
       console.log('🗑️ Tentando excluir pedido:', id);
       
-      const { data, error } = await supabase
-        .from('pix_orders')
-        .delete()
-        .eq('id', id)
-        .select();
+      // Usar la API del servidor en lugar de Supabase directamente
+      const response = await fetch(`/api/pix/orders/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       
-      if (error) {
-        console.error('Erro ao excluir pedido:', error);
-        throw error;
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Erro ao excluir pedido:', errorData);
+        throw new Error(errorData.error || 'Erro ao excluir pedido');
       }
       
-      console.log('✅ Pedido excluído:', data);
-      return { success: true, data };
+      const result = await response.json();
+      console.log('✅ Pedido excluído:', result);
+      return result;
     },
     onSuccess: (result) => {
       console.log('✅ Exclusão bem-sucedida:', result);
