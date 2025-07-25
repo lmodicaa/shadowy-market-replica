@@ -92,12 +92,24 @@ const Profile = ({ session }: ProfileProps) => {
     });
   };
 
+  // Debug: Log session info
+  console.log('Profile component - Session:', session ? 'User logged in' : 'No session');
+  console.log('Profile component - User ID:', session?.user?.id);
+
   if (!session) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-full max-w-md">
+        <StarField />
+        <Navigation session={null} />
+        <Card className="w-full max-w-md relative z-10">
           <CardContent className="p-6 text-center">
             <p className="text-muted-foreground">Você deve fazer login para ver seu perfil.</p>
+            <Button 
+              onClick={() => window.location.href = '/'}
+              className="mt-4"
+            >
+              Voltar ao Início
+            </Button>
           </CardContent>
         </Card>
       </div>
