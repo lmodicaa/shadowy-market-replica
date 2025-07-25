@@ -149,6 +149,9 @@ const AdminPixOrders = () => {
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
     const file = event.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
       setQrImage(file);
@@ -157,6 +160,17 @@ const AdminPixOrders = () => {
         setQrImagePreview(e.target?.result as string);
       };
       reader.readAsDataURL(file);
+      
+      toast({ 
+        title: "Imagen cargada correctamente",
+        description: `Archivo: ${file.name}`,
+      });
+    } else {
+      toast({ 
+        title: "Error de archivo",
+        description: "Por favor selecciona una imagen válida",
+        variant: "destructive" 
+      });
     }
   };
 
@@ -169,7 +183,12 @@ const AdminPixOrders = () => {
     });
   };
 
-  const handleSavePixCode = async () => {
+  const handleSavePixCode = async (event?: React.FormEvent) => {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
     if (!selectedOrder) return;
 
     let updates: any = { status: 'pendiente', pix_type: pixType };
@@ -395,15 +414,15 @@ const AdminPixOrders = () => {
 
       {/* Modal para cargar código Pix o imagen QR */}
       {selectedOrder && (
-        <Card className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-background border rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <CardHeader className="p-0 mb-4">
-              <CardTitle className="flex items-center gap-2">
+            <div className="p-0 mb-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
                 <QrCode className="w-5 h-5" />
                 Cargar PIX - Pedido #{selectedOrder.id}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 space-y-4">
+              </h3>
+            </div>
+            <div className="p-0 space-y-4">
               <Tabs value={pixType} onValueChange={(value) => setPixType(value as 'text' | 'qr')}>
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="text" className="flex items-center gap-2">
@@ -469,7 +488,12 @@ const AdminPixOrders = () => {
               
               <div className="flex gap-3 pt-4 border-t">
                 <Button
-                  onClick={handleSavePixCode}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSavePixCode();
+                  }}
                   disabled={
                     (pixType === 'text' && !pixCode.trim()) || 
                     (pixType === 'qr' && !qrImage && !qrImagePreview) || 
@@ -490,8 +514,11 @@ const AdminPixOrders = () => {
                   )}
                 </Button>
                 <Button
+                  type="button"
                   variant="outline"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     setSelectedOrder(null);
                     setPixCode('');
                     setQrImage(null);
@@ -503,9 +530,9 @@ const AdminPixOrders = () => {
                   Cancelar
                 </Button>
               </div>
-            </CardContent>
+            </div>
           </div>
-        </Card>
+        </div>
       )}
     </div>
   );
