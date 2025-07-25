@@ -24,7 +24,7 @@ CREATE POLICY "Admins can view all pix orders" ON pix_orders
         EXISTS (
             SELECT 1 FROM profiles 
             WHERE profiles.id::TEXT = auth.uid()::TEXT 
-            AND (profiles.role = 'admin' OR profiles.is_admin = true)
+            AND profiles.is_admin = true
         )
     );
 
@@ -35,14 +35,14 @@ CREATE POLICY "Admins can update any pix orders" ON pix_orders
         EXISTS (
             SELECT 1 FROM profiles 
             WHERE profiles.id::TEXT = auth.uid()::TEXT 
-            AND (profiles.role = 'admin' OR profiles.is_admin = true)
+            AND profiles.is_admin = true
         )
     )
     WITH CHECK (
         EXISTS (
             SELECT 1 FROM profiles 
             WHERE profiles.id::TEXT = auth.uid()::TEXT 
-            AND (profiles.role = 'admin' OR profiles.is_admin = true)
+            AND profiles.is_admin = true
         )
     );
 
@@ -53,7 +53,7 @@ CREATE POLICY "Admins can delete any pix orders" ON pix_orders
         EXISTS (
             SELECT 1 FROM profiles 
             WHERE profiles.id::TEXT = auth.uid()::TEXT 
-            AND (profiles.role = 'admin' OR profiles.is_admin = true)
+            AND profiles.is_admin = true
         )
     );
 
@@ -71,7 +71,6 @@ CREATE POLICY "Users can create own pix orders" ON pix_orders
 SELECT 
     id::TEXT as user_id,
     email,
-    role,
     is_admin,
     created_at
 FROM profiles 
