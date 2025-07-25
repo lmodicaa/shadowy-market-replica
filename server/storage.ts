@@ -69,14 +69,7 @@ export class MemoryStorage implements IStorage {
   }
 
   async deletePixOrder(id: string): Promise<boolean> {
-    const orders = await db.getPixOrders();
-    const index = orders.findIndex(order => order.id === id);
-    if (index === -1) return false;
-    
-    // Note: In a real implementation, this would actually remove from storage
-    // For this in-memory version, we'll just mark as deleted
-    await db.updatePixOrder(id, { status: 'deleted' });
-    return true;
+    return await db.deletePixOrder(id);
   }
 }
 

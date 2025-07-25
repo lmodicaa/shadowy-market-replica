@@ -144,6 +144,14 @@ class InMemoryDatabase {
     };
     return this.pixOrders[index];
   }
+
+  async deletePixOrder(id: string): Promise<boolean> {
+    const index = this.pixOrders.findIndex(o => o.id === id);
+    if (index === -1) return false;
+    
+    this.pixOrders.splice(index, 1);
+    return true;
+  }
 }
 
 export const db = new InMemoryDatabase();
