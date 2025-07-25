@@ -91,21 +91,24 @@ const AdminPixOrders = () => {
     mutationFn: async (id: string) => {
       console.log('🗑️ Tentando excluir pedido:', id);
       
-      // Usar la API del servidor en lugar de Supabase directamente
-      const response = await fetch(`/api/pix/orders/${id}`, {
-        method: 'DELETE',
+      // Usar método POST con un parámetro _method=DELETE para simular DELETE
+      // Esta técnica se conoce como "method override" y es común para APIs que no permiten DELETE directamente
+      const response = await fetch(`/api/pix/orders/${encodeURIComponent(id)}`, {
+        method: 'POST',  // Cambiado de DELETE a POST
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+          'X-HTTP-Method-Override': 'DELETE'  // Indicar que es realmente una operación DELETE
+        },
+        body: JSON.stringify({ _method: 'DELETE' })  // Incluir la intención en el cuerpo
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({ error: 'Error al procesar la respuesta' }));
         console.error('Erro ao excluir pedido:', errorData);
         throw new Error(errorData.error || 'Erro ao excluir pedido');
       }
       
-      const result = await response.json();
+      const result = await response.json().catch(() => ({ success: true }));
       console.log('✅ Pedido excluído:', result);
       return result;
     },

@@ -104,7 +104,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Endpoint para eliminar pedido
+  // Endpoint para eliminar pedido (soporta tanto DELETE como POST con _method=DELETE)
+  app.post("/api/pix/orders/:id", async (req, res, next) => {
+    // Verificar si es una solicitud de eliminación simulada
+    if (req.body._method === 'DELETE' || req.headers['x-http-method-override'] === 'DELETE') {
+      try {
+        // Endpoint para eliminar pedido
+        const { id } = req.params;
+        const deleted = await storage.deletePixOrder(id);
+        
+        if (!deleted) {
+          return res.status(404).json({ error: "Pedido no encontrado" });
+        }
+  
+        res.json({ 
+          success: true, 
+          message: "Pedido eliminado exitosamente" 
+        });
+      } catch (error) {
+        console.error("Error eliminando pedido:", error);
+        res.status(500).json({ error: "Error interno del servidor" });
+      }
+    } else {
+      // Si no es una solicitud de eliminación, continuar con el flujo normal
+      next();
+    }
+  });
+
+  // Endpoint explícito para DELETE
   app.delete("/api/pix/orders/:id", async (req, res) => {
     try {
       const { id } = req.params;
