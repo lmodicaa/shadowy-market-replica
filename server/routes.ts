@@ -7,6 +7,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin routes for system configuration
   app.use("/api/admin", adminRoutes);
 
+  // Endpoint para obtener todos los planes disponibles
+  app.get("/api/plans", async (req, res) => {
+    try {
+      const plans = await storage.getPlans();
+      res.json({ plans });
+    } catch (error) {
+      console.error("Error obteniendo planes:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    }
+  });
+
   // Endpoint para crear pedido Pix manual
   app.post("/api/pix/manual", async (req, res) => {
     try {

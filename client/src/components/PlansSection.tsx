@@ -15,7 +15,7 @@ import { supabase } from '@/lib/supabase';
 const getFeaturesByPlanName = (planName: string) => {
   const lowerName = planName.toLowerCase();
   
-  if (lowerName.includes('básico') || lowerName.includes('basic')) {
+  if (lowerName.includes('nova') || lowerName.includes('basic')) {
     return [
       '4 GB RAM',
       '2 vCPUs',
@@ -24,7 +24,7 @@ const getFeaturesByPlanName = (planName: string) => {
       'Suporte por email',
       'Resolução até 1080p'
     ];
-  } else if (lowerName.includes('gamer') || lowerName.includes('intermedi')) {
+  } else if (lowerName.includes('plus') || lowerName.includes('gamer')) {
     return [
       '8 GB RAM',
       '4 vCPUs',
@@ -38,7 +38,7 @@ const getFeaturesByPlanName = (planName: string) => {
     return [
       '16 GB RAM',
       '8 vCPUs',
-      '250 GB Armazenamento',
+      '200 GB Armazenamento',
       'Horas ilimitadas',
       'Suporte 24/7',
       'Resolução até 4K',
@@ -46,7 +46,6 @@ const getFeaturesByPlanName = (planName: string) => {
       'Streaming integrado'
     ];
   } else {
-    // Features genéricas para planos não reconhecidos
     return [
       'Configuração personalizada',
       'Recursos dedicados',
@@ -171,7 +170,50 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
     gcTime: 15 * 60 * 1000, // Keep in cache for 15 minutes
     queryFn: async () => {
       try {
-        // Tentar consulta simples primeiro
+        // Detectar ambiente: desenvolvimento vs produção
+        const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname.includes('replit');
+        const baseUrl = isDevelopment ? '' : 'https://matecloud.store';
+        
+        // Primeiro tentar API backend se disponível
+        try {
+          const response = await fetch(`${baseUrl}/api/plans`, {
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            if (result.plans && result.plans.length > 0) {
+              console.log('Planos carregados da API backend:', result.plans.length);
+              return result.plans.map((plan: any) => ({
+                id: plan.id,
+                name: plan.name,
+                price: plan.price,
+                description: plan.description,
+                ram: plan.ram,
+                cpu: plan.cpu,
+                storage: plan.storage,
+                gpu: plan.gpu,
+                max_resolution: plan.max_resolution,
+                duration: plan.duration,
+                stock: plan.stock,
+                status: plan.status,
+                icon: plan.name.toLowerCase().includes('nova') ? Zap : 
+                      plan.name.toLowerCase().includes('plus') ? Star :
+                      plan.name.toLowerCase().includes('pro') ? Crown : Package,
+                popular: plan.name.toLowerCase().includes('plus'),
+                features: getFeaturesByPlanName(plan.name),
+                period: '/30 dias'
+              }));
+            }
+          }
+        } catch (apiError) {
+          console.log('API backend não disponível, tentando Supabase...');
+        }
+
+        // Fallback para Supabase se API não funcionar
         const { data, error } = await supabase
           .from('plans')
           .select('*')
@@ -194,14 +236,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
           ...plan,
           icon: index === 0 ? Zap : index === 1 ? Star : Crown,
           popular: index === 1, // O segundo plano será popular
-          features: [
-            `${plan.ram || '4 GB'} RAM`,
-            `${plan.cpu || '2 vCPUs'} CPU`,
-            `${plan.storage || '50 GB'} Armazenamento`,
-            `GPU: ${plan.gpu || 'Integrada'}`,
-            `Resolução até ${plan.max_resolution || '1080p'}`,
-            'Suporte técnico incluído'
-          ] as string[],
+          features: getFeaturesByPlanName(plan.name),
           period: `/${plan.duration || 30} dias`
         })) as Plan[];
       } catch (error) {
@@ -212,8 +247,6 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
     },
     retry: 1,
   });
-
-
 
   const handleSelectPlan = async (plan: { id: string; name: string; price: string }) => {
     console.log('🔥 Botão clicado! Plan:', plan);
@@ -243,8 +276,45 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
         amount: priceValue, 
         userId: session.user.id 
       });
+
+      // Detectar ambiente e ajustar URL
+      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname.includes('replit');
       
-      // Verificar se Supabase está configurado
+      // Tentar primeiro com API backend se disponível
+      try {
+        const baseUrl = isDevelopment ? '' : 'https://matecloud.store';
+        const response = await fetch(`${baseUrl}/api/pix/manual`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: orderId,
+            userId: session.user.id,
+            planId: plan.id,
+            planName: plan.name,
+            amount: priceValue,
+            description: `Plano ${plan.name} - 30 dias de acesso`
+          })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('✅ Pedido Pix criado via API backend:', result);
+          
+          toast({
+            title: "Pedido criado com sucesso!",
+            description: `Seu pedido para o plano ${plan.name} foi criado. Acesse seu perfil para ver o código Pix quando estiver disponível.`,
+          });
+
+          onPlanSelect?.(plan.name);
+          return;
+        }
+      } catch (apiError) {
+        console.log('API backend falhou, usando Supabase direto...');
+      }
+
+      // Fallback para Supabase direto
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
       
@@ -312,6 +382,24 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
     }
   };
 
+  if (loadingPlans) {
+    return (
+      <section id="planos" className="py-20 px-6 relative z-10">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="animate-pulse">
+            <div className="h-12 bg-gray-300 rounded mb-4"></div>
+            <div className="h-6 bg-gray-300 rounded mb-8"></div>
+            <div className="grid md:grid-cols-3 gap-8">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-96 bg-gray-300 rounded-lg"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="planos" className="py-20 px-6 relative z-10">
       <div className="max-w-7xl mx-auto">
@@ -348,105 +436,98 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
               </div>
               <p className="text-lg font-bold">{activePlan.planName}</p>
               <p className="text-sm text-foreground/70">
-                Expira em {activePlan.daysRemaining || 0} dias
+                {activePlan.daysRemaining !== undefined && activePlan.daysRemaining >= 0
+                  ? `${activePlan.daysRemaining} dias restantes`
+                  : 'Status indefinido'
+                }
               </p>
             </div>
           )}
         </div>
 
-        {/* Loading State */}
-        {loadingPlans ? (
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cloud-blue"></div>
-            <span className="ml-3 text-lg">Carregando planos...</span>
-          </div>
-        ) : (
-          <>
-            {/* Plans Grid */}
-            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {plans.map((plan, index) => (
-            <Card 
-              key={index} 
-              className={`relative hover:border-cloud-blue/40 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-xl ${
-                plan.popular ? 'border-cloud-blue/60 shadow-lg scale-105' : ''
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-cloud-blue text-white px-4 py-1">
-                    Mais Popular
-                  </Badge>
-                </div>
-              )}
-              
-              <CardHeader className="text-center pb-4">
-                <div className="inline-flex p-3 rounded-xl bg-card/30 backdrop-blur-sm border border-border/30 mb-4 mx-auto">
-                  <plan.icon className="w-8 h-8 text-cloud-blue" />
-                </div>
-                
-                <CardTitle className="text-2xl font-bold text-foreground">
-                  {plan.name}
-                </CardTitle>
-                
-                <div className="flex items-baseline justify-center gap-1 mt-4">
-                  <span className="text-4xl font-bold text-foreground">
-                    {plan.price}
-                  </span>
-                  <span className="text-lg text-foreground/60">
-                    {plan.period}
-                  </span>
-                </div>
-
-                {/* Stock Info */}
-                {plan.stock !== null && plan.stock !== undefined && (
-                  <div className="flex items-center justify-center gap-1 mt-2">
-                    <Package className="w-4 h-4 text-foreground/60" />
-                    <span className="text-sm text-foreground/60">
-                      {plan.stock > 0 ? `${plan.stock} disponíveis` : 'Esgotado'}
-                    </span>
+        {/* Plans Grid */}
+        <div className="grid md:grid-cols-3 gap-8">
+          {plans.map((plan) => {
+            const IconComponent = plan.icon;
+            return (
+              <Card 
+                key={plan.id} 
+                className={`relative overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
+                  plan.popular 
+                    ? 'border-cloud-blue shadow-lg ring-2 ring-cloud-blue/50' 
+                    : 'border-border hover:border-cloud-blue/50'
+                }`}
+              >
+                {plan.popular && (
+                  <div className="absolute -right-12 top-6 rotate-45 bg-cloud-blue text-white text-xs font-bold py-1 px-12">
+                    POPULAR
                   </div>
                 )}
                 
-                <p className="text-foreground/70 mt-2">
-                  {plan.description}
-                </p>
-              </CardHeader>
-              
-              <CardContent className="pt-4">
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature: string, featureIndex: number) => (
-                    <li key={featureIndex} className="flex items-center gap-3">
-                      <Check className="w-5 h-5 text-cloud-blue flex-shrink-0" />
-                      <span className="text-foreground/80">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+                <CardHeader className="text-center pb-4">
+                  <div className="flex justify-center mb-4">
+                    <div className={`p-3 rounded-full ${plan.popular ? 'bg-cloud-blue/20' : 'bg-muted'}`}>
+                      <IconComponent className={`w-8 h-8 ${plan.popular ? 'text-cloud-blue' : 'text-muted-foreground'}`} />
+                    </div>
+                  </div>
+                  
+                  <CardTitle className="text-2xl font-bold mb-2">{plan.name}</CardTitle>
+                  
+                  <div className="mb-4">
+                    <span className="text-4xl font-bold text-cloud-blue">{plan.price}</span>
+                    <span className="text-muted-foreground ml-1">{plan.period}</span>
+                  </div>
+                  
+                  <p className="text-muted-foreground text-sm">
+                    {plan.description}
+                  </p>
+
+                  {/* Stock Status */}
+                  <div className="flex items-center justify-center gap-2 mt-3">
+                    <Badge variant={plan.stock && plan.stock > 0 ? "default" : "destructive"}>
+                      {plan.stock && plan.stock > 0 ? `${plan.stock} disponíveis` : 'Esgotado'}
+                    </Badge>
+                    <Badge variant="outline">
+                      {plan.status || 'Online'}
+                    </Badge>
+                  </div>
+                </CardHeader>
                 
-                <Button 
-                  onClick={() => handleSelectPlan({ id: plan.id, name: plan.name, price: plan.price })}
-                  disabled={(activePlan?.isActive && activePlan.name === plan.name) || (plan.stock !== null && plan.stock !== undefined && plan.stock <= 0)}
-                  className={`w-full ${
-                    plan.popular 
-                      ? 'bg-cloud-blue hover:bg-cloud-blue/90 text-white' 
-                      : 'bg-transparent border border-cloud-blue text-cloud-blue hover:bg-cloud-blue hover:text-white'
-                  }`}
-                  size="lg"
-                >
-                  {plan.stock !== null && plan.stock !== undefined && plan.stock <= 0
-                    ? 'Esgotado'
-                    : activePlan?.isActive && activePlan.name === plan.name
-                      ? 'Plano Ativo'
-                      : activePlan?.isActive
-                        ? 'Já Possui Plano'
-                        : `Comprar com Pix`
-                  }
-                </Button>
-              </CardContent>
-            </Card>
-              ))}
-            </div>
-          </>
-        )}
+                <CardContent className="pt-0">
+                  <ul className="space-y-3 mb-8">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="flex items-center gap-3">
+                        <Check className="w-5 h-5 text-cloud-blue flex-shrink-0" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  <Button 
+                    onClick={() => handleSelectPlan(plan)}
+                    disabled={!plan.stock || plan.stock === 0}
+                    className={`w-full py-6 text-lg font-semibold transition-all duration-200 ${
+                      plan.popular 
+                        ? 'bg-cloud-blue hover:bg-cloud-blue/90' 
+                        : 'bg-primary hover:bg-primary/90'
+                    }`}
+                  >
+                    {plan.stock && plan.stock > 0 ? 'Selecionar Plano' : 'Indisponível'}
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Info Footer */}
+        <div className="mt-16 text-center">
+          <p className="text-muted-foreground">
+            Todos os planos incluem suporte técnico e acesso total à plataforma MateCloud.
+            <br />
+            <span className="text-sm">*Preços em reais brasileiros. Renovação automática.</span>
+          </p>
+        </div>
       </div>
     </section>
   );
