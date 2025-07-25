@@ -57,13 +57,16 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // Add a middleware to ensure API routes are handled before Vite catch-all
-  app.use('/api/*', (req, res, next) => {
-    // If we reach here, it means no API route matched, return 404
-    if (req.method === 'GET' && req.path.startsWith('/api/')) {
-      return res.status(404).json({ error: 'API endpoint not found' });
+  // Add CORS headers for production deployment
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    if (req.method === 'OPTIONS') {
+      res.sendStatus(200);
+    } else {
+      next();
     }
-    next();
   });
 
   // importantly only setup vite in development and after
