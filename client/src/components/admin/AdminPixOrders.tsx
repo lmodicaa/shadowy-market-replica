@@ -91,18 +91,30 @@ const AdminPixOrders = () => {
     mutationFn: async (id: string) => {
       console.log('🗑️ Tentando excluir pedido:', id);
       
-      const { error } = await supabase
+      const { data, error, count } = await supabase
         .from('pix_orders')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .select();
       
       if (error) {
         console.error('Erro ao excluir pedido:', error);
-        throw error;
+        console.error('Detalhes do erro:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        throw new Error(`Erro ao excluir pedido: ${error.message}`);
       }
       
-      console.log('✅ Pedido excluído com sucesso:', id);
-      return { success: true };
+      if (!data || data.length === 0) {
+        console.warn('Nenhum pedido foi excluído - pode não existir ou não ter permissão');
+        throw new Error('Pedido não encontrado ou sem permissão para excluir');
+      }
+      
+      console.log('✅ Pedido excluído com sucesso:', { id, deletedData: data });
+      return { success: true, deleted: data };
     },
     onSuccess: (result) => {
       console.log('✅ Exclusão bem-sucedida:', result);
