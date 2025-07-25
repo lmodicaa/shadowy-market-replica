@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { QrCode, Copy, Check, Clock, DollarSign, AlertCircle } from 'lucide-react';
+import { QrCode, Copy, Check, Clock, DollarSign, AlertCircle, Image, Type } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,8 @@ interface PixOrder {
   description?: string;
   status: 'pendiente' | 'pagado' | 'cancelado';
   pix_code?: string;
+  pix_qr_image?: string;
+  pix_type?: 'text' | 'qr';
   created_at: string;
   updated_at: string;
 }
@@ -46,7 +48,20 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
         throw error;
       }
       
-      return data || [];
+      return (data || []).map(order => ({
+        id: order.id as string,
+        user_id: order.user_id as string | undefined,
+        plan_id: order.plan_id as string | undefined,
+        plan_name: order.plan_name as string | undefined,
+        amount: order.amount as string | undefined,
+        description: order.description as string | undefined,
+        status: order.status as 'pendiente' | 'pagado' | 'cancelado',
+        pix_code: order.pix_code as string | undefined,
+        pix_qr_image: order.pix_qr_image as string | undefined,
+        pix_type: order.pix_type as 'text' | 'qr' | undefined,
+        created_at: order.created_at as string,
+        updated_at: order.updated_at as string
+      }));
     },
     refetchInterval: 10000, // Actualizar cada 10 segundos
     enabled: !!userId, // Solo ejecutar si hay userId
@@ -142,7 +157,7 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
                     )}
                   </div>
 
-                  {order.status === 'pendiente' && !order.pix_code && (
+                  {order.status === 'pendiente' && !order.pix_code && !order.pix_qr_image && (
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                       <div className="flex items-center gap-2 text-yellow-800 mb-2">
                         <Clock className="w-4 h-4" />
@@ -154,37 +169,73 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
                     </div>
                   )}
 
-                  {order.pix_code && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <div className="flex items-center gap-2 text-blue-800 mb-3">
-                        <QrCode className="w-4 h-4" />
-                        <span className="font-medium">Código Pix para Pago</span>
+                  {(order.pix_code || order.pix_qr_image) && (
+                    <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg">
+                      <div className="flex items-center gap-2 mb-3">
+                        {order.pix_type === 'qr' ? (
+                          <QrCode className="w-5 h-5 text-blue-600" />
+                        ) : (
+                          <Type className="w-5 h-5 text-blue-600" />
+                        )}
+                        <Label className="text-base font-semibold text-blue-800">
+                          PIX para Pagamento - {order.pix_type === 'qr' ? 'Código QR' : 'Clave Texto'}
+                        </Label>
                       </div>
                       
-                      <div className="space-y-3">
-                        <p className="text-sm text-blue-700">
-                          Usa este código en la app de Belo o cualquier app de banco para realizar el pago:
-                        </p>
-                        
-                        <div className="flex items-center gap-2">
-                          <code className="bg-white border border-blue-300 p-3 rounded text-xs flex-1 font-mono break-all">
-                            {order.pix_code}
-                          </code>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => copyToClipboard(order.pix_code!)}
-                            className="shrink-0"
-                          >
-                            {copiedCode === order.pix_code ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                          </Button>
+                      {order.pix_type === 'qr' && order.pix_qr_image ? (
+                        <div className="space-y-3">
+                          <div className="bg-white p-4 rounded-lg border-2 border-dashed border-blue-300 flex justify-center">
+                            <img 
+                              src={order.pix_qr_image} 
+                              alt="Código QR PIX" 
+                              className="max-w-64 max-h-64 object-contain"
+                            />
+                          </div>
+                          <div className="text-center">
+                            <p className="text-sm text-blue-700 font-medium mb-1">
+                              📱 Escaneie o código QR com seu app bancário
+                            </p>
+                            <p className="text-xs text-blue-600">
+                              Use a câmera do seu banco ou app de pagamento PIX
+                            </p>
+                          </div>
                         </div>
-                        
-                        {order.status === 'pendiente' && (
-                          <p className="text-xs text-blue-600">
-                            💡 Copia el código y pégalo en la app de Belo para completar tu pago.
-                          </p>
-                        )}
+                      ) : order.pix_code ? (
+                        <div className="space-y-3">
+                          <div className="bg-white p-3 rounded-lg border-2 border-dashed border-blue-300">
+                            <div className="flex items-center gap-2">
+                              <code className="flex-1 font-mono text-sm bg-gray-50 p-3 rounded border break-all">
+                                {order.pix_code}
+                              </code>
+                              <Button
+                                size="sm"
+                                onClick={() => copyToClipboard(order.pix_code!)}
+                                className="bg-blue-600 hover:bg-blue-700 text-white shrink-0"
+                                title="Copiar clave PIX"
+                              >
+                                {copiedCode === order.pix_code ? (
+                                  <Check className="w-4 h-4" />
+                                ) : (
+                                  <Copy className="w-4 h-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-sm text-blue-700 font-medium mb-1">
+                              📋 Copie a clave e cole no seu app bancário
+                            </p>
+                            <p className="text-xs text-blue-600">
+                              Clique no botão "Copiar" e cole na opção "PIX Copia e Cola" do seu banco
+                            </p>
+                          </div>
+                        </div>
+                      ) : null}
+                      
+                      <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-center">
+                        <p className="text-xs text-yellow-800">
+                          💡 Após o pagamento, aguarde alguns minutos para confirmação automática
+                        </p>
                       </div>
                     </div>
                   )}

@@ -46,6 +46,16 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - Authentication handled securely through Supabase
 
 ## Recent Changes
+- 2025-01-25: **PIX PAYMENT SYSTEM ENHANCED WITH QR SUPPORT** - Complete PIX payment upgrade with dual text/QR functionality
+  - ✅ Enhanced AdminPixOrders with tabs interface supporting both text PIX keys and QR image uploads
+  - ✅ Added file upload functionality with image preview for QR codes
+  - ✅ Enhanced UserPixOrders with improved UI displaying both PIX types with better visibility
+  - ✅ Added Base64 image storage for QR codes in Supabase database
+  - ✅ Created dual display system: scannable QR codes and copyable text keys for users
+  - ✅ Improved user instructions with clear guidance for both payment methods
+  - ✅ Added visual enhancements with gradient backgrounds and better typography
+  - ✅ Created SUPABASE_PIX_ENHANCEMENT.sql for database schema updates
+  - ✅ System now supports hybrid PIX approach: traditional text keys and modern QR images
 - 2025-01-25: **MIGRATION FROM REPLIT AGENT TO REPLIT COMPLETED** - Final migration successfully completed with PIX deletion fix
   - ✅ Express server running successfully on port 5000 with all required packages
   - ✅ Supabase environment variables (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY) configured

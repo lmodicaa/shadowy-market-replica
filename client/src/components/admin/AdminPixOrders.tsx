@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { QrCode, Copy, Check, Clock, DollarSign, User, AlertCircle, Trash2 } from 'lucide-react';
+import { QrCode, Copy, Check, Clock, DollarSign, User, AlertCircle, Trash2, Image, Type } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -19,6 +20,8 @@ interface PixOrder {
   description?: string;
   status: 'pendiente' | 'pagado' | 'cancelado';
   pix_code?: string;
+  pix_qr_image?: string;
+  pix_type?: 'text' | 'qr';
   created_at: string;
   updated_at: string;
 }
@@ -26,6 +29,9 @@ interface PixOrder {
 const AdminPixOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState<PixOrder | null>(null);
   const [pixCode, setPixCode] = useState('');
+  const [pixType, setPixType] = useState<'text' | 'qr'>('text');
+  const [qrImage, setQrImage] = useState<File | null>(null);
+  const [qrImagePreview, setQrImagePreview] = useState<string>('');
   const [copiedCode, setCopiedCode] = useState('');
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -53,6 +59,8 @@ const AdminPixOrders = () => {
         description: order.description as string | undefined,
         status: order.status as 'pendiente' | 'pagado' | 'cancelado',
         pix_code: order.pix_code as string | undefined,
+        pix_qr_image: order.pix_qr_image as string | undefined,
+        pix_type: order.pix_type as 'text' | 'qr' | undefined,
         created_at: order.created_at as string,
         updated_at: order.updated_at as string
       }));
@@ -135,14 +143,55 @@ const AdminPixOrders = () => {
   const handleLoadPixCode = (order: PixOrder) => {
     setSelectedOrder(order);
     setPixCode(order.pix_code || '');
+    setPixType(order.pix_type || 'text');
+    setQrImagePreview(order.pix_qr_image || '');
+    setQrImage(null);
   };
 
-  const handleSavePixCode = () => {
-    if (!selectedOrder || !pixCode.trim()) return;
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      setQrImage(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setQrImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const handleSavePixCode = async () => {
+    if (!selectedOrder) return;
+
+    let updates: any = { status: 'pendiente', pix_type: pixType };
+
+    if (pixType === 'text') {
+      if (!pixCode.trim()) return;
+      updates.pix_code = pixCode.trim();
+      updates.pix_qr_image = null;
+    } else if (pixType === 'qr') {
+      if (!qrImage && !qrImagePreview) return;
+      if (qrImage) {
+        const base64Image = await convertToBase64(qrImage);
+        updates.pix_qr_image = base64Image;
+      } else {
+        updates.pix_qr_image = qrImagePreview;
+      }
+      updates.pix_code = null;
+    }
 
     updateOrderMutation.mutate({
       id: selectedOrder.id,
-      updates: { pix_code: pixCode.trim(), status: 'pendiente' }
+      updates
     });
   };
 
@@ -307,21 +356,33 @@ const AdminPixOrders = () => {
                       </div>
                     )}
 
-                    {order.pix_code && (
+                    {(order.pix_code || order.pix_qr_image) && (
                       <div className="mt-3">
-                        <Label className="text-muted-foreground">Código Pix</Label>
-                        <div className="flex items-center gap-2 mt-1">
-                          <code className="bg-muted p-2 rounded text-xs flex-1 font-mono">
-                            {order.pix_code}
-                          </code>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => copyToClipboard(order.pix_code!)}
-                          >
-                            {copiedCode === order.pix_code ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                          </Button>
-                        </div>
+                        <Label className="text-muted-foreground">
+                          PIX {order.pix_type === 'qr' ? 'QR Code' : 'Código Texto'}
+                        </Label>
+                        {order.pix_type === 'qr' && order.pix_qr_image ? (
+                          <div className="mt-2 flex justify-center bg-muted/20 p-4 rounded border">
+                            <img 
+                              src={order.pix_qr_image} 
+                              alt="PIX QR Code" 
+                              className="max-w-48 max-h-48 object-contain border rounded"
+                            />
+                          </div>
+                        ) : order.pix_code ? (
+                          <div className="flex items-center gap-2 mt-1">
+                            <code className="bg-muted p-2 rounded text-xs flex-1 font-mono break-all">
+                              {order.pix_code}
+                            </code>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => copyToClipboard(order.pix_code!)}
+                            >
+                              {copiedCode === order.pix_code ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                            </Button>
+                          </div>
+                        ) : null}
                       </div>
                     )}
                   </CardContent>
@@ -332,38 +393,110 @@ const AdminPixOrders = () => {
         </CardContent>
       </Card>
 
-      {/* Modal para cargar código Pix */}
+      {/* Modal para cargar código Pix o imagen QR */}
       {selectedOrder && (
         <Card className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background border rounded-lg p-6 max-w-lg w-full mx-4">
+          <div className="bg-background border rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <CardHeader className="p-0 mb-4">
-              <CardTitle>Cargar Código QR Pix - Pedido #{selectedOrder.id}</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <QrCode className="w-5 h-5" />
+                Cargar PIX - Pedido #{selectedOrder.id}
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-0 space-y-4">
-              <div>
-                <Label htmlFor="pixCode">Código/Clave Pix de Belo</Label>
-                <Textarea
-                  id="pixCode"
-                  value={pixCode}
-                  onChange={(e) => setPixCode(e.target.value)}
-                  placeholder="Pega aquí el código QR o clave Pix copiado desde la app de Belo..."
-                  rows={4}
-                  className="font-mono text-sm"
-                />
-              </div>
-              <div className="flex gap-3">
+              <Tabs value={pixType} onValueChange={(value) => setPixType(value as 'text' | 'qr')}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="text" className="flex items-center gap-2">
+                    <Type className="w-4 h-4" />
+                    Clave PIX Texto
+                  </TabsTrigger>
+                  <TabsTrigger value="qr" className="flex items-center gap-2">
+                    <Image className="w-4 h-4" />
+                    Código QR Imagen
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="text" className="space-y-4">
+                  <div>
+                    <Label htmlFor="pixCode" className="text-base font-medium">
+                      Clave PIX Texto
+                    </Label>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Copia y pega la clave PIX de texto desde la app de Belo
+                    </p>
+                    <Textarea
+                      id="pixCode"
+                      value={pixCode}
+                      onChange={(e) => setPixCode(e.target.value)}
+                      placeholder="Ejemplo: 00020126330014BR.GOV.BCB.PIX2511exemplo@email.com..."
+                      rows={4}
+                      className="font-mono text-sm"
+                    />
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="qr" className="space-y-4">
+                  <div>
+                    <Label htmlFor="qrImage" className="text-base font-medium">
+                      Imagen del Código QR
+                    </Label>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Sube una imagen del código QR desde la app de Belo
+                    </p>
+                    <Input
+                      id="qrImage"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="cursor-pointer"
+                    />
+                  </div>
+                  
+                  {qrImagePreview && (
+                    <div className="border rounded-lg p-4 bg-muted/20">
+                      <Label className="text-sm font-medium">Vista previa:</Label>
+                      <div className="mt-2 flex justify-center">
+                        <img 
+                          src={qrImagePreview} 
+                          alt="QR Code Preview" 
+                          className="max-w-64 max-h-64 object-contain border rounded"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
+              
+              <div className="flex gap-3 pt-4 border-t">
                 <Button
                   onClick={handleSavePixCode}
-                  disabled={!pixCode.trim() || updateOrderMutation.isPending}
-                  className="flex-1"
+                  disabled={
+                    (pixType === 'text' && !pixCode.trim()) || 
+                    (pixType === 'qr' && !qrImage && !qrImagePreview) || 
+                    updateOrderMutation.isPending
+                  }
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
                 >
-                  {updateOrderMutation.isPending ? 'Guardando...' : 'Guardar y Marcar Pagado'}
+                  {updateOrderMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4 mr-2" />
+                      Guardar PIX
+                    </>
+                  )}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => {
                     setSelectedOrder(null);
                     setPixCode('');
+                    setQrImage(null);
+                    setQrImagePreview('');
+                    setPixType('text');
                   }}
                   className="flex-1"
                 >
