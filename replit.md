@@ -46,6 +46,17 @@ This is a full-stack JavaScript application that has been migrated from Lovable 
 - Authentication handled securely through Supabase
 
 ## Recent Changes
+- 2025-01-26: **PAYMENT PROOF UPLOAD SYSTEM IMPLEMENTED** - Complete manual payment verification system with admin review workflow
+  - ✅ Enhanced UserPixOrders with payment proof upload functionality (PDF/image support up to 5MB)
+  - ✅ Implemented comprehensive admin review interface in AdminPixOrders with proof visualization
+  - ✅ Added multiple payment statuses: waiting_payment, waiting_review, approved, rejected
+  - ✅ Created database schema enhancements with automatic timestamp triggers and RLS policies
+  - ✅ Added visual status indicators with animated badges for pending reviews
+  - ✅ Implemented dual review system: approve/reject with admin notes for rejection justification
+  - ✅ Added image preview for uploaded proofs and PDF download functionality for admins
+  - ✅ Enhanced user experience with clear payment workflow and status messaging
+  - ✅ Created SUPABASE_PAYMENT_PROOF_ENHANCEMENT.sql for database setup
+  - ✅ System now supports full manual payment verification replacing automatic confirmation
 - 2025-01-25: **PIX PAYMENT SYSTEM ENHANCED WITH QR SUPPORT** - Complete PIX payment upgrade with dual text/QR functionality
   - ✅ Enhanced AdminPixOrders with tabs interface supporting both text PIX keys and QR image uploads
   - ✅ Added file upload functionality with image preview for QR codes

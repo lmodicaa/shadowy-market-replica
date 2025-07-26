@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { QrCode, Copy, Check, Clock, DollarSign, AlertCircle, Image, Type } from 'lucide-react';
+import { QrCode, Copy, Check, Clock, DollarSign, AlertCircle, Image, Type, Upload, FileText, CheckCircle, XCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { Input } from '@/components/ui/input';
 
 interface PixOrder {
   id: string;
@@ -19,6 +20,13 @@ interface PixOrder {
   pix_code?: string;
   pix_qr_image?: string;
   pix_type?: 'text' | 'qr';
+  payment_proof_file?: string;
+  payment_proof_filename?: string;
+  payment_proof_type?: string;
+  payment_confirmed_at?: string;
+  admin_reviewed_at?: string;
+  admin_review_notes?: string;
+  payment_status?: 'waiting_payment' | 'waiting_review' | 'approved' | 'rejected';
   created_at: string;
   updated_at: string;
 }
@@ -29,7 +37,11 @@ interface UserPixOrdersProps {
 
 const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
   const [copiedCode, setCopiedCode] = useState('');
+  const [selectedOrderForProof, setSelectedOrderForProof] = useState<PixOrder | null>(null);
+  const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
+  const [paymentProofPreview, setPaymentProofPreview] = useState<string>('');
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Obtener pedidos del usuario desde Supabase
   const { data: userOrders = [], isLoading } = useQuery({
@@ -67,6 +79,46 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
     enabled: !!userId, // Solo ejecutar si hay userId
   });
 
+  // Mutación para enviar comprobante de pago
+  const uploadPaymentProofMutation = useMutation({
+    mutationFn: async ({ orderId, proofFile }: { orderId: string; proofFile: File }) => {
+      // Convertir archivo a Base64
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(proofFile);
+      });
+
+      const { data, error } = await supabase
+        .from('pix_orders')
+        .update({
+          payment_proof_file: base64,
+          payment_proof_filename: proofFile.name,
+          payment_proof_type: proofFile.type,
+          payment_confirmed_at: new Date().toISOString(),
+          payment_status: 'waiting_review'
+        })
+        .eq('id', orderId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pix_orders'] });
+      toast({ title: "Comprobante enviado com sucesso! Aguarde a revisão do administrador." });
+      setSelectedOrderForProof(null);
+      setPaymentProofFile(null);
+      setPaymentProofPreview('');
+    },
+    onError: (error: any) => {
+      console.error('Error uploading payment proof:', error);
+      toast({ title: "Erro ao enviar comprobante", variant: "destructive" });
+    },
+  });
+
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -78,16 +130,59 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validar tipo de archivo
+    if (!file.type.includes('image/') && !file.type.includes('pdf')) {
+      toast({ title: "Apenas imagens e PDFs são aceitos", variant: "destructive" });
+      return;
+    }
+
+    // Validar tamanho (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Arquivo muito grande. Máximo 5MB.", variant: "destructive" });
+      return;
+    }
+
+    setPaymentProofFile(file);
+
+    // Crear preview para imágenes
+    if (file.type.includes('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => setPaymentProofPreview(e.target?.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setPaymentProofPreview('');
+    }
+  };
+
+  const handleUploadPaymentProof = () => {
+    if (!selectedOrderForProof || !paymentProofFile) return;
+    uploadPaymentProofMutation.mutate({
+      orderId: selectedOrderForProof.id,
+      proofFile: paymentProofFile
+    });
+  };
+
+  const getStatusBadge = (order: PixOrder) => {
+    const paymentStatus = order.payment_status || order.status;
+    
+    switch (paymentStatus) {
+      case 'waiting_payment':
       case 'pendiente':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />Pendiente</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />Aguardando Pagamento</Badge>;
+      case 'waiting_review':
+        return <Badge variant="secondary" className="bg-blue-100 text-blue-800"><Upload className="w-3 h-3 mr-1" />Aguardando Revisão</Badge>;
+      case 'approved':
       case 'pagado':
-        return <Badge variant="default" className="bg-green-100 text-green-800"><Check className="w-3 h-3 mr-1" />Pagado</Badge>;
+        return <Badge variant="default" className="bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Aprovado</Badge>;
+      case 'rejected':
       case 'cancelado':
-        return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Cancelado</Badge>;
+        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />Rejeitado</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="outline">{paymentStatus}</Badge>;
     }
   };
 
@@ -134,7 +229,7 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
                       <h3 className="font-semibold">Pedido #{order.id}</h3>
-                      {getStatusBadge(order.status)}
+                      {getStatusBadge(order)}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {formatDate(order.created_at)}
@@ -232,11 +327,82 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
                         </div>
                       ) : null}
                       
-                      <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-center">
-                        <p className="text-xs text-yellow-800">
-                          💡 Após o pagamento, aguarde alguns minutos para confirmação automática
-                        </p>
-                      </div>
+                      {/* Payment Confirmation Button */}
+                      {(order.payment_status === 'waiting_payment' || order.status === 'pendiente') && (
+                        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                          <div className="text-center space-y-3">
+                            <p className="text-sm text-green-800 font-medium">
+                              ✅ Fez o pagamento? Envie o comprobante para confirmação
+                            </p>
+                            <Button
+                              onClick={() => setSelectedOrderForProof(order)}
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                            >
+                              <Upload className="w-4 h-4 mr-2" />
+                              Enviar Comprobante
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Payment Status Messages */}
+                      {order.payment_status === 'waiting_review' && (
+                        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                          <div className="flex items-center gap-2 text-blue-800 mb-2">
+                            <Clock className="w-4 h-4" />
+                            <span className="font-medium">Comprobante enviado - Aguardando revisão</span>
+                          </div>
+                          <p className="text-sm text-blue-700">
+                            Seu comprobante foi enviado e está sendo analisado pelo administrador. Você receberá uma confirmação em breve.
+                          </p>
+                          {order.payment_confirmed_at && (
+                            <p className="text-xs text-blue-600 mt-2">
+                              Enviado em: {formatDate(order.payment_confirmed_at)}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {order.payment_status === 'approved' && (
+                        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                          <div className="flex items-center gap-2 text-green-800">
+                            <CheckCircle className="w-4 h-4" />
+                            <span className="font-medium">Pagamento aprovado!</span>
+                          </div>
+                          <p className="text-sm text-green-700 mt-1">
+                            Seu pagamento foi confirmado pelo administrador.
+                          </p>
+                          {order.admin_reviewed_at && (
+                            <p className="text-xs text-green-600 mt-2">
+                              Aprovado em: {formatDate(order.admin_reviewed_at)}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {order.payment_status === 'rejected' && (
+                        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                          <div className="flex items-center gap-2 text-red-800 mb-2">
+                            <XCircle className="w-4 h-4" />
+                            <span className="font-medium">Pagamento rejeitado</span>
+                          </div>
+                          <p className="text-sm text-red-700">
+                            O comprobante foi rejeitado. Entre em contato com o suporte.
+                          </p>
+                          {order.admin_review_notes && (
+                            <div className="mt-2 p-2 bg-red-100 rounded">
+                              <p className="text-xs text-red-800">
+                                <strong>Motivo:</strong> {order.admin_review_notes}
+                              </p>
+                            </div>
+                          )}
+                          {order.admin_reviewed_at && (
+                            <p className="text-xs text-red-600 mt-2">
+                              Rejeitado em: {formatDate(order.admin_reviewed_at)}
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -269,6 +435,118 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
           </div>
         )}
       </CardContent>
+
+      {/* Modal para upload de comprobante de pago */}
+      {selectedOrderForProof && (
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setSelectedOrderForProof(null);
+              setPaymentProofFile(null);
+              setPaymentProofPreview('');
+            }
+          }}
+        >
+          <div 
+            className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Upload className="w-5 h-5" />
+                Enviar Comprobante de Pagamento
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Pedido #{selectedOrderForProof.id}
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="payment-proof">
+                  Selecionar arquivo (PDF ou imagem)
+                </Label>
+                <Input
+                  id="payment-proof"
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.webp"
+                  onChange={handleFileUpload}
+                  className="mt-1"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Máximo 5MB. Formatos aceitos: PDF, JPG, PNG, WebP
+                </p>
+              </div>
+
+              {paymentProofFile && (
+                <div className="p-3 bg-gray-50 rounded border">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileText className="w-4 h-4" />
+                    <span className="text-sm font-medium">{paymentProofFile.name}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Tamanho: {(paymentProofFile.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                  
+                  {paymentProofPreview && (
+                    <div className="mt-3">
+                      <img 
+                        src={paymentProofPreview} 
+                        alt="Preview do comprobante" 
+                        className="max-w-full h-32 object-contain rounded border"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="bg-blue-50 border border-blue-200 rounded p-3">
+                <p className="text-sm text-blue-800">
+                  <strong>Importante:</strong> Certifique-se de que o comprobante mostra claramente:
+                </p>
+                <ul className="text-xs text-blue-700 mt-1 space-y-1 ml-4">
+                  <li>• Valor pago: {formatCurrency(selectedOrderForProof.amount)}</li>
+                  <li>• Data e hora do pagamento</li>
+                  <li>• Tipo de transação: PIX</li>
+                  <li>• Status: "Concluído" ou "Aprovado"</li>
+                </ul>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedOrderForProof(null);
+                    setPaymentProofFile(null);
+                    setPaymentProofPreview('');
+                  }}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleUploadPaymentProof}
+                  disabled={!paymentProofFile || uploadPaymentProofMutation.isPending}
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                >
+                  {uploadPaymentProofMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Confirmar Pagamento
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 };

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { QrCode, Copy, Check, Clock, DollarSign, User, AlertCircle, Trash2, Image, Type } from 'lucide-react';
+import { QrCode, Copy, Check, Clock, DollarSign, User, AlertCircle, Trash2, Image, Type, Upload, FileText, CheckCircle, XCircle, Eye } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,17 +22,26 @@ interface PixOrder {
   pix_code?: string;
   pix_qr_image?: string;
   pix_type?: 'text' | 'qr';
+  payment_proof_file?: string;
+  payment_proof_filename?: string;
+  payment_proof_type?: string;
+  payment_confirmed_at?: string;
+  admin_reviewed_at?: string;
+  admin_review_notes?: string;
+  payment_status?: 'waiting_payment' | 'waiting_review' | 'approved' | 'rejected';
   created_at: string;
   updated_at: string;
 }
 
 const AdminPixOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState<PixOrder | null>(null);
+  const [selectedOrderForReview, setSelectedOrderForReview] = useState<PixOrder | null>(null);
   const [pixCode, setPixCode] = useState('');
   const [pixType, setPixType] = useState<'text' | 'qr'>('text');
   const [qrImage, setQrImage] = useState<File | null>(null);
   const [qrImagePreview, setQrImagePreview] = useState<string>('');
   const [copiedCode, setCopiedCode] = useState('');
+  const [reviewNotes, setReviewNotes] = useState('');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -137,6 +146,66 @@ const AdminPixOrders = () => {
         description: error.message || "Verifique as permissões de administrador",
         variant: "destructive" 
       });
+    },
+  });
+
+  // Mutación para aprovar comprobante de pago
+  const approvePaymentMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      const { data, error } = await supabase
+        .from('pix_orders')
+        .update({
+          payment_status: 'approved',
+          admin_reviewed_at: new Date().toISOString(),
+          admin_review_notes: reviewNotes || null
+        })
+        .eq('id', orderId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin_pix_orders'] });
+      queryClient.invalidateQueries({ queryKey: ['pix_orders'] });
+      toast({ title: "Pagamento aprovado com sucesso!" });
+      setSelectedOrderForReview(null);
+      setReviewNotes('');
+    },
+    onError: (error: any) => {
+      console.error('Error approving payment:', error);
+      toast({ title: "Erro ao aprovar pagamento", variant: "destructive" });
+    },
+  });
+
+  // Mutación para rejeitar comprobante de pago
+  const rejectPaymentMutation = useMutation({
+    mutationFn: async ({ orderId, notes }: { orderId: string; notes: string }) => {
+      const { data, error } = await supabase
+        .from('pix_orders')
+        .update({
+          payment_status: 'rejected',
+          admin_reviewed_at: new Date().toISOString(),
+          admin_review_notes: notes
+        })
+        .eq('id', orderId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin_pix_orders'] });
+      queryClient.invalidateQueries({ queryKey: ['pix_orders'] });
+      toast({ title: "Pagamento rejeitado" });
+      setSelectedOrderForReview(null);
+      setReviewNotes('');
+    },
+    onError: (error: any) => {
+      console.error('Error rejecting payment:', error);
+      toast({ title: "Erro ao rejeitar pagamento", variant: "destructive" });
     },
   });
 
@@ -245,16 +314,23 @@ const AdminPixOrders = () => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
+  const getStatusBadge = (order: PixOrder) => {
+    const paymentStatus = order.payment_status || order.status;
+    
+    switch (paymentStatus) {
+      case 'waiting_payment':
       case 'pendiente':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />Pendiente</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />Aguardando Pagamento</Badge>;
+      case 'waiting_review':
+        return <Badge variant="secondary" className="bg-blue-100 text-blue-800 animate-pulse"><Upload className="w-3 h-3 mr-1" />REVISAR COMPROBANTE</Badge>;
+      case 'approved':
       case 'pagado':
-        return <Badge variant="default" className="bg-green-100 text-green-800"><Check className="w-3 h-3 mr-1" />Pagado</Badge>;
+        return <Badge variant="default" className="bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Aprovado</Badge>;
+      case 'rejected':
       case 'cancelado':
-        return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Cancelado</Badge>;
+        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />Rejeitado</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="outline">{paymentStatus}</Badge>;
     }
   };
 
@@ -302,10 +378,21 @@ const AdminPixOrders = () => {
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <h3 className="font-semibold">Pedido #{order.id}</h3>
-                        {getStatusBadge(order.status)}
+                        {getStatusBadge(order)}
                       </div>
                       <div className="flex items-center gap-2">
-                        {order.status === 'pendiente' && (
+                        {order.payment_status === 'waiting_review' && (
+                          <Button
+                            size="sm"
+                            onClick={() => setSelectedOrderForReview(order)}
+                            className="bg-orange-600 hover:bg-orange-700 animate-pulse"
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            Revisar Comprobante
+                          </Button>
+                        )}
+                        
+                        {order.status === 'pendiente' && !order.payment_status && (
                           <>
                             <Button
                               size="sm"
@@ -333,6 +420,7 @@ const AdminPixOrders = () => {
                             </Button>
                           </>
                         )}
+                        
                         <Button
                           size="sm"
                           variant="destructive"
@@ -548,6 +636,177 @@ const AdminPixOrders = () => {
                   className="flex-1"
                 >
                   Cancelar
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para revisar comprobante de pago */}
+      {selectedOrderForReview && (
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setSelectedOrderForReview(null);
+              setReviewNotes('');
+            }
+          }}
+        >
+          <div 
+            className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                Revisar Comprobante de Pagamento
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Pedido #{selectedOrderForReview.id} - {formatCurrency(selectedOrderForReview.amount)}
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {/* Informações do pedido */}
+              <div className="bg-gray-50 p-4 rounded border">
+                <h4 className="font-medium mb-2">Informações do Pedido</h4>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <Label className="text-muted-foreground">Usuário</Label>
+                    <p>{selectedOrderForReview.user_id}</p>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">Valor</Label>
+                    <p>{formatCurrency(selectedOrderForReview.amount)}</p>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">Criado em</Label>
+                    <p>{formatDate(selectedOrderForReview.created_at)}</p>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">Comprobante enviado em</Label>
+                    <p>{selectedOrderForReview.payment_confirmed_at 
+                      ? formatDate(selectedOrderForReview.payment_confirmed_at)
+                      : 'N/A'
+                    }</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Comprobante de pago */}
+              {selectedOrderForReview.payment_proof_file && (
+                <div className="bg-blue-50 border border-blue-200 p-4 rounded">
+                  <h4 className="font-medium mb-3">Comprobante Enviado pelo Cliente</h4>
+                  
+                  {selectedOrderForReview.payment_proof_type?.includes('image/') ? (
+                    <div className="space-y-3">
+                      <div className="bg-white p-4 rounded border">
+                        <img 
+                          src={selectedOrderForReview.payment_proof_file} 
+                          alt="Comprobante de pagamento" 
+                          className="max-w-full h-auto max-h-96 object-contain mx-auto rounded"
+                        />
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        <p><strong>Arquivo:</strong> {selectedOrderForReview.payment_proof_filename}</p>
+                        <p><strong>Tipo:</strong> {selectedOrderForReview.payment_proof_type}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-white p-4 rounded border text-center">
+                      <FileText className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm font-medium">{selectedOrderForReview.payment_proof_filename}</p>
+                      <p className="text-xs text-muted-foreground">PDF - {selectedOrderForReview.payment_proof_type}</p>
+                      <a 
+                        href={selectedOrderForReview.payment_proof_file}
+                        download={selectedOrderForReview.payment_proof_filename}
+                        className="inline-block mt-2 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                      >
+                        Baixar PDF
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Notas da revisão */}
+              <div>
+                <Label htmlFor="review-notes">
+                  Notas da Revisão (opcional)
+                </Label>
+                <Input
+                  id="review-notes"
+                  type="text"
+                  placeholder="Adicione comentários sobre a revisão..."
+                  value={reviewNotes}
+                  onChange={(e) => setReviewNotes(e.target.value)}
+                  className="mt-1"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Será visível para o cliente em caso de rejeição
+                </p>
+              </div>
+
+              {/* Ações */}
+              <div className="flex gap-3 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedOrderForReview(null);
+                    setReviewNotes('');
+                  }}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    if (!reviewNotes.trim()) {
+                      toast({ 
+                        title: "Por favor, adicione uma justificativa para a rejeição",
+                        variant: "destructive" 
+                      });
+                      return;
+                    }
+                    rejectPaymentMutation.mutate({
+                      orderId: selectedOrderForReview.id,
+                      notes: reviewNotes
+                    });
+                  }}
+                  disabled={rejectPaymentMutation.isPending}
+                  className="flex-1"
+                >
+                  {rejectPaymentMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Rejeitando...
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="w-4 h-4 mr-2" />
+                      Rejeitar
+                    </>
+                  )}
+                </Button>
+                <Button
+                  onClick={() => approvePaymentMutation.mutate(selectedOrderForReview.id)}
+                  disabled={approvePaymentMutation.isPending}
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                >
+                  {approvePaymentMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Aprovando...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Aprovar Pagamento
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
