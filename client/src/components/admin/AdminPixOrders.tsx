@@ -59,6 +59,24 @@ const AdminPixOrders = () => {
         throw error;
       }
       
+      console.log('🔍 AdminPixOrders - Dados brutos do Supabase:', data);
+      console.log('🔍 AdminPixOrders - Total de pedidos encontrados:', data?.length || 0);
+      
+      // Log para verificar se há comprovantes de pagamento
+      const ordersWithProofs = data?.filter(order => order.payment_proof_file) || [];
+      console.log('📄 AdminPixOrders - Pedidos com comprovantes:', ordersWithProofs.length);
+      
+      if (ordersWithProofs.length > 0) {
+        console.log('📋 AdminPixOrders - Primeiro pedido com comprovante:', {
+          id: ordersWithProofs[0].id,
+          payment_status: ordersWithProofs[0].payment_status,
+          has_proof_file: !!ordersWithProofs[0].payment_proof_file,
+          proof_filename: ordersWithProofs[0].payment_proof_filename,
+          proof_type: ordersWithProofs[0].payment_proof_type,
+          confirmed_at: ordersWithProofs[0].payment_confirmed_at
+        });
+      }
+      
       return (data || []).map(order => ({
         id: order.id as string,
         user_id: order.user_id as string | undefined,
@@ -70,6 +88,13 @@ const AdminPixOrders = () => {
         pix_code: order.pix_code as string | undefined,
         pix_qr_image: order.pix_qr_image as string | undefined,
         pix_type: order.pix_type as 'text' | 'qr' | undefined,
+        payment_proof_file: order.payment_proof_file as string | undefined,
+        payment_proof_filename: order.payment_proof_filename as string | undefined,
+        payment_proof_type: order.payment_proof_type as string | undefined,
+        payment_confirmed_at: order.payment_confirmed_at as string | undefined,
+        admin_reviewed_at: order.admin_reviewed_at as string | undefined,
+        admin_review_notes: order.admin_review_notes as string | undefined,
+        payment_status: order.payment_status as 'waiting_payment' | 'waiting_review' | 'approved' | 'rejected' | undefined,
         created_at: order.created_at as string,
         updated_at: order.updated_at as string
       }));
