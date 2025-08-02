@@ -8,6 +8,12 @@ This project is a full-stack JavaScript web application with a space/astronomy t
 - **Admin Panel**: Resolved AdminPixOrders component to properly fetch and display payment proof files
 - **User Experience**: Fixed conditional logic in admin panel preventing QR/PIX code uploads for orders with "waiting_payment" status
 - **Database**: Implemented proper TypeScript typing for payment proof fields to resolve text/UUID conflicts
+- **Payment Approval**: Complete automated flow - when admin approves payment proof, system automatically:
+  - Adds active plan to user profile
+  - Creates subscription record with calculated expiration date
+  - Decreases plan stock (if applicable)
+  - Removes processed order from queue
+  - Invalidates relevant caches for immediate UI updates
 
 ## User Preferences
 - Language: Portuguese (Brazilian Portuguese) - converted from Spanish

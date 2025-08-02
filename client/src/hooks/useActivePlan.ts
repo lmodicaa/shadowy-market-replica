@@ -24,7 +24,7 @@ export const useActivePlan = (userId?: string) => {
       
       // Verificar se tem plano ativo e não vencido
       if (profile?.active_plan && profile?.active_plan_until) {
-        const endDate = new Date(profile.active_plan_until);
+        const endDate = new Date(String(profile.active_plan_until));
         const now = new Date();
         
         if (endDate > now) {

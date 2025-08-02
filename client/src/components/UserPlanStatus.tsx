@@ -78,7 +78,7 @@ const UserPlanStatus = ({ userId, onUpgrade }: UserPlanStatusProps) => {
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Crown className="w-5 h-5 text-cloud-blue" />
-            Plano {activePlan.planName}
+            Plano {String(activePlan.planName || 'Desconhecido')}
           </div>
           <Badge className={`${getStatusColor()} text-white`}>
             {getStatusText()}
@@ -90,7 +90,7 @@ const UserPlanStatus = ({ userId, onUpgrade }: UserPlanStatusProps) => {
           <div className="flex items-center gap-2 text-muted-foreground">
             <Calendar className="w-4 h-4" />
             <span>
-              Expira em: {new Date(activePlan.expirationDate).toLocaleDateString('pt-BR')}
+              Expira em: {new Date(String(activePlan.expirationDate || new Date())).toLocaleDateString('pt-BR')}
             </span>
           </div>
           
