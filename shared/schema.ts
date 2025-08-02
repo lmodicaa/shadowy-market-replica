@@ -45,7 +45,7 @@ export const subscriptions = pgTable("subscriptions", {
 // Tabela de pedidos Pix
 export const pix_orders = pgTable("pix_orders", {
   id: text("id").primaryKey(),
-  user_id: text("user_id"),
+  user_id: uuid("user_id"), // Mudança para UUID para compatibilidade com Supabase auth
   plan_id: uuid("plan_id"), // Referência ao plano sendo comprado
   plan_name: text("plan_name"),
   amount: text("amount"), // Valor como string para manter formato
