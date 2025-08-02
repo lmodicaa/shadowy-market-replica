@@ -417,7 +417,7 @@ const AdminPixOrders = () => {
                           </Button>
                         )}
                         
-                        {order.status === 'pendiente' && !order.payment_status && (
+                        {(order.status === 'pendiente' && (!order.payment_status || order.payment_status === 'waiting_payment')) && (
                           <>
                             <Button
                               size="sm"

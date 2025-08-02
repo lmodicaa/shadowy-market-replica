@@ -3,6 +3,12 @@
 ## Overview
 This project is a full-stack JavaScript web application with a space/astronomy theme, migrated from Lovable to Replit. It features user authentication, a comprehensive plan subscription and management system, a VM dashboard, and an extensive admin panel. The application aims to provide a robust platform for managing user subscriptions and virtual machine resources.
 
+## Recent Changes (January 2025)
+- **PIX Payment System**: Fixed critical payment proof upload functionality by updating database schema with required fields (payment_proof_file, payment_proof_filename, payment_proof_type, payment_status, etc.)
+- **Admin Panel**: Resolved AdminPixOrders component to properly fetch and display payment proof files
+- **User Experience**: Fixed conditional logic in admin panel preventing QR/PIX code uploads for orders with "waiting_payment" status
+- **Database**: Implemented proper TypeScript typing for payment proof fields to resolve text/UUID conflicts
+
 ## User Preferences
 - Language: Portuguese (Brazilian Portuguese) - converted from Spanish
 - Authentication: Supabase integration preferred
