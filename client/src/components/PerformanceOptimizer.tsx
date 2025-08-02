@@ -9,7 +9,7 @@ export const PerformanceOptimizer = () => {
       if ('PerformanceObserver' in window) {
         const lcpObserver = new PerformanceObserver((list) => {
           for (const entry of list.getEntries()) {
-            console.log('🚀 LCP:', Math.round(entry.startTime) + 'ms');
+
           }
         });
         lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
@@ -23,7 +23,7 @@ export const PerformanceOptimizer = () => {
             }
           }
           if (clsScore > 0) {
-            console.log('📐 CLS:', clsScore.toFixed(4));
+
           }
         });
         clsObserver.observe({ entryTypes: ['layout-shift'] });
@@ -36,7 +36,7 @@ export const PerformanceOptimizer = () => {
           const heroSection = document.querySelector('section[class*="min-h-screen"]');
           if (heroSection && heroSection.textContent) {
             const lcpTime = performance.now() - startTime;
-            console.log('🚀 MateCloud LCP:', lcpTime.toFixed(2) + 'ms');
+
           } else {
             requestAnimationFrame(checkForContent);
           }

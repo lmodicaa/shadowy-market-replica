@@ -6,7 +6,7 @@ const router = Router();
 // Route to test database connectivity
 router.get('/test-db', async (req, res) => {
   try {
-    console.log('Testing database connectivity...');
+
     
     // Test multiple table connections
     const [usersTest, settingsTest, plansTest] = await Promise.all([
@@ -31,7 +31,6 @@ router.get('/test-db', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Database test error:', error);
     res.status(500).json({
       status: 'error',
       message: 'Database test failed',
@@ -44,7 +43,7 @@ router.get('/test-db', async (req, res) => {
 // Route to initialize admin settings
 router.post('/init-settings', async (req, res) => {
   try {
-    console.log('Initializing admin settings...');
+
     
     const defaultSettings = [
       { key: 'maintenance_mode', value: 'false', description: 'Ativar modo de manutenção' },
@@ -94,7 +93,6 @@ router.post('/init-settings', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Settings initialization error:', error);
     res.status(500).json({
       status: 'error',
       message: 'Failed to initialize settings',
@@ -110,8 +108,7 @@ router.post('/init-settings', async (req, res) => {
 router.delete('/users/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
-    console.log('=== SERVER DELETE USER REQUEST ===');
-    console.log('User ID to delete:', userId);
+
     
     if (!userId) {
       return res.status(400).json({
@@ -121,32 +118,28 @@ router.delete('/users/:userId', async (req, res) => {
     }
     
     // First, delete related subscriptions using service role key
-    console.log('Deleting user subscriptions...');
     const { data: subscriptionsData, error: subscriptionsError } = await supabase
       .from('subscriptions')
       .delete()
       .eq('user_id', userId)
       .select();
     
-    console.log('Subscriptions deletion result:', { subscriptionsData, subscriptionsError });
+
     
     if (subscriptionsError) {
-      console.warn('Warning: Failed to delete subscriptions:', subscriptionsError);
       // Continue with profile deletion even if subscriptions fail
     }
     
     // Delete the user profile using service role key
-    console.log('Deleting user profile...');
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .delete()
       .eq('id', userId)
       .select();
     
-    console.log('Profile deletion result:', { profileData, profileError });
+
     
     if (profileError) {
-      console.error('Critical error deleting user profile:', profileError);
       return res.status(500).json({
         status: 'error',
         message: `Failed to delete user: ${profileError.message}`,
@@ -154,7 +147,7 @@ router.delete('/users/:userId', async (req, res) => {
       });
     }
     
-    console.log('✅ User deleted successfully');
+
     res.json({
       status: 'ok',
       message: 'User deleted successfully',
@@ -164,7 +157,6 @@ router.delete('/users/:userId', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Server-side user deletion error:', error);
     res.status(500).json({
       status: 'error',
       message: 'Internal server error during user deletion',
@@ -176,7 +168,7 @@ router.delete('/users/:userId', async (req, res) => {
 // Route to clear application cache (server-side)
 router.post('/clear-cache', async (req, res) => {
   try {
-    console.log('Clearing server-side cache...');
+
     
     // Simulate cache clearing operations
     // In a real application, you might clear Redis, Node.js cache, etc.

@@ -186,7 +186,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
           if (response.ok) {
             const result = await response.json();
             if (result.plans && result.plans.length > 0) {
-              console.log('Planos carregados da API backend:', result.plans.length);
+
               return result.plans.map((plan: any) => ({
                 id: plan.id,
                 name: plan.name,
@@ -204,13 +204,13 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
                       plan.name.toLowerCase().includes('plus') ? Star :
                       plan.name.toLowerCase().includes('pro') ? Crown : Package,
                 popular: plan.name.toLowerCase().includes('plus'),
-                features: getFeaturesByPlanName(plan.name),
+                features: getFeaturesByPlanName(plan.name as string),
                 period: '/30 dias'
               }));
             }
           }
         } catch (apiError) {
-          console.log('API backend não disponível, tentando Supabase...');
+          // Fallback silently to Supabase
         }
 
         // Fallback para Supabase se API não funcionar
@@ -221,13 +221,11 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
           .order('name', { ascending: true });
         
         if (error) {
-          console.error('Supabase error:', error);
           throw error;
         }
         
         // Se não há dados, retornar planos de exemplo
         if (!data || data.length === 0) {
-          console.log('No plans found in database, using fallback');
           return getFallbackPlans();
         }
         
@@ -236,11 +234,10 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
           ...plan,
           icon: index === 0 ? Zap : index === 1 ? Star : Crown,
           popular: index === 1, // O segundo plano será popular
-          features: getFeaturesByPlanName(plan.name),
+          features: getFeaturesByPlanName(plan.name as string),
           period: `/${plan.duration || 30} dias`
         })) as Plan[];
       } catch (error) {
-        console.error('Error fetching plans:', error);
         // Retornar planos de exemplo se houver erro
         return getFallbackPlans();
       }
@@ -249,11 +246,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
   });
 
   const handleSelectPlan = async (plan: { id: string; name: string; price: string }) => {
-    console.log('🔥 Botão clicado! Plan:', plan);
-    console.log('🔥 Session user:', session?.user?.id);
-    
     if (!session?.user?.id) {
-      console.log('🔥 Sem login, mostrando toast');
       toast({
         title: "Login necessário",
         description: "Você precisa fazer login para escolher um plano.",
@@ -262,7 +255,6 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       return;
     }
 
-    console.log('🔥 Usuário logado, criando pedido Pix...');
     try {
       // Gerar ID único para o pedido
       const orderId = `PIX_${plan.name.toUpperCase()}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -270,12 +262,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       // Extrair valor numérico do preço (ex: "R$ 29,90" -> "29.90")
       const priceValue = plan.price.replace(/[^\d,]/g, '').replace(',', '.');
       
-      console.log('🔗 Criando pedido Pix diretamente no Supabase:', { 
-        orderId, 
-        planName: plan.name, 
-        amount: priceValue, 
-        userId: session.user.id 
-      });
+
 
       // Detectar ambiente e ajustar URL
       const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname.includes('replit');
@@ -300,7 +287,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
 
         if (response.ok) {
           const result = await response.json();
-          console.log('✅ Pedido Pix criado via API backend:', result);
+
           
           toast({
             title: "Pedido criado com sucesso!",
@@ -311,7 +298,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
           return;
         }
       } catch (apiError) {
-        console.log('API backend falhou, usando Supabase direto...');
+        // API backend falhou, usando Supabase direto
       }
 
       // Fallback para Supabase direto
@@ -319,7 +306,6 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
       
       if (!supabaseUrl || !supabaseKey) {
-        console.log('🔥 Supabase não configurado, mostrando mensagem de fallback...');
         toast({
           title: "Sistema de pagamentos em desenvolvimento",
           description: "Para adquirir este plano, entre em contato conosco via Discord ou WhatsApp. O sistema automatizado será ativado em breve!",
@@ -344,7 +330,6 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
         .single();
 
       if (error) {
-        console.error('Erro ao criar pedido Pix:', error);
         
         // Se o erro é devido a configuração/conexão, mostrar mensagem amigável
         if (error.message.includes('Failed to fetch') || error.message.includes('network') || error.code === 'PGRST301') {
@@ -359,7 +344,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
         throw new Error(`Erro ao criar pedido: ${error.message}`);
       }
 
-      console.log('✅ Pedido Pix criado com sucesso:', pixOrder);
+
 
       toast({
         title: "Pedido criado com sucesso!",
@@ -370,7 +355,6 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       onPlanSelect?.(plan.name);
 
     } catch (error: any) {
-      console.error('Erro ao criar pedido:', error);
       
       const errorMessage = error?.message || "Ocorreu um erro ao processar sua solicitação. Tente novamente.";
       
@@ -434,7 +418,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
                 <Crown className="w-5 h-5 text-cloud-blue" />
                 <span className="font-semibold text-cloud-blue">Plano Ativo</span>
               </div>
-              <p className="text-lg font-bold">{activePlan.planName}</p>
+              <p className="text-lg font-bold">{activePlan.planName as string}</p>
               <p className="text-sm text-foreground/70">
                 {activePlan.daysRemaining !== undefined && activePlan.daysRemaining >= 0
                   ? `${activePlan.daysRemaining} dias restantes`

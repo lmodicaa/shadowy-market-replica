@@ -59,23 +59,7 @@ const AdminPixOrders = () => {
         throw error;
       }
       
-      console.log('🔍 AdminPixOrders - Dados brutos do Supabase:', data);
-      console.log('🔍 AdminPixOrders - Total de pedidos encontrados:', data?.length || 0);
-      
-      // Log para verificar se há comprovantes de pagamento
-      const ordersWithProofs = data?.filter(order => order.payment_proof_file) || [];
-      console.log('📄 AdminPixOrders - Pedidos com comprovantes:', ordersWithProofs.length);
-      
-      if (ordersWithProofs.length > 0) {
-        console.log('📋 AdminPixOrders - Primeiro pedido com comprovante:', {
-          id: ordersWithProofs[0].id,
-          payment_status: ordersWithProofs[0].payment_status,
-          has_proof_file: !!ordersWithProofs[0].payment_proof_file,
-          proof_filename: ordersWithProofs[0].payment_proof_filename,
-          proof_type: ordersWithProofs[0].payment_proof_type,
-          confirmed_at: ordersWithProofs[0].payment_confirmed_at
-        });
-      }
+
       
       return (data || []).map(order => ({
         id: order.id as string,
@@ -177,8 +161,6 @@ const AdminPixOrders = () => {
   // Mutación para aprovar comprobante de pago
   const approvePaymentMutation = useMutation({
     mutationFn: async (orderId: string) => {
-      console.log('🎯 Iniciando aprovação do pagamento para pedido:', orderId);
-      
       // 1. Primeiro, buscar os dados completos do pedido
       const { data: orderData, error: orderError } = await supabase
         .from('pix_orders')
@@ -187,16 +169,8 @@ const AdminPixOrders = () => {
         .single();
 
       if (orderError || !orderData) {
-        console.error('❌ Erro ao buscar dados do pedido:', orderError);
         throw new Error('Pedido não encontrado');
       }
-
-      console.log('📋 Dados do pedido encontrado:', {
-        id: orderData.id,
-        user_id: orderData.user_id,
-        plan_id: orderData.plan_id,
-        plan_name: orderData.plan_name
-      });
 
       if (!orderData.user_id || !orderData.plan_id) {
         throw new Error('Dados do pedido incompletos (user_id ou plan_id faltando)');
@@ -210,15 +184,8 @@ const AdminPixOrders = () => {
         .single();
 
       if (planError || !planData) {
-        console.error('❌ Erro ao buscar dados do plano:', planError);
         throw new Error('Plano não encontrado');
       }
-
-      console.log('📦 Dados do plano encontrado:', {
-        id: planData.id,
-        name: planData.name,
-        duration: planData.duration
-      });
 
       // 3. Calcular data de expiração do plano
       const startDate = new Date();
@@ -226,11 +193,7 @@ const AdminPixOrders = () => {
       const duration = typeof planData.duration === 'number' ? planData.duration : 30;
       endDate.setDate(startDate.getDate() + duration);
 
-      console.log('📅 Datas calculadas:', {
-        start: startDate.toISOString(),
-        end: endDate.toISOString(),
-        duration: duration
-      });
+
 
       // 4. Atualizar perfil do usuário com plano ativo
       const { error: profileError } = await supabase
@@ -243,11 +206,8 @@ const AdminPixOrders = () => {
         .eq('id', orderData.user_id);
 
       if (profileError) {
-        console.error('❌ Erro ao atualizar perfil do usuário:', profileError);
         throw new Error('Erro ao ativar plano no perfil do usuário');
       }
-
-      console.log('✅ Perfil do usuário atualizado com plano ativo');
 
       // 5. Criar registro na tabela de assinaturas
       const { error: subscriptionError } = await supabase
@@ -261,11 +221,8 @@ const AdminPixOrders = () => {
         });
 
       if (subscriptionError) {
-        console.error('❌ Erro ao criar registro de assinatura:', subscriptionError);
         throw new Error('Erro ao registrar assinatura');
       }
-
-      console.log('✅ Registro de assinatura criado');
 
       // 6. Diminuir estoque do plano (se aplicável)
       const currentStock = typeof planData.stock === 'number' ? planData.stock : 0;
@@ -278,10 +235,7 @@ const AdminPixOrders = () => {
           .eq('id', String(planData.id));
 
         if (stockError) {
-          console.error('⚠️ Erro ao diminuir estoque do plano:', stockError);
           // Não falha a operação se for apenas erro de estoque
-        } else {
-          console.log('📦 Estoque do plano diminuído');
         }
       }
 
@@ -292,11 +246,8 @@ const AdminPixOrders = () => {
         .eq('id', orderId);
 
       if (deleteError) {
-        console.error('❌ Erro ao remover pedido:', deleteError);
         throw new Error('Erro ao remover pedido processado');
       }
-
-      console.log('🗑️ Pedido removido com sucesso');
 
       return {
         success: true,
@@ -307,7 +258,6 @@ const AdminPixOrders = () => {
       };
     },
     onSuccess: (result) => {
-      console.log('🎉 Aprovação completa:', result);
       queryClient.invalidateQueries({ queryKey: ['admin_pix_orders'] });
       queryClient.invalidateQueries({ queryKey: ['pix_orders'] });
       queryClient.invalidateQueries({ queryKey: ['user_profile'] });
@@ -320,7 +270,6 @@ const AdminPixOrders = () => {
       setReviewNotes('');
     },
     onError: (error: any) => {
-      console.error('❌ Erro na aprovação:', error);
       toast({ 
         title: "Erro ao processar aprovação", 
         description: error.message || "Verifique os logs para mais detalhes",

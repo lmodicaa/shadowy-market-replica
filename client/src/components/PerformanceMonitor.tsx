@@ -48,15 +48,7 @@ export const PerformanceMonitor = () => {
     setTimeout(() => {
       const navigation = performance.getEntriesByType('navigation')[0] as any;
       if (navigation) {
-        console.group('🚀 MateCloud Performance Metrics');
-        console.log('LCP (Largest Contentful Paint):', metrics.lcp ? `${metrics.lcp.toFixed(2)}ms` : 'N/A');
-        console.log('FID (First Input Delay):', metrics.fid ? `${metrics.fid.toFixed(2)}ms` : 'N/A');
-        console.log('CLS (Cumulative Layout Shift):', metrics.cls ? metrics.cls.toFixed(4) : 'N/A');
-        console.log('FCP (First Contentful Paint):', metrics.fcp ? `${metrics.fcp.toFixed(2)}ms` : 'N/A');
-        console.log('TTFB (Time to First Byte):', navigation.responseStart ? `${navigation.responseStart.toFixed(2)}ms` : 'N/A');
-        console.log('DOM Load:', navigation.domContentLoadedEventEnd ? `${navigation.domContentLoadedEventEnd.toFixed(2)}ms` : 'N/A');
-        console.log('Page Load:', navigation.loadEventEnd ? `${navigation.loadEventEnd.toFixed(2)}ms` : 'N/A');
-        console.groupEnd();
+        // Performance metrics collected but not logged to console
       }
     }, 3000);
 

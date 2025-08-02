@@ -3,11 +3,8 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
 
-console.log('🚀 MateCloud main.tsx starting...');
-
 const container = document.getElementById('root');
 if (!container) {
-  console.error('❌ Root container not found');
   document.body.innerHTML = `
     <div style="
       display: flex; align-items: center; justify-content: center; height: 100vh;
@@ -24,29 +21,21 @@ if (!container) {
     </div>
   `;
 } else {
-  console.log('🚀 Root container found, mounting React app...');
-  
   try {
     // Remove initial loader
     const loader = document.getElementById('initial-loader');
     if (loader) {
-      console.log('🚀 Removing initial loader...');
       loader.remove();
     }
 
-    console.log('🚀 Creating React root...');
     const root = createRoot(container);
     
-    console.log('🚀 Rendering App with StrictMode...');
     root.render(
       <StrictMode>
         <App />
       </StrictMode>
     );
-    
-    console.log('✅ React app mounted successfully');
   } catch (error) {
-    console.error('❌ Failed to render app:', error);
     container.innerHTML = `
       <div style="
         display: flex; align-items: center; justify-content: center; height: 100vh;

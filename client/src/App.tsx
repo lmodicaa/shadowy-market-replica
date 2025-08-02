@@ -40,18 +40,13 @@ const AppContent = ({ session }: { session: any }) => {
 };
 
 const App = () => {
-  console.log('🚀 App component initializing...');
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('🚀 App useEffect running...');
-    
     const getInitialSession = async () => {
-      console.log('🚀 Getting initial session...');
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
-        console.log('🚀 Session data:', session ? 'User logged in' : 'No session', error ? `Error: ${error.message}` : 'No error');
         if (error) {
           console.error('Error getting session:', error);
         }
@@ -60,7 +55,6 @@ const App = () => {
         console.error('Error in getInitialSession:', error);
         setSession(null);
       } finally {
-        console.log('🚀 Setting loading to false...');
         setLoading(false);
       }
     };
@@ -68,8 +62,6 @@ const App = () => {
     getInitialSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('🔐 Auth state change:', event, session ? 'User present' : 'No user');
-      
       setSession(session);
       setLoading(false);
 
@@ -86,7 +78,7 @@ const App = () => {
           const observer = new PerformanceObserver((list) => {
             for (const entry of list.getEntries()) {
               if (entry.entryType === 'largest-contentful-paint') {
-                console.log('🚀 MateCloud LCP:', entry.startTime.toFixed(2) + 'ms');
+                // LCP tracking for performance monitoring
               }
             }
           });
@@ -102,10 +94,7 @@ const App = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  console.log('🚀 App render - Loading state:', loading);
-
   if (loading) {
-    console.log('🚀 Showing loading spinner...');
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)' }}>
         <div className="text-center text-white">
@@ -116,7 +105,7 @@ const App = () => {
     );
   }
 
-  console.log('🚀 Rendering main app content...');
+
   
   return (
     <QueryClientProvider client={queryClient}>
