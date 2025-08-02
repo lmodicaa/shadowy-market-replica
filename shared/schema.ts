@@ -52,6 +52,15 @@ export const pix_orders = pgTable("pix_orders", {
   description: text("description"),
   status: text("status").default('pendiente'), // pendiente, pagado, cancelado
   pix_code: text("pix_code"),
+  pix_qr_image: text("pix_qr_image"), // Código QR PIX em Base64
+  pix_type: text("pix_type"), // 'text' ou 'qr'
+  payment_proof_file: text("payment_proof_file"), // Comprovante em Base64
+  payment_proof_filename: text("payment_proof_filename"), // Nome do arquivo
+  payment_proof_type: text("payment_proof_type"), // Tipo MIME do arquivo
+  payment_confirmed_at: timestamp("payment_confirmed_at"), // Data de confirmação do pagamento
+  admin_reviewed_at: timestamp("admin_reviewed_at"), // Data de revisão do admin
+  admin_review_notes: text("admin_review_notes"), // Notas do admin sobre a revisão
+  payment_status: text("payment_status").default('waiting_payment'), // waiting_payment, waiting_review, approved, rejected
   created_at: timestamp("created_at").defaultNow(),
   updated_at: timestamp("updated_at").defaultNow(),
 });

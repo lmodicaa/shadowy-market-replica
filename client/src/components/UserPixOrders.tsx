@@ -71,6 +71,13 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
         pix_code: order.pix_code as string | undefined,
         pix_qr_image: order.pix_qr_image as string | undefined,
         pix_type: order.pix_type as 'text' | 'qr' | undefined,
+        payment_proof_file: order.payment_proof_file as string | undefined,
+        payment_proof_filename: order.payment_proof_filename as string | undefined,
+        payment_proof_type: order.payment_proof_type as string | undefined,
+        payment_confirmed_at: order.payment_confirmed_at as string | undefined,
+        admin_reviewed_at: order.admin_reviewed_at as string | undefined,
+        admin_review_notes: order.admin_review_notes as string | undefined,
+        payment_status: order.payment_status as 'waiting_payment' | 'waiting_review' | 'approved' | 'rejected' | undefined,
         created_at: order.created_at as string,
         updated_at: order.updated_at as string
       }));
@@ -82,40 +89,82 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
   // Mutación para enviar comprobante de pago
   const uploadPaymentProofMutation = useMutation({
     mutationFn: async ({ orderId, proofFile }: { orderId: string; proofFile: File }) => {
-      // Convertir archivo a Base64
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(proofFile);
-      });
+      console.log('🚀 Iniciando upload de comprovante para pedido:', orderId);
+      console.log('📁 Arquivo:', proofFile.name, 'Tamanho:', proofFile.size, 'bytes');
+      
+      try {
+        // Convertir archivo a Base64
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            console.log('✅ Arquivo convertido para Base64');
+            resolve(reader.result as string);
+          };
+          reader.onerror = (error) => {
+            console.error('❌ Erro ao converter arquivo para Base64:', error);
+            reject(error);
+          };
+          reader.readAsDataURL(proofFile);
+        });
 
-      const { data, error } = await supabase
-        .from('pix_orders')
-        .update({
-          payment_proof_file: base64,
-          payment_proof_filename: proofFile.name,
-          payment_proof_type: proofFile.type,
-          payment_confirmed_at: new Date().toISOString(),
-          payment_status: 'waiting_review'
-        })
-        .eq('id', orderId)
-        .select()
-        .single();
+        console.log('📤 Enviando dados para Supabase...');
+        const { data, error } = await supabase
+          .from('pix_orders')
+          .update({
+            payment_proof_file: base64,
+            payment_proof_filename: proofFile.name,
+            payment_proof_type: proofFile.type,
+            payment_confirmed_at: new Date().toISOString(),
+            payment_status: 'waiting_review'
+          })
+          .eq('id', orderId)
+          .select()
+          .single();
 
-      if (error) throw error;
-      return data;
+        if (error) {
+          console.error('❌ Erro do Supabase:', error);
+          throw error;
+        }
+        
+        console.log('✅ Comprovante enviado com sucesso:', data);
+        return data;
+      } catch (error) {
+        console.error('❌ Erro no processo de upload:', error);
+        throw error;
+      }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('🎉 Upload concluído com sucesso:', data);
       queryClient.invalidateQueries({ queryKey: ['pix_orders'] });
-      toast({ title: "Comprobante enviado com sucesso! Aguarde a revisão do administrador." });
+      toast({ 
+        title: "Comprovante enviado com sucesso!", 
+        description: "Aguarde a revisão do administrador." 
+      });
       setSelectedOrderForProof(null);
       setPaymentProofFile(null);
       setPaymentProofPreview('');
     },
     onError: (error: any) => {
-      console.error('Error uploading payment proof:', error);
-      toast({ title: "Erro ao enviar comprobante", variant: "destructive" });
+      console.error('💥 Erro na mutação de upload:', error);
+      
+      let errorMessage = "Erro ao enviar comprovante";
+      
+      // Mensagens de erro mais específicas
+      if (error?.message?.includes('JWT')) {
+        errorMessage = "Sessão expirada. Faça login novamente.";
+      } else if (error?.message?.includes('RLS')) {
+        errorMessage = "Permissão negada. Verifique se você tem acesso a este pedido.";
+      } else if (error?.message?.includes('network')) {
+        errorMessage = "Erro de conexão. Verifique sua internet.";
+      } else if (error?.code === 'PGRST116') {
+        errorMessage = "Pedido não encontrado ou você não tem permissão para atualizá-lo.";
+      }
+      
+      toast({ 
+        title: errorMessage, 
+        description: "Tente novamente ou entre em contato com o suporte.",
+        variant: "destructive" 
+      });
     },
   });
 
