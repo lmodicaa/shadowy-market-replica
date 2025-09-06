@@ -1,21 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY || 'placeholder-key';
 
-// Create a more robust client that handles missing environment variables
-let supabase: ReturnType<typeof createClient>;
+// Create Supabase client with proper fallback handling
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: !!import.meta.env.VITE_SUPABASE_URL,
+    autoRefreshToken: !!import.meta.env.VITE_SUPABASE_URL
+  }
+});
 
-if (supabaseUrl && supabaseKey) {
-  supabase = createClient(supabaseUrl, supabaseKey);
-} else {
-  // Create a mock client that won't break the app
-  supabase = createClient('https://placeholder.supabase.co', 'placeholder-key', {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false
-    }
-  });
-}
-
-export { supabase };
+// Export a flag to check if we're using real credentials
+export const isSupabaseConfigured = !!(import.meta.env.VITE_SUPABASE_URL && (import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY));
