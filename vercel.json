@@ -7,9 +7,9 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/dist/client/$1"
+      "dest": "/client/$1"
     }
   ],
-  "outputDirectory": "dist/client",
+  "outputDirectory": "client",
   "buildCommand": "npm run build"
 }
