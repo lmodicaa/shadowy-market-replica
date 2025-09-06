@@ -1,25 +1,18 @@
-// API utilities for consistent URL handling across environments
-export const getApiBaseUrl = () => {
-  const hostname = window.location.hostname;
-  
-  // Production domain - use matecloud.store API
-  if (hostname === 'matecloud.store' || hostname.includes('matecloud.store')) {
-    return 'https://matecloud.store';
+export function getApiBaseUrl(): string {
+  // En producción (Vercel)
+  if (window.location.hostname.includes('vercel.app') || 
+      window.location.hostname === 'matecloud.store') {
+    return window.location.origin;
   }
   
-  // Replit development - use relative URLs to go through Vite proxy to Express server
-  if (hostname.includes('.replit.dev')) {
-    return '';
+  // En Replit
+  if (window.location.hostname.includes('replit')) {
+    return window.location.origin;
   }
   
-  // Local development
-  if (hostname === 'localhost') {
-    return '';
-  }
-  
-  // Fallback to same origin
-  return window.location.origin;
-};
+  // En desarrollo local
+  return '';
+}
 
 export const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   const baseUrl = getApiBaseUrl();
