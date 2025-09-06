@@ -1,11 +1,8 @@
 import * as schema from "@shared/schema";
 import { createClient } from '@supabase/supabase-js';
-import * as dotenv from 'dotenv';
-
-// Load environment variables
-dotenv.config();
 
 // Create Supabase client for server-side operations
+// Environment variables are automatically loaded in Vercel
 const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key';
 
