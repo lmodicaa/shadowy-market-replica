@@ -16,6 +16,5 @@
       "dest": "/index.html"
     }
   ],
-  "outputDirectory": "dist/client",
   "buildCommand": "npm run build"
 }
