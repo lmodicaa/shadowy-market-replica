@@ -1,7 +1,18 @@
 import * as schema from "@shared/schema";
+import { createClient } from '@supabase/supabase-js';
+import * as dotenv from 'dotenv';
 
-// For migration compatibility, we'll use a simple in-memory database
-// This can be upgraded to Supabase later when secrets are configured
+// Load environment variables
+dotenv.config();
+
+// Create Supabase client for server-side operations
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key';
+
+export const supabase = createClient(supabaseUrl, supabaseKey);
+
+// For migration compatibility, we'll use a simple in-memory database as fallback
+// This can be upgraded to use Supabase directly when needed
 export type Profile = {
   id: string;
   username?: string;
@@ -156,10 +167,5 @@ class InMemoryDatabase {
 
 export const db = new InMemoryDatabase();
 
-// Export a compatible interface for existing code
-export const supabase = {
-  auth: {
-    getUser: async () => ({ data: { user: null }, error: null }),
-    onAuthStateChange: () => ({ data: { subscription: null } })
-  }
-};
+// Export the database instance
+// Note: supabase client is already exported above

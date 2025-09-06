@@ -35,7 +35,7 @@ const AdminStats = () => {
     // Revenue calculation (simplified)
     const planPrices = { 'Básico': 49, 'Gamer': 99, 'Pro': 199 };
     const monthlyRevenue = Object.entries(planCounts).reduce((total, [plan, count]) => {
-      return total + (planPrices[plan as keyof typeof planPrices] || 0) * count;
+      return total + (planPrices[plan as keyof typeof planPrices] || 0) * (count as number);
     }, 0);
 
     // Churn analysis
@@ -145,7 +145,7 @@ const AdminStats = () => {
             <div className="space-y-4">
               {Object.entries(statistics.planCounts).map(([plan, count]) => {
                 const percentage = stats?.activeSubscriptions 
-                  ? (count / stats.activeSubscriptions) * 100 
+                  ? ((count as number) / stats.activeSubscriptions) * 100 
                   : 0;
                 
                 return (
@@ -153,7 +153,7 @@ const AdminStats = () => {
                     <div className="flex justify-between">
                       <span className="font-medium">Plano {plan}</span>
                       <span className="text-muted-foreground">
-                        {count} usuários ({percentage.toFixed(1)}%)
+                        {count as number} usuários ({percentage.toFixed(1)}%)
                       </span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
