@@ -71,5 +71,5 @@
     }
   ],
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/client"
+  "outputDirectory": "client"
 }
