@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import viteCompression from "vite-plugin-compression";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
@@ -11,7 +11,10 @@ const __dirname = path.dirname(__filename);
 
 const isDev = process.env.NODE_ENV !== "production";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  
+  return {
   plugins: [
     react(),
     runtimeErrorOverlay(),
@@ -58,4 +61,5 @@ export default defineConfig({
       }
     }
   },
+  });
 });
