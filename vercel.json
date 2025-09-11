@@ -73,9 +73,8 @@
   "buildCommand": "npm run build",
   "outputDirectory": "client/dist/client",
   "env": {
-    "VITE_SUPABASE_URL": "https://lmgywlcdjnmhbnwgpxgy.supabase.co",
-    "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxtZ3l3bGNkam5taGJud2dweGd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5MDQzNzIsImV4cCI6MjA2ODQ4MDM3Mn0.t2bSfqrMa88rR5xQoTsJoVDoK981wtGPFevtT8nnWJY",
-    "VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY": "sb_publishable_2R1S8sjkoHtxlfj2N8LGjg_Nwe9wk3n",
+    "VITE_SUPABASE_URL": "@vite_supabase_url",
+    "VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY": "@vite_supabase_publishable_default_key",
     "NODE_ENV": "production"
   }
 }
