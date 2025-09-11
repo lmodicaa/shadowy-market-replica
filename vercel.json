@@ -53,6 +53,15 @@
           "value": "application/javascript"
         }
       ]
+    },
+    {
+      "source": "/assets/(.*).css",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/css"
+        }
+      ]
     }
   ],
   "rewrites": [
@@ -62,5 +71,5 @@
     }
   ],
   "buildCommand": "npm run build",
-  "outputDirectory": "client/dist/client"
+  "outputDirectory": "dist/client"
 }
