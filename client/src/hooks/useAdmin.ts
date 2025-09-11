@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { initializeAdminSettings } from '@/utils/initializeAdminSettings';
+import { safeParseResponse, handleApiError } from '@/lib/apiUtils';
 import type { Profile, Plan, Subscription, AdminSettings, PlanStock, Admins } from '@shared/schema';
 
 // Hook para verificar se o usuário é admin - TEMPORARIAMENTE RETORNA TRUE
@@ -366,15 +367,7 @@ export const useDeleteUser = () => {
             }
           });
           
-          let result;
-          try {
-            result = await response.json();
-          } catch (parseError) {
-            console.error('Failed to parse JSON response:', parseError);
-            const text = await response.text();
-            console.error('Response text:', text);
-            throw new Error(`Server error: ${response.status} - ${text}`);
-          }
+          const result = await safeParseResponse(response);
           
           console.log('Server response:', result);
           
@@ -428,7 +421,10 @@ export const useDeleteUser = () => {
       } catch (error) {
         console.error('=== ERRO NA EXCLUSÃO ===');
         console.error('Erro durante exclusão:', error);
-        throw error;
+        
+        // Use the utility function to handle the error message
+        const errorMessage = handleApiError(error);
+        throw new Error(errorMessage);
       } finally {
         console.log('=== FIM EXCLUSÃO DE USUÁRIO ===');
       }

@@ -1,7 +1,20 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { db } from '../../server/db';
-import { pixOrders } from '../../shared/schema';
-import { eq, and } from 'drizzle-orm';
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase client
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('Missing Supabase configuration');
+}
+
+const supabase = createClient(supabaseUrl!, supabaseKey!, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false
+  }
+});
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Configurar headers CORS
@@ -20,35 +33,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { planId, email, amount } = req.body;
+    const { id, userId, planId, planName, amount, description } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Order ID is required' });
+    }
 
     // Verificar si ya existe una orden
-    const existingOrder = await db
-      .select()
-      .from(pixOrders)
-      .where(and(
-        eq(pixOrders.planId, planId),
-        eq(pixOrders.email, email)
-      ))
-      .limit(1);
+    const { data: existingOrder, error: checkError } = await supabase
+      .from('pix_orders')
+      .select('id')
+      .eq('id', id)
+      .single();
 
-    if (existingOrder.length > 0) {
-      return res.status(400).json({ error: 'Order already exists' });
+    if (existingOrder && !checkError) {
+      return res.status(409).json({ error: 'Order already exists' });
     }
 
     // Crear nueva orden
-    const [newOrder] = await db
-      .insert(pixOrders)
-      .values({
-        planId,
-        email,
-        amount,
-        status: 'pending',
-        createdAt: new Date()
+    const { data: newOrder, error: insertError } = await supabase
+      .from('pix_orders')
+      .insert({
+        id,
+        user_id: userId,
+        plan_id: planId,
+        plan_name: planName,
+        amount: amount.toString(),
+        description,
+        status: 'pending'
       })
-      .returning();
+      .select()
+      .single();
 
-    res.status(201).json(newOrder);
+    if (insertError) {
+      console.error('Error creating Pix order:', insertError);
+      return res.status(500).json({ error: 'Failed to create order' });
+    }
+
+    res.status(201).json({ 
+      success: true, 
+      message: 'Pix order created successfully',
+      order: newOrder 
+    });
   } catch (error) {
     console.error('Error creating Pix order:', error);
     res.status(500).json({ error: 'Internal server error' });

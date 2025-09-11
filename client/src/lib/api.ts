@@ -1,8 +1,7 @@
 export function getApiBaseUrl(): string {
   // En producción (Vercel)
   if (window.location.hostname.includes('vercel.app') || 
-      window.location.hostname === 'matecloud.store' ||
-      window.location.hostname === 'www.matecloud.store') {
+      window.location.hostname === 'matecloud.store') {
     return window.location.origin;
   }
   

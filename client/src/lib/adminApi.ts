@@ -67,7 +67,18 @@ export class AdminAPI {
 
   static async clearCache() {
     const response = await fetch(`${API_BASE_URL}/api/admin/clear-cache`, { method: 'POST' });
-    const result = await response.json();
+    
+    const text = await response.text();
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch (parseError) {
+      console.error('AdminAPI.clearCache: JSON parse error:', parseError);
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status} - ${text}`);
+      }
+      result = { message: text };
+    }
     
     if (!response.ok) {
       throw new Error(result.message || 'Cache clear failed');
@@ -78,7 +89,18 @@ export class AdminAPI {
 
   static async initializeSettings() {
     const response = await fetch(`${API_BASE_URL}/api/admin/init-settings`, { method: 'POST' });
-    const result = await response.json();
+    
+    const text = await response.text();
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch (parseError) {
+      console.error('AdminAPI.initializeSettings: JSON parse error:', parseError);
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status} - ${text}`);
+      }
+      result = { message: text };
+    }
     
     if (!response.ok) {
       throw new Error(result.message || 'Settings initialization failed');
@@ -133,7 +155,17 @@ export class AdminAPI {
         })
       });
 
-      const result = await response.json();
+      const text = await response.text();
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch (parseError) {
+        console.error('AdminAPI.toggleMaintenance: JSON parse error:', parseError);
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status} - ${text}`);
+        }
+        result = { message: text };
+      }
       
       if (!response.ok) {
         throw new Error(result.message || 'Failed to toggle maintenance mode');
