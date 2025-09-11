@@ -43,6 +43,15 @@ export async function setupVite(app: Express, server: Server) {
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
 
+    // Skip serving HTML for static assets and API routes
+    if (url.match(/\.(js|ts|tsx|jsx|css|json|woff|woff2|ttf|eot|svg|png|jpg|jpeg|gif|ico|webp|avif)$/i) || 
+        url.startsWith('/api/') || 
+        url.startsWith('/src/') ||
+        url.startsWith('/@') ||
+        url.startsWith('/node_modules/')) {
+      return next();
+    }
+
     try {
       const clientTemplate = path.resolve(
         import.meta.dirname,
@@ -55,7 +64,7 @@ export async function setupVite(app: Express, server: Server) {
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,
-        `src="/src/main.tsx?v=${nanoid()}"`,
+        `src="/src/main.tsx?v=${nanoid()}"`
       );
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
