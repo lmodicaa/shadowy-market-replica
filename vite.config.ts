@@ -15,6 +15,10 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   
   return {
+  base: "/",
+  css: {
+    postcss: './postcss.config.js',
+  },
   plugins: [
     react(),
     runtimeErrorOverlay(),
@@ -44,7 +48,7 @@ export default defineConfig(({ mode }) => {
   root: path.resolve(__dirname, "client"),
   build: {
     target: "es2020",
-    outDir: "dist/client",
+    outDir: path.resolve(__dirname, "client", "dist", "client"),
     emptyOutDir: true,
     minify: "esbuild",
     sourcemap: false,

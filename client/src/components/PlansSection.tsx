@@ -172,7 +172,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       try {
         // Detectar ambiente: desenvolvimento vs produção
         const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname.includes('replit');
-        const baseUrl = isDevelopment ? '' : 'https://matecloud.store';
+        const baseUrl = isDevelopment ? '' : window.location.origin;
         
         // Primeiro tentar API backend se disponível
         try {
@@ -269,7 +269,7 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       
       // Tentar primeiro com API backend se disponível
       try {
-        const baseUrl = isDevelopment ? '' : 'https://matecloud.store';
+        const baseUrl = isDevelopment ? '' : window.location.origin;
         const response = await fetch(`${baseUrl}/api/pix/manual`, {
           method: 'POST',
           headers: {
