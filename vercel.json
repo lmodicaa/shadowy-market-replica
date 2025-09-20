@@ -70,7 +70,7 @@
       "destination": "/api/$1"
     },
     {
-      "source": "/((?!api/|assets/|.*\\.(css|js|png|jpg|jpeg|webp|avif|svg|ico|txt|json|map)).*)",
+      "source": "/((?!api/|assets/|.*\\\\.(css|js|png|jpg|jpeg|webp|avif|svg|ico|txt|json|map)).*)",
       "destination": "/index.html"
     }
   ],
