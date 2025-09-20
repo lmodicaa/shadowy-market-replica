@@ -71,7 +71,7 @@
     }
   ],
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/client",
+  "outputDirectory": "client/dist/client",
   "env": {
     "VITE_SUPABASE_URL": "https://lmgywlcdjnmhbnwgpxgy.supabase.co",
     "VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY": "sb_publishable_2R1S8sjkoHtxlfj2N8LGjg_Nwe9wk3n",
