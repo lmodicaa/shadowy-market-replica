@@ -1,6 +1,7 @@
 import { Power, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { OptimizedPicture } from './OptimizedPicture';
 import logoWebp from "@assets/logo.webp";
 import logoAvif from "@assets/logo.avif";
@@ -22,13 +23,15 @@ const HeroSection = () => {
     "MateCloud: O primeiro serviço brasileiro de cloud gaming com suporte 24/7 em português e pagamento em reais."
   ], []);
 
-  // Memoize text change handler
+  // Ultra smooth text change handler
   const handleTextChange = useCallback(() => {
     setIsVisible(false);
     setTimeout(() => {
       setCurrentTextIndex((prev) => (prev + 1) % heroTexts.length);
-      setIsVisible(true);
-    }, 300);
+      setTimeout(() => {
+        setIsVisible(true);
+      }, 50);
+    }, 400);
   }, [heroTexts.length]);
 
   useEffect(() => {
@@ -40,14 +43,14 @@ const HeroSection = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center px-6">
       {/* Cloud Logo with Glow - Positioned better */}
-      <div className="absolute top-20 left-1/2 transform -translate-x-1/2">
-        <div className="flex items-center gap-2 mb-8 opacity-80 hover:opacity-100 transition-opacity duration-300">
+      <div className="absolute top-20 left-1/2 transform -translate-x-1/2 fade-in-scale">
+        <div className="flex items-center gap-2 mb-8 opacity-80 hover:opacity-100 transition-opacity duration-300 float-animation">
           <OptimizedPicture 
             src={logoWebp} 
             webpSrc={logoWebp}
             avifSrc={logoAvif}
             alt="MateCloud Logo - Gaming na Nuvem Premium" 
-            className="w-4 h-4"
+            className="w-4 h-4 glow-effect"
             width={16}
             height={16}
             priority={true}
@@ -58,30 +61,33 @@ const HeroSection = () => {
 
       {/* Main Content */}
       <div className="text-center max-w-4xl mx-auto">
-        <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight mt-16">
+        <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight mt-16 slide-in-up stagger-1">
           Jogue em qualquer lugar
           <br />
-          com <span className="text-cloud-blue">MateCloud</span>
+          com <span className="text-cloud-blue glow-effect">MateCloud</span>
         </h1>
         
-        <div className="text-xl md:text-2xl text-foreground/70 mb-12 max-w-3xl mx-auto leading-relaxed h-24 flex items-center justify-center">
-          <p 
-            className={`transition-all duration-300 transform ${
-              isVisible 
-                ? 'opacity-100 translate-y-0' 
-                : 'opacity-0 -translate-y-2'
-            }`}
-          >
-            {heroTexts[currentTextIndex]}
-          </p>
+        <div className="text-xl md:text-2xl mb-12 max-w-3xl mx-auto leading-relaxed h-32 flex items-center justify-center relative overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={currentTextIndex}
+              initial={{ opacity: 0, y: 8, filter: 'blur(3px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -8, filter: 'blur(2px)' }}
+              transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+              className="text-center px-4 text-gradient-animated"
+            >
+              {heroTexts[currentTextIndex]}
+            </motion.p>
+          </AnimatePresence>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center slide-in-up stagger-3">
           <Button 
             size="lg" 
             variant="hero"
-            className="text-lg px-8 py-4 shadow-xl"
+            className="text-lg px-8 py-4 shadow-xl hover-lift pulse-animation"
             onClick={() => {
               // Redirecionar para a página de VM Dashboard (profile page)
               window.location.href = '/profile';
@@ -94,7 +100,7 @@ const HeroSection = () => {
           <Button 
             size="lg" 
             variant="outline" 
-            className="text-lg px-8 py-4 shadow-lg"
+            className="text-lg px-8 py-4 shadow-lg hover-glow"
             onClick={() => {
               document.getElementById('planos')?.scrollIntoView({ 
                 behavior: 'smooth',

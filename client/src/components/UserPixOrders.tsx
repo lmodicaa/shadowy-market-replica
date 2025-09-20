@@ -345,37 +345,41 @@ const UserPixOrders = ({ userId }: UserPixOrdersProps) => {
                           </div>
                         </div>
                       ) : order.pix_code ? (
-                        <div className="space-y-3">
-                          <div className="bg-white p-3 rounded-lg border-2 border-dashed border-blue-300">
-                            <div className="flex items-center gap-2">
-                              <code className="flex-1 font-mono text-sm bg-gray-50 p-3 rounded border break-all">
-                                {order.pix_code}
-                              </code>
-                              <Button
-                                size="sm"
-                                onClick={() => copyToClipboard(order.pix_code!)}
-                                className="bg-blue-600 hover:bg-blue-700 text-white shrink-0"
-                                title="Copiar clave PIX"
-                              >
-                                {copiedCode === order.pix_code ? (
-                                  <Check className="w-4 h-4" />
-                                ) : (
-                                  <Copy className="w-4 h-4" />
-                                )}
-                              </Button>
-                            </div>
+                        <div className="space-y-4">
+                          {/* High-contrast container for long text code */}
+                          <div className="relative rounded-xl border border-blue-200/60 dark:border-blue-800/50 bg-background/60 dark:bg-background/50 backdrop-blur-sm shadow-sm">
+                            <textarea
+                              readOnly
+                              value={order.pix_code ?? ''}
+                              rows={5}
+                              className="w-full font-mono text-sm leading-relaxed bg-transparent text-foreground p-4 pr-24 rounded-xl outline-none resize-none break-all selection:bg-cloud-blue/20"
+                              onFocus={(e) => e.currentTarget.select()}
+                              aria-label="Código PIX Copia e Cola"
+                            />
+                            <Button
+                              size="sm"
+                              onClick={() => copyToClipboard(order.pix_code!)}
+                              className="absolute top-3 right-3 bg-blue-600 hover:bg-blue-700 text-white"
+                              title="Copiar clave PIX"
+                            >
+                              {copiedCode === order.pix_code ? (
+                                <Check className="w-4 h-4" />
+                              ) : (
+                                <Copy className="w-4 h-4" />
+                              )}
+                            </Button>
                           </div>
                           <div className="text-center">
-                            <p className="text-sm text-blue-700 font-medium mb-1">
+                            <p className="text-sm text-blue-700 dark:text-blue-300 font-medium mb-1">
                               📋 Copie a clave e cole no seu app bancário
                             </p>
-                            <p className="text-xs text-blue-600">
-                              Clique no botão "Copiar" e cole na opção "PIX Copia e Cola" do seu banco
+                            <p className="text-xs text-blue-600 dark:text-blue-400">
+                              Use a opção <strong>PIX Copia e Cola</strong> do seu banco. O botão copiar já seleciona todo o código.
                             </p>
                           </div>
                         </div>
                       ) : null}
-                      
+
                       {/* Payment Confirmation Button */}
                       {(order.payment_status === 'waiting_payment' || order.status === 'pendiente') && (
                         <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">

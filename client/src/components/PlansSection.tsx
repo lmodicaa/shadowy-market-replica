@@ -389,31 +389,31 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <div className="flex items-center justify-center gap-3 mb-6">
+          <div className="flex items-center justify-center gap-3 mb-6 fade-in-scale">
             <OptimizedPicture 
               src={logoWebp} 
               webpSrc={logoWebp}
               avifSrc={logoAvif}
               alt="MateCloud Logo" 
-              className="w-6 h-6"
+              className="w-6 h-6 float-animation"
               width={24}
               height={24}
             />
             <span className="text-lg font-semibold text-foreground/80">MateCloud | Planos</span>
           </div>
           
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Escolha seu <span className="text-cloud-blue">Plano</span>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 slide-in-up stagger-1">
+            Escolha seu <span className="text-cloud-blue glow-effect">Plano</span>
           </h2>
           
-          <p className="text-xl text-foreground/70 max-w-3xl mx-auto">
+          <p className="text-xl text-foreground/70 max-w-3xl mx-auto slide-in-up stagger-2">
             Selecione o plano que melhor se adapta às suas necessidades de gaming. 
             Todos os planos incluem acesso completo à nossa plataforma.
           </p>
 
           {/* Active Plan Status */}
           {activePlan && activePlan.planName && (
-            <div className="mt-8 p-4 rounded-lg bg-cloud-blue/10 border border-cloud-blue/20 max-w-md mx-auto">
+            <div className="mt-8 p-4 rounded-lg bg-cloud-blue/10 border border-cloud-blue/20 max-w-md mx-auto pulse-animation">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <Crown className="w-5 h-5 text-cloud-blue" />
                 <span className="font-semibold text-cloud-blue">Plano Ativo</span>
@@ -431,16 +431,16 @@ const PlansSection = ({ session, onPlanSelect }: PlansSectionProps) => {
 
         {/* Plans Grid */}
         <div className="grid md:grid-cols-3 gap-8">
-          {plans.map((plan) => {
+          {plans.map((plan, index) => {
             const IconComponent = plan.icon;
             return (
               <Card 
                 key={plan.id} 
-                className={`relative overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
+                className={`relative overflow-hidden transition-all duration-300 hover-lift animate-optimized slide-in-up ${
                   plan.popular 
-                    ? 'border-cloud-blue shadow-lg ring-2 ring-cloud-blue/50' 
+                    ? 'border-cloud-blue shadow-lg ring-2 ring-cloud-blue/50 pulse-animation' 
                     : 'border-border hover:border-cloud-blue/50'
-                }`}
+                } stagger-${Math.min(index + 1, 5)}`}
               >
                 {plan.popular && (
                   <div className="absolute -right-12 top-6 rotate-45 bg-cloud-blue text-white text-xs font-bold py-1 px-12">

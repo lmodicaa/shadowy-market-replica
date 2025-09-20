@@ -64,6 +64,49 @@
     --sidebar-ring: 217 91% 60%;
   }
 
+/* Background drift for stars (wrapper) */
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(var(--drift-x, -2vw), var(--drift-y, 2vh), 0);
+  }
+}
+
+/* Soft animated aurora glow behind stars */
+@keyframes aurora {
+  0%   { transform: translate3d(0, 0, 0) scale(1); opacity: 0.5; }
+  50%  { transform: translate3d(-1.5%, 1%, 0) scale(1.02); opacity: 0.6; }
+  100% { transform: translate3d(-3%, 2%, 0) scale(1.03); opacity: 0.5; }
+}
+
+/* Star wrapper drifts slowly; inner .star keeps twinkle */
+.star-wrapper {
+  position: absolute;
+  animation: drift var(--drift-duration, 26s) ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* Aurora layer sits behind stars but above page background */
+.aurora-layer {
+  position: absolute;
+  inset: -15%;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(60px) saturate(120%);
+  background:
+    radial-gradient(40% 60% at 20% 30%, hsl(var(--cloud-blue) / 0.10), transparent 60%),
+    radial-gradient(35% 55% at 80% 70%, hsl(var(--star-glow) / 0.08), transparent 60%),
+    radial-gradient(30% 45% at 50% 50%, hsl(var(--accent) / 0.06), transparent 70%);
+  animation: aurora 22s ease-in-out infinite alternate;
+}
+
+/* Respect reduced motion for background effects */
+@media (prefers-reduced-motion: reduce) {
+  .star-wrapper, .aurora-layer { animation: none !important; }
+}
+
   .light {
     /* Light mode - keeping cloud gaming theme */
     --background: 220 60% 12%;
@@ -71,10 +114,17 @@
   }
 }
 
-/* Performance optimizations */
+/* Performance optimizations and base styles */
 @layer base {
   * {
     box-sizing: border-box;
+    border-color: hsl(var(--border));
+    /* Hardware acceleration */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    /* Optimize rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   
   html {
@@ -88,14 +138,23 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
+    color: hsl(var(--foreground));
+    overflow-x: hidden;
+    background: var(--gradient-background);
+    min-height: 100vh;
+    position: relative;
   }
-  * {
-    /* Hardware acceleration */
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    /* Optimize rendering */
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-glow);
+    pointer-events: none;
+    z-index: -1;
   }
 
   /* GPU acceleration for animations */
@@ -104,16 +163,10 @@
     transform: translateZ(0);
   }
 
-  /* Smooth scrolling optimization */
-  html {
-    scroll-behavior: smooth;
-  }
-
-  /* Improve rendering performance */
+  /* Optimize images */
   img {
     image-rendering: -webkit-optimize-contrast;
     image-rendering: optimize-contrast;
-    /* Prevent layout shift */
     width: auto;
     height: auto;
   }
@@ -133,7 +186,7 @@
     transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Performance optimizations */
+  /* Hero section optimization */
   .hero-section {
     min-height: 100vh;
     display: flex;
@@ -142,16 +195,16 @@
     contain: layout style paint;
   }
 
-  /* Image loading optimization */
-  img {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-  }
-
-  /* Smooth animations with hardware acceleration */
+  /* Star field optimization */
   .star-field {
     will-change: transform;
     contain: layout style paint;
+  }
+
+  /* Optimize transitions */
+  .transition-all,
+  .hover\\:scale-105:hover {
+    will-change: transform;
   }
 
   /* Reduce motion for users who prefer it */
@@ -166,56 +219,129 @@
       animation: none !important;
     }
   }
-
-  /* Optimize transitions */
-  .transition-all,
-  .hover\\:scale-105:hover {
-    will-change: transform;
-  }
-
-  * {
-    border-color: hsl(var(--border));
-  }
-
-  body {
-    color: hsl(var(--foreground));
-    overflow-x: hidden;
-    background: var(--gradient-background);
-    min-height: 100vh;
-    position: relative;
-  }
-  
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--gradient-glow);
-    pointer-events: none;
-    z-index: -1;
-  }
-  
-  html {
-    scroll-behavior: smooth;
-  }
 }
 
-/* Star field animation */
+/* Enhanced animations */
 @keyframes twinkle {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.2); }
+  0%, 100% { 
+    opacity: 0.3; 
+    transform: scale(1) rotate(0deg); 
+  }
+  25% { 
+    opacity: 0.7; 
+    transform: scale(1.1) rotate(90deg); 
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1.2) rotate(180deg); 
+  }
+  75% { 
+    opacity: 0.7; 
+    transform: scale(1.1) rotate(270deg); 
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg); 
+  }
+  33% { 
+    transform: translateY(-8px) rotate(2deg); 
+  }
+  66% { 
+    transform: translateY(-12px) rotate(-2deg); 
+  }
 }
 
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 20px hsl(var(--cloud-blue) / 0.5); }
-  50% { box-shadow: 0 0 40px hsl(var(--cloud-blue) / 0.8), 0 0 60px hsl(var(--cloud-blue) / 0.4); }
+  0%, 100% { 
+    box-shadow: 0 0 20px hsl(var(--cloud-blue) / 0.5),
+                0 0 40px hsl(var(--cloud-blue) / 0.3); 
+  }
+  50% { 
+    box-shadow: 0 0 40px hsl(var(--cloud-blue) / 0.8), 
+                0 0 60px hsl(var(--cloud-blue) / 0.6),
+                0 0 80px hsl(var(--cloud-blue) / 0.4); 
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40%, 43% {
+    transform: translateY(-15px);
+  }
+  70% {
+    transform: translateY(-7px);
+  }
+  90% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
 }
 
 /* Custom utility classes */
@@ -227,7 +353,7 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 0;
+    z-index: 1; /* keep stars above aurora/background but behind content */
   }
   
   .star {
@@ -275,5 +401,151 @@
   
   .float-animation {
     animation: float 6s ease-in-out infinite;
+  }
+  
+  /* New animation utilities */
+  .pulse-animation {
+    animation: pulse 2s ease-in-out infinite;
+  }
+  
+  .bounce-animation {
+    animation: bounce 1s ease-in-out infinite;
+  }
+  
+  .slide-in-up {
+    animation: slideInUp 0.6s ease-out forwards;
+  }
+  
+  .slide-in-left {
+    animation: slideInLeft 0.6s ease-out forwards;
+  }
+  
+  .slide-in-right {
+    animation: slideInRight 0.6s ease-out forwards;
+  }
+  
+  .fade-in-scale {
+    animation: fadeInScale 0.5s ease-out forwards;
+  }
+  
+  .shimmer-effect {
+    background: linear-gradient(90deg, 
+      transparent, 
+      hsl(var(--cloud-blue) / 0.2), 
+      transparent
+    );
+    background-size: 200px 100%;
+    animation: shimmer 2s infinite;
+  }
+  
+  /* Enhanced hover effects */
+  .hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px hsl(var(--cloud-blue) / 0.3);
+  }
+  
+  .hover-glow {
+    transition: all 0.3s ease;
+  }
+  
+  .hover-glow:hover {
+    box-shadow: 0 0 30px hsl(var(--cloud-blue) / 0.6);
+    border-color: hsl(var(--cloud-blue) / 0.8);
+  }
+  
+  /* Loading animations */
+  .loading-spinner {
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  /* Stagger animations for lists */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+  
+  /* Performance optimized animations */
+  .animate-optimized {
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+  
+  /* Text animations */
+  .text-gradient-animated {
+    background: linear-gradient(135deg, 
+      hsl(var(--foreground) / 0.7), 
+      hsl(var(--cloud-blue) / 0.9),
+      hsl(var(--cloud-light) / 0.8),
+      hsl(var(--foreground) / 0.7)
+    );
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 3s ease-in-out infinite;
+  }
+  
+  @keyframes gradientShift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+  
+  /* Enhanced typewriter effect */
+  .typewriter-container {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .typewriter-text {
+    position: relative;
+  }
+  
+  .typewriter-text::after {
+    content: '|';
+    position: absolute;
+    right: -2px;
+    color: hsl(var(--cloud-blue));
+    animation: blink 1s infinite;
+  }
+  
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+  
+  /* Ultra smooth text transition */
+  .smooth-text-transition {
+    transition: opacity 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+  
+  /* Breathing effect for text */
+  .text-breathe {
+    animation: breathe 4s ease-in-out infinite;
+  }
+  
+  @keyframes breathe {
+    0%, 100% { 
+      opacity: 0.9;
+      transform: scale(1);
+    }
+    50% { 
+      opacity: 1;
+      transform: scale(1.01);
+    }
   }
 }
