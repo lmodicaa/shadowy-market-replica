@@ -9,10 +9,13 @@
     "build": "tsc && vite build --outDir dist/client",
     "start": "node dist/index.js",
     "vercel-build": "tsc && vite build --outDir dist/client",
+    "mcp:build": "tsc mcp-vercel-server.ts --outDir dist --target es2020 --module es2020 --skipLibCheck --moduleResolution node",
+    "mcp:start": "node dist/mcp-vercel-server.js",
     "check": "tsc",
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
