@@ -44,7 +44,7 @@ export default defineConfig(({ mode }) => {
   root: path.resolve(__dirname, "client"),
   build: {
     target: "es2020",
-    outDir: "../dist/client",
+    outDir: "dist/client",
     emptyOutDir: true,
     minify: "esbuild",
     sourcemap: false,
