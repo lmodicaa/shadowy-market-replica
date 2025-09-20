@@ -70,18 +70,8 @@
       "destination": "/api/$1"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!assets)(?!.*\\.(css|js|png|jpg|jpeg|webp|avif|svg|ico|txt|json|map)).*)",
       "destination": "/index.html"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": ".*\\.(css|js|png|jpg|jpeg|webp|avif|svg|ico|txt|json|map)$",
-      "dest": "/$0"
     }
   ],
   "buildCommand": "npm run build",
